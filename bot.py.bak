@@ -298,24 +298,6 @@ def main_menu_kb():
 
 # ─── Start & Membership ───────────────────────────────────
 
-
-async def _process_referral(context, inviter_id, invited_id):
-    """Process a referral: save it and notify inviter if target reached."""
-    added = add_referral(inviter_id, invited_id)
-    count = get_referral_count(inviter_id)
-    logger.info(f"REFERRAL: user={invited_id} by {inviter_id}, added={added}, total={count}")
-    if added and count >= REFERRAL_TARGET and not has_free_sub(inviter_id):
-        mark_free_given(inviter_id)
-        kb = [[InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="claim_free_sub")]]
-        try:
-            await context.bot.send_message(
-                chat_id=inviter_id,
-                text="🎉 <b>تبریک!</b>\n\nشما ۳ نفر رو دعوت کردید و اشتراک رایگان دریافت کردید!\n\nروی دکمه زیر کلیک کنید 👇",
-                reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML"
-            )
-        except Exception as e:
-            logger.error(f"Notify inviter failed: {e}")
-
 async def start(update, context):
     user = update.effective_user
     logger.info(f"START from {user.id} ({user.first_name}), args={context.args}")
@@ -327,9 +309,20 @@ async def start(update, context):
             try:
                 inviter_id = int(payload[3:])
                 if inviter_id != user.id:
-                    # Save ref to user_data as backup (survives process restart via check_member)
-                    context.user_data["pending_ref"] = inviter_id
-                    await _process_referral(context, inviter_id, user.id)
+                    added = add_referral(inviter_id, user.id)
+                    count = get_referral_count(inviter_id)
+                    logger.info(f"REFERRAL: user={user.id} by {inviter_id}, added={added}, total={count}")
+                    if added and count >= REFERRAL_TARGET and not has_free_sub(inviter_id):
+                        mark_free_given(inviter_id)
+                        kb = [[InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="claim_free_sub")]]
+                        try:
+                            await context.bot.send_message(
+                                chat_id=inviter_id,
+                                text="🎉 <b>تبریک!</b>\n\nشما ۳ نفر رو دعوت کردید و اشتراک رایگان دریافت کردید!\n\nروی دکمه زیر کلیک کنید 👇",
+                                reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML"
+                            )
+                        except Exception as e:
+                            logger.error(f"Notify inviter failed: {e}")
             except (ValueError, IndexError) as e:
                 logger.error(f"Ref parse error: {e}")
 
@@ -338,22 +331,11 @@ async def start(update, context):
             [InlineKeyboardButton("📢 عضویت در کانال", url=f"https://t.me/{CHANNEL_ID.lstrip('@')}")],
             [InlineKeyboardButton("✅ عضو شدم", callback_data="check_member")]
         ]
-        try:
-            if update.message:
-                await update.message.reply_text(
-                    "⚠️ برای استفاده از ربات ابتدا باید در کانال عضو شوید!\n\n"
-                    " روی دکمه زیر کلیک کنید و عضو شوید، سپس دکمه «عضو شدم» را بزنید.",
-                    reply_markup=InlineKeyboardMarkup(kb)
-                )
-            elif update.effective_chat:
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text="⚠️ برای استفاده از ربات ابتدا باید در کانال عضو شوید!\n\n"
-                    " روی دکمه زیر کلیک کنید و عضو شوید، سپس دکمه «عضو شدم» را بزنید.",
-                    reply_markup=InlineKeyboardMarkup(kb)
-                )
-        except Exception as e:
-            logger.error(f"Failed to send membership prompt to {user.id}: {e}")
+        await update.message.reply_text(
+            "⚠️ برای استفاده از ربات ابتدا باید در کانال عضو شوید!\n\n"
+            " روی دکمه زیر کلیک کنید و عضو شوید، سپس دکمه «عضو شدم» را بزنید.",
+            reply_markup=InlineKeyboardMarkup(kb)
+        )
         return
     await send_welcome_msg(update.message)
 
@@ -363,12 +345,6 @@ async def check_member(update, context):
     if not await is_member(CHANNEL_ID, query.from_user.id, context):
         await query.edit_message_text("❌ هنوز عضو کانال نشدید!\nاول عضو شوید و دوباره دکمه «عضو شدم» را بزنید.")
         return
-
-    # Recover pending referral from user_data (set during /start deep link)
-    pending_ref = context.user_data.pop("pending_ref", None)
-    if pending_ref:
-        await _process_referral(context, pending_ref, query.from_user.id)
-
     await query.message.delete()
     await send_welcome_msg(query.message)
 
