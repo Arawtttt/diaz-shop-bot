@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Diaz Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --spider-red: #e23636;
+            --spider-blue: #1a1a2e;
+            --spider-dark: #0f0f1a;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-highlight: rgba(255, 255, 255, 0.25);
+            --glass-shadow: rgba(0, 0, 0, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: var(--spider-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 50% 0%, rgba(226, 54, 54, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(26, 26, 46, 0.8) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.02) 49px, rgba(255,255,255,0.02) 50px),
+                repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.02) 49px, rgba(255,255,255,0.02) 50px);
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0 20px;
+            position: relative;
+        }
+
+        .spider-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+            background: radial-gradient(circle, var(--spider-red) 0%, #b91c1c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 0 30px rgba(226, 54, 54, 0.4), 0 0 60px rgba(226, 54, 54, 0.1);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 30px rgba(226, 54, 54, 0.4), 0 0 60px rgba(226, 54, 54, 0.1); }
+            50% { box-shadow: 0 0 40px rgba(226, 54, 54, 0.6), 0 0 80px rgba(226, 54, 54, 0.2); }
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--spider-red) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 300;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(226, 54, 54, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title .icon { font-size: 20px; }
+
+        .glass-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%);
+            border-radius: 14px 14px 0 0;
+            pointer-events: none;
+        }
+
+        .glass-btn:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .glass-btn .btn-icon {
+            font-size: 22px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+        }
+
+        .glass-btn .btn-text {
+            flex: 1;
+            text-align: right;
+            margin-right: 12px;
+        }
+
+        .glass-btn .btn-title { font-weight: 600; font-size: 14px; }
+        .glass-btn .btn-subtitle { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+        .glass-btn .btn-arrow { color: var(--text-secondary); font-size: 18px; }
+
+        .glass-btn.channel-btn {
+            background: linear-gradient(135deg, rgba(226, 54, 54, 0.2) 0%, rgba(226, 54, 54, 0.05) 100%);
+            border-color: rgba(226, 54, 54, 0.3);
+        }
+
+        .glass-btn.channel-btn:active {
+            background: linear-gradient(135deg, rgba(226, 54, 54, 0.35) 0%, rgba(226, 54, 54, 0.15) 100%);
+        }
+
+        .glass-btn.channel-btn .btn-icon { background: rgba(226, 54, 54, 0.2); }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .plan-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+        }
+
+        .plan-card:active {
+            transform: scale(0.95);
+            border-color: rgba(226, 54, 54, 0.4);
+        }
+
+        .plan-card .plan-name { font-size: 22px; font-weight: 900; color: var(--text-primary); margin-bottom: 4px; }
+        .plan-card .plan-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; }
+        .plan-card .plan-price { font-size: 15px; font-weight: 700; color: var(--spider-red); }
+        .plan-card .plan-price small { font-size: 10px; font-weight: 400; color: var(--text-secondary); }
+
+        .wallet-balance { text-align: center; padding: 10px 0 16px; }
+        .wallet-balance .amount {
+            font-size: 32px; font-weight: 900;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .wallet-balance .label { font-size: 12px; color: var(--text-secondary); }
+
+        .support-section { text-align: center; margin-top: 24px; padding: 16px; }
+        .support-section a { color: var(--text-secondary); font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .container { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container > * {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        .container > *:nth-child(1) { animation-delay: 0.0s; }
+        .container > *:nth-child(2) { animation-delay: 0.1s; }
+        .container > *:nth-child(3) { animation-delay: 0.2s; }
+        .container > *:nth-child(4) { animation-delay: 0.3s; }
+        .container > *:nth-child(5) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="spider-logo">🕷️</div>
+            <h1>Diaz Shop</h1>
+            <p>فروشگاه اختصاصی VPN و اشتراک</p>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title"><span class="icon">⚡</span> منوی اصلی</div>
+            
+            <button class="glass-btn channel-btn" onclick="openChannel()">
+                <div class="btn-icon">📡</div>
+                <div class="btn-text">
+                    <div class="btn-title">DiazPlaylist</div>
+                    <div class="btn-subtitle">عضویت در کانال رسمی</div>
+                </div>
+                <div class="btn-arrow">‹</div>
+            </button>
+
+            <button class="glass-btn" onclick="showSection('config')">
+                <div class="btn-icon">🔐</div>
+                <div class="btn-text">
+                    <div class="btn-title">خرید کانفیگ</div>
+                    <div class="btn-subtitle">VPN با حجم‌های مختلف</div>
+                </div>
+                <div class="btn-arrow">‹</div>
+            </button>
+
+            <button class="glass-btn" onclick="showSection('express')">
+                <div class="btn-icon">⚡</div>
+                <div class="btn-text">
+                    <div class="btn-title">ExpressVPN</div>
+                    <div class="btn-subtitle">اشتراک اکسپرس وی‌پی‌ان</div>
+                </div>
+                <div class="btn-arrow">‹</div>
+            </button>
+
+            <button class="glass-btn" onclick="showSection('wallet')">
+                <div class="btn-icon">💰</div>
+                <div class="btn-text">
+                    <div class="btn-title">کیف پول</div>
+                    <div class="btn-subtitle">موجودی و تراکنش‌ها</div>
+                </div>
+                <div class="btn-arrow">‹</div>
+            </button>
+
+            <button class="glass-btn" onclick="showSection('referral')">
+                <div class="btn-icon">🎁</div>
+                <div class="btn-text">
+                    <div class="btn-title">اشتراک رایگان</div>
+                    <div class="btn-subtitle">دعوت دوستان، جایزه بگیر</div>
+                </div>
+                <div class="btn-arrow">‹</div>
+            </button>
+
+            <button class="glass-btn" onclick="showSection('panel')">
+                <div class="btn-icon">👤</div>
+                <div class="btn-text">
+                    <div class="btn-title">پنل کاربری</div>
+                    <div class="btn-subtitle">اطلاعات و اشتراک‌ها</div>
+                </div>
+                <div class="btn-arrow">‹</div>
+            </button>
+        </div>
+
+        <div class="glass-card" id="section-config" style="display:none;">
+            <div class="section-title"><span class="icon">📦</span> انتخاب پلن</div>
+            <div class="plans-grid">
+                <div class="plan-card" onclick="selectPlan('10gb')">
+                    <div class="plan-name">۱۰</div>
+                    <div class="plan-label">گیگابایت</div>
+                    <div class="plan-price">۱۲,۰۰۰ <small>تومان</small></div>
+                </div>
+                <div class="plan-card" onclick="selectPlan('20gb')">
+                    <div class="plan-name">۲۰</div>
+                    <div class="plan-label">گیگابایت</div>
+                    <div class="plan-price">۳۰,۰۰۰ <small>تومان</small></div>
+                </div>
+                <div class="plan-card" onclick="selectPlan('50gb')">
+                    <div class="plan-name">۵۰</div>
+                    <div class="plan-label">گیگابایت</div>
+                    <div class="plan-price">۷۰,۰۰۰ <small>تومان</small></div>
+                </div>
+                <div class="plan-card" onclick="selectPlan('80gb')">
+                    <div class="plan-name">۸۰</div>
+                    <div class="plan-label">گیگابایت</div>
+                    <div class="plan-price">۱۱۰,۰۰۰ <small>تومان</small></div>
+                </div>
+            </div>
+            <button class="glass-btn" style="margin-top:14px;" onclick="showSection('main')">
+                <div class="btn-arrow" style="transform:rotate(180deg)">‹</div>
+                <div class="btn-text" style="text-align:center;">بازگشت</div>
+            </button>
+        </div>
+
+        <div class="glass-card" id="section-express" style="display:none;">
+            <div class="section-title"><span class="icon">⚡</span> ExpressVPN</div>
+            <div class="plans-grid">
+                <div class="plan-card" onclick="selectExpress('1m')">
+                    <div class="plan-name">۱</div>
+                    <div class="plan-label">ماهه</div>
+                    <div class="plan-price">۲۲۰,۰۰۰ <small>تومان</small></div>
+                </div>
+                <div class="plan-card" onclick="selectExpress('3m')">
+                    <div class="plan-name">۳</div>
+                    <div class="plan-label">ماهه</div>
+                    <div class="plan-price">۳۳۰,۰۰۰ <small>تومان</small></div>
+                </div>
+                <div class="plan-card" onclick="selectExpress('6m')">
+                    <div class="plan-name">۶</div>
+                    <div class="plan-label">ماهه</div>
+                    <div class="plan-price">۴۹۰,۰۰۰ <small>تومان</small></div>
+                </div>
+                <div class="plan-card" onclick="selectExpress('1y')">
+                    <div class="plan-name">۱۲</div>
+                    <div class="plan-label">ماهه</div>
+                    <div class="plan-price">۹۵۰,۰۰۰ <small>تومان</small></div>
+                </div>
+            </div>
+            <button class="glass-btn" style="margin-top:14px;" onclick="showSection('main')">
+                <div class="btn-arrow" style="transform:rotate(180deg)">‹</div>
+                <div class="btn-text" style="text-align:center;">بازگشت</div>
+            </button>
+        </div>
+
+        <div class="glass-card" id="section-wallet" style="display:none;">
+            <div class="section-title"><span class="icon">💰</span> کیف پول</div>
+            <div class="wallet-balance">
+                <div class="amount" id="wallet-amount">۰</div>
+                <div class="label">تومان موجودی</div>
+            </div>
+            <button class="glass-btn" onclick="requestCharge()">
+                <div class="btn-icon">💳</div>
+                <div class="btn-text">
+                    <div class="btn-title">افزایش موجودی</div>
+                    <div class="btn-subtitle">واریز به کارت و ارسال رسید</div>
+                </div>
+                <div class="btn-arrow">‹</div>
+            </button>
+            <button class="glass-btn" onclick="showSection('main')">
+                <div class="btn-arrow" style="transform:rotate(180deg)">‹</div>
+                <div class="btn-text" style="text-align:center;">بازگشت</div>
+            </button>
+        </div>
+
+        <div class="glass-card" id="section-referral" style="display:none;">
+            <div class="section-title"><span class="icon">🎁</span> اشتراک رایگان</div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+                با دعوت ۳ نفر به ربات، اشتراک رایگان بگیرید!
+            </p>
+            <div class="glass-card" style="background:rgba(0,0,0,0.3);margin-bottom:12px;">
+                <div style="text-align:center;">
+                    <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">تعداد دعوت‌شده</div>
+                    <div style="font-size:28px;font-weight:900;color:var(--spider-red);">۰/۳</div>
+                </div>
+            </div>
+            <button class="glass-btn" onclick="copyRefLink()">
+                <div class="btn-icon">🔗</div>
+                <div class="btn-text">
+                    <div class="btn-title">کپی لینک دعوت</div>
+                    <div class="btn-subtitle">برای اشتراک‌گذاری با دوستان</div>
+                </div>
+                <div class="btn-arrow">‹</div>
+            </button>
+            <button class="glass-btn" onclick="showSection('main')">
+                <div class="btn-arrow" style="transform:rotate(180deg)">‹</div>
+                <div class="btn-text" style="text-align:center;">بازگشت</div>
+            </button>
+        </div>
+
+        <div class="glass-card" id="section-panel" style="display:none;">
+            <div class="section-title"><span class="icon">👤</span> پنل کاربری</div>
+            <div class="glass-card" style="background:rgba(0,0,0,0.3);margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-size:13px;color:var(--text-secondary);">نام</span>
+                    <span style="font-size:14px;font-weight:600;" id="user-name">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-size:13px;color:var(--text-secondary);">آیدی</span>
+                    <span style="font-size:14px;font-weight:600;" id="user-id">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:13px;color:var(--text-secondary);">موجودی</span>
+                    <span style="font-size:14px;font-weight:600;color:#fbbf24;" id="user-balance">۰ تومان</span>
+                </div>
+            </div>
+            <button class="glass-btn" onclick="showSection('main')">
+                <div class="btn-arrow" style="transform:rotate(180deg)">‹</div>
+                <div class="btn-text" style="text-align:center;">بازگشت</div>
+            </button>
+        </div>
+
+        <div class="support-section">
+            <a href="https://t.me/MrArat" target="_blank">💬 پشتیبانی در تلگرام</a>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0f0f1a'); tg.setBackgroundColor('#0f0f1a'); tg.MainButton.hide(); }
+
+        const user = tg?.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('user-name').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            document.getElementById('user-id').textContent = '@' + (user.username || 'ندارد');
+        }
+
+        function showSection(name) {
+            document.querySelectorAll('.glass-card[id^="section-"]').forEach(el => el.style.display = 'none');
+            const section = document.getElementById('section-' + name);
+            if (section) section.style.display = 'block';
+        }
+
+        function openChannel() {
+            if (tg) tg.openLink('https://t.me/diazplaylist');
+            else window.open('https://t.me/diazplaylist', '_blank');
+        }
+
+        function selectPlan(plan) {
+            if (tg) tg.openTelegramLink('https://t.me/Diazpshopbot?start=buy_config_' + plan);
+        }
+
+        function selectExpress(plan) {
+            if (tg) tg.openTelegramLink('https://t.me/Diazpshopbot?start=buy_express_' + plan);
+        }
+
+        function requestCharge() {
+            if (tg) tg.openTelegramLink('https://t.me/Diazpshopbot?start=charge');
+        }
+
+        function copyRefLink() {
+            const userId = user?.id || '';
+            const link = 'https://t.me/Diazpshopbot?start=ref' + userId;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => { if (tg) tg.showAlert('✅ لینک کپی شد!'); });
+            }
+        }
+    </script>
+</body>
+</html>
