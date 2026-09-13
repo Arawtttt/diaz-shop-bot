@@ -6,13 +6,14 @@ import json
 import time
 import logging
 import httpx
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 # ─── Config ───────────────────────────────────────────────
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 CHANNEL_ID = os.environ.get("CHANNEL_ID", "@diazplaylist")
 OWNER_ID = int(os.environ.get("OWNER_ID", "6326889425"))
+MINI_APP_URL = os.environ.get("MINI_APP_URL", "https://arawtttt.github.io/diaz-shop-bot/")
 SUPPORT_USERNAME = "MrArat"
 CARD_NUMBER = "6219861825198608"
 CARD_NAME = "امیرمحمد زارعی"
@@ -289,6 +290,7 @@ WELCOME_TEXT = (
 
 def main_menu_kb():
     return InlineKeyboardMarkup([
+        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=MINI_APP_URL))],
         [InlineKeyboardButton("🔐 خرید ExpressVPN", callback_data="buy_express")],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
