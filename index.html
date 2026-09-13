@@ -59,6 +59,62 @@
             100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
         }
 
+        /* === Splash / Play Overlay === */
+        .splash {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: rgba(10,10,18,0.95);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .splash.hidden {
+            opacity: 0; transform: scale(1.05);
+            pointer-events: none;
+        }
+        .splash-img {
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--red);
+            box-shadow: 0 0 40px rgba(226,54,54,0.4), 0 0 80px rgba(226,54,54,0.15);
+            animation: splashPulse 2s ease-in-out infinite;
+        }
+        @keyframes splashPulse {
+            0%,100% { box-shadow: 0 0 40px rgba(226,54,54,0.4), 0 0 80px rgba(226,54,54,0.15); }
+            50% { box-shadow: 0 0 60px rgba(226,54,54,0.6), 0 0 100px rgba(226,54,54,0.25); }
+        }
+        .splash h2 {
+            font-size: 24px; font-weight: 900; margin-top: 20px;
+            background: linear-gradient(135deg, #fff 20%, var(--red) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .splash p { font-size: 13px; color: var(--dim); margin-top: 6px; }
+        .splash-btn {
+            margin-top: 28px;
+            padding: 14px 40px;
+            border: none; border-radius: 50px;
+            background: linear-gradient(135deg, var(--red), var(--red-dark));
+            color: #fff; font-family: 'Vazirmatn'; font-size: 16px; font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(226,54,54,0.4);
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .splash-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(226,54,54,0.3);
+        }
+        .splash-btn .play-icon {
+            font-size: 20px;
+        }
+        .splash-skip {
+            margin-top: 14px;
+            font-size: 12px; color: var(--dim);
+            cursor: pointer; border: none; background: none;
+            font-family: 'Vazirmatn';
+        }
+
         /* === App Layout === */
         .app {
             position: relative; z-index: 1;
@@ -75,7 +131,6 @@
             font-size: 20px; font-weight: 900;
             background: linear-gradient(135deg, #fff 20%, var(--red) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: none;
         }
         .header p { font-size: 11px; color: var(--dim); margin-top: 2px; }
 
@@ -262,12 +317,73 @@
             margin: 8px 0;
         }
         .wallet-lbl { text-align: center; font-size: 12px; color: var(--dim); margin-bottom: 16px; }
+
+        /* === Music indicator === */
+        .music-indicator {
+            position: fixed; top: 12px; left: 12px; z-index: 50;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(226,54,54,0.2);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(226,54,54,0.3);
+            display: none; align-items: center; justify-content: center;
+            font-size: 16px; cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .music-indicator.visible { display: flex; }
+        .music-indicator:active { transform: scale(0.9); }
+        .music-indicator.paused { opacity: 0.5; }
+
+        /* Equalizer bars */
+        .eq-bars {
+            display: flex; gap: 2px; align-items: flex-end; height: 14px;
+        }
+        .eq-bar {
+            width: 3px; background: var(--red); border-radius: 2px;
+            animation: eqBounce 0.6s ease-in-out infinite alternate;
+        }
+        .eq-bar:nth-child(1) { height: 6px; animation-delay: 0s; }
+        .eq-bar:nth-child(2) { height: 10px; animation-delay: 0.15s; }
+        .eq-bar:nth-child(3) { height: 4px; animation-delay: 0.3s; }
+        .eq-bar:nth-child(4) { height: 12px; animation-delay: 0.1s; }
+        @keyframes eqBounce {
+            from { height: 3px; }
+            to { height: 14px; }
+        }
+        .music-indicator.paused .eq-bar { animation-play-state: paused; }
     </style>
 </head>
 <body>
     <div class="bg-spider"></div>
     <div class="web-pattern"></div>
     <div class="particles" id="particles"></div>
+
+    <!-- Splash / Play Overlay -->
+    <div class="splash" id="splash">
+        <img class="splash-img" src="spider-bg.jpg" alt="Spider-Man">
+        <h2>🕷️ Diaz Shop</h2>
+        <p>فروشگاه اختصاصی VPN و اشتراک</p>
+        <button class="splash-btn" id="playBtn">
+            <span class="play-icon">▶</span>
+            ورود با موزیک
+        </button>
+        <button class="splash-skip" id="skipBtn">بدون موزیک وارد شو</button>
+    </div>
+
+    <!-- Music indicator (top-left after splash) -->
+    <div class="music-indicator" id="musicIndicator" onclick="toggleMusic()">
+        <div class="eq-bars">
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+        </div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="sunflower.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="app">
         <div class="header">
@@ -473,6 +589,7 @@
     </div>
 
     <script>
+        // === Telegram SDK ===
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0a12'); tg.setBackgroundColor('#0a0a12'); }
 
@@ -483,6 +600,39 @@
             document.getElementById('ref-link').textContent = 'https://t.me/Diazpshopbot?start=ref' + user.id;
         }
 
+        // === Music ===
+        const music = document.getElementById('bgMusic');
+        music.volume = 0.5;
+
+        document.getElementById('playBtn').addEventListener('click', function() {
+            music.play().then(() => {
+                enterApp();
+            }).catch(() => {
+                enterApp();
+            });
+        });
+
+        document.getElementById('skipBtn').addEventListener('click', function() {
+            enterApp();
+        });
+
+        function enterApp() {
+            document.getElementById('splash').classList.add('hidden');
+            document.getElementById('musicIndicator').classList.add('visible');
+        }
+
+        function toggleMusic() {
+            const indicator = document.getElementById('musicIndicator');
+            if (music.paused) {
+                music.play();
+                indicator.classList.remove('paused');
+            } else {
+                music.pause();
+                indicator.classList.add('paused');
+            }
+        }
+
+        // === Navigation ===
         function show(name) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             const sec = document.getElementById('sec-' + name);
@@ -510,7 +660,7 @@
             }
         }
 
-        // Particles
+        // === Particles ===
         (function() {
             const c = document.getElementById('particles');
             ['🕷️','🕸️','🔴','⚡'].forEach((e,i) => {
