@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Diaz Shop — Telegram Bot + Web Server + Mini App API (all-in-one)"""
 
-import os, json, time, logging, asyncio, secrets as _secrets
+import os, json, time, logging, threading, secrets as _secrets
 import httpx
 from pathlib import Path
 from aiohttp import web
@@ -113,13 +113,6 @@ def get_next_account():
             a["used_count"] = a.get("used_count", 0) + 1; save_accounts(accs); return a
     return None
 
-def _bytes_to_human(n):
-    if n <= 0: return "نامحدود"
-    for u in ["B","KB","MB","GB","TB"]:
-        if abs(n) < 1024.0: return f"{n:.1f} {u}"
-        n /= 1024.0
-    return f"{n:.1f} PB"
-
 # ─── SpiderPanel API Client ──────────────────────────────
 class SpiderPanel:
     def __init__(self, base_url, password):
@@ -176,27 +169,14 @@ class SpiderPanel:
                     if cr.status_code == 200: config = cr.json().get("config", "")
                 except: pass
             return {"user_id": uid, "username": data.get("username"), "config": config,
-                    "config_uuid": data.get("config_uuid", ""),
-                    "subscription_uuid": data.get("subscription_uuid", ""),
-                    "subscription_url": data.get("subscription_url", ""),
                     "expire_at": data.get("expire_at", "")}
         return None
-
-    async def get_user_all_configs(self, sub_uuid):
-        import base64
-        r = await self._req("get", f"{self.base_url}/subs/{sub_uuid}")
-        if r.status_code == 200:
-            try:
-                decoded = base64.b64decode(r.text).decode()
-                return [c.strip() for c in decoded.strip().split("\n") if c.strip()]
-            except: pass
-        return []
 
     async def close(self): await self.client.aclose()
 
 spider = SpiderPanel(SPIDER_URL, SPIDER_PASSWORD)
 
-# ─── Telegram Bot (unchanged) ────────────────────────────
+# ─── Telegram Bot Handlers ───────────────────────────────
 WELCOME_TEXT = (
     "🎮 به ربات اختصاصی Diaz Shop خوش آمدید 🚀!\n\n"
     " محصولات ما زیر قیمت و تضمینی هستند! ✅\n\n"
@@ -221,7 +201,7 @@ async def _process_referral(context, inviter_id, invited_id):
         mark_free_given(inviter_id)
         try:
             await context.bot.send_message(chat_id=inviter_id,
-                text="🎉 <b>تبریک!</b>\n\nشما ۳ نفر رو دعوت کردید و اشتراک رایگان دریافت کردید!\n\nروی دکمه زیر کلیک کنید 👇",
+                text="🎉 <b>تبریک!</b>\n\nشما ۳ نفر رو دعوت کردید!\n\nروی دکمه زیر کلیک کنید 👇",
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🎁 دریافت اشتراک رایگان", callback_data="claim_free_sub")]]),
                 parse_mode="HTML")
         except: pass
@@ -239,9 +219,9 @@ async def start(update, context):
             except: pass
     try:
         member = await context.bot.get_chat_member(CHANNEL_ID, user.id)
-        is_member = member.status in ["member", "administrator", "creator"]
-    except: is_member = False
-    if not is_member:
+        is_m = member.status in ["member", "administrator", "creator"]
+    except: is_m = False
+    if not is_m:
         kb = [
             [InlineKeyboardButton("📢 عضویت در کانال", url=f"https://t.me/{CHANNEL_ID.lstrip('@')}")],
             [InlineKeyboardButton("✅ عضو شدم", callback_data="check_member")]
@@ -256,13 +236,12 @@ async def check_member(update, context):
     q = update.callback_query; await q.answer()
     try:
         member = await context.bot.get_chat_member(CHANNEL_ID, q.from_user.id)
-        is_member = member.status in ["member", "administrator", "creator"]
-    except: is_member = False
-    if not is_member:
-        await q.edit_message_text("❌ هنوز عضو کانال نشدید!")
-        return
-    pending_ref = context.user_data.pop("pending_ref", None)
-    if pending_ref: await _process_referral(context, pending_ref, q.from_user.id)
+        is_m = member.status in ["member", "administrator", "creator"]
+    except: is_m = False
+    if not is_m:
+        await q.edit_message_text("❌ هنوز عضو کانال نشدید!"); return
+    pr = context.user_data.pop("pending_ref", None)
+    if pr: await _process_referral(context, pr, q.from_user.id)
     await q.message.delete()
     await q.message.reply_text(WELCOME_TEXT, reply_markup=main_menu_kb())
 
@@ -273,82 +252,79 @@ async def back_main(update, context):
 async def free_sub_menu(update, context):
     q = update.callback_query; await q.answer()
     uid = q.from_user.id; count = get_referral_count(uid); done = has_free_sub(uid)
-    if done: text = "🎁 <b>اشتراک رایگان</b>\n\nشما قبلاً اشتراک رایگان خود را دریافت کرده‌اید! ✅"
+    if done: text = "🎁 <b>اشتراک رایگان</b>\n\nشما قبلاً دریافت کرده‌اید! ✅"
     elif count >= REFERRAL_TARGET: text = f"🎉 <b>تبریک!</b>\n\nشما {count} نفر را دعوت کرده‌اید!"
     else:
-        username = context.bot.username
+        un = context.bot.username
         text = (f"🎁 <b>اشتراک رایگان</b>\n\nبا دعوت {REFERRAL_TARGET} نفر، اشتراک رایگان بگیرید!\n\n"
                 f"📊 تعداد دعوت‌شده: <b>{count}/{REFERRAL_TARGET}</b>\n"
-                f"🔗 لینک دعوت:\n<code>https://t.me/{username}?start=ref{uid}</code>")
+                f"🔗 لینک دعوت:\n<code>https://t.me/{un}?start=ref{uid}</code>")
     kb = []
-    if count >= REFERRAL_TARGET and not done: kb.append([InlineKeyboardButton("🎁 دریافت اشتراک رایگان", callback_data="claim_free_sub")])
+    if count >= REFERRAL_TARGET and not done: kb.append([InlineKeyboardButton("🎁 دریافت", callback_data="claim_free_sub")])
     kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")])
     await q.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML")
 
 async def claim_free_sub(update, context):
     q = update.callback_query; await q.answer(); uid = q.from_user.id
     if get_referral_count(uid) < REFERRAL_TARGET:
-        await q.edit_message_text(f"❌ هنوز {REFERRAL_TARGET - get_referral_count(uid)} نفر دیگه لازم دارید."); return
+        await q.edit_message_text(f"❌ هنوز {REFERRAL_TARGET - get_referral_count(uid)} نفر لازم دارید."); return
     account = get_next_account()
     if not account:
         await q.edit_message_text("❌ اشتراک رایگان تمام شده!"); return
     await q.edit_message_text(
-        f"🎉 <b>اشتراک رایگان شما فعال شد!</b>\n\n📧 <b>ایمیل:</b> <code>{account['email']}</code>\n🔑 <b>پسورد:</b> <code>{account['password']}</code>\n\n⏰ <b>اعتبار:</b> {account['days_left']} روز",
+        f"🎉 <b>اشتراک رایگان فعال شد!</b>\n\n📧 <code>{account['email']}</code>\n🔑 <code>{account['password']}</code>\n\n⏰ {account['days_left']} روز",
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]), parse_mode="HTML")
     mark_free_given(uid)
 
 async def wallet_menu(update, context):
-    q = update.callback_query; await q.answer()
-    bal = get_balance(q.from_user.id)
+    q = update.callback_query; await q.answer(); bal = get_balance(q.from_user.id)
     kb = [[InlineKeyboardButton("💳 افزایش موجودی", callback_data="charge_wallet")],
           [InlineKeyboardButton("📊 تاریخچه", callback_data="wallet_history")],
           [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]]
-    await q.edit_message_text(f"💰 **کیف پول شما:**\n\n💳 **موجودی:** {bal:,} تومان", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    await q.edit_message_text(f"💰 **کیف پول:** {bal:,} تومان", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
 async def charge_wallet(update, context):
     q = update.callback_query; await q.answer()
     kb = [[InlineKeyboardButton(f"{n:,} تومان", callback_data=f"charge_{n}")] for n in [50000,100000,200000,500000]]
     kb.append([InlineKeyboardButton("📝 مبلغ دلخواه", callback_data="charge_custom")])
     kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")])
-    await q.edit_message_text("💳 **افزایش موجودی**\n\nمبلغ مورد نظر را انتخاب کنید:", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    await q.edit_message_text("💳 **افزایش موجودی**", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
 async def charge_amount(update, context):
     q = update.callback_query; await q.answer()
     amount = int(q.data.replace("charge_", ""))
     kb = [[InlineKeyboardButton("📸 ارسال رسید", callback_data=f"charge_receipt_{amount}")],
           [InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
-    await q.edit_message_text(
-        f"💳 **افزایش موجودی:** {amount:,} تومان\n\n🏦 **شماره کارت:**\n`{CARD_NUMBER}`\n👤 **به نام:** {CARD_NAME}\n\n💰 مبلغ را واریز کنید و رسید بفرستید.",
-        reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    await q.edit_message_text(f"💳 **{amount:,} تومان**\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
 async def charge_custom(update, context):
     q = update.callback_query; await q.answer()
     uid = str(q.from_user.id); p = load_pending(); p[uid] = {"waiting": True, "type": "charge_custom"}; save_pending(p)
-    await q.edit_message_text("📝 **مبلغ دلخواه را وارد کنید:** (فقط عدد)")
+    await q.edit_message_text("📝 **مبلغ دلخواه (فقط عدد):**")
 
 async def charge_receipt_step(update, context):
     q = update.callback_query; await q.answer()
     amount = int(q.data.replace("charge_receipt_", ""))
     uid = str(q.from_user.id); p = load_pending(); p[uid] = {"waiting": True, "type": "charge", "amount": amount}; save_pending(p)
-    await q.edit_message_text(f"📸 **لطفاً رسید پرداخت ({amount:,} تومان) را ارسال کنید:**")
+    await q.edit_message_text(f"📸 **رسید ({amount:,} تومان) رو بفرستید:**")
 
 async def wallet_history(update, context):
     q = update.callback_query; await q.answer()
     w = load_wallet().get(str(q.from_user.id), {}); hist = w.get("history", []); bal = w.get("balance", 0)
     text = "📊 **تاریخچه:**\n\n"
-    if not hist: text += "هنوز تراکنشی ثبت نشده."
+    if not hist: text += "خالی"
     else:
         for h in hist[-10:]:
             sign = "+" if h["amount"] > 0 else ""
-            text += f"{'💳' if h['type'] == 'charge' else '📦'} {sign}{h['amount']:,} تومان\n"
-    text += f"\n💰 **موجودی:** {bal:,} تومان"
+            text += f"{'💳' if h['type'] == 'charge' else '📦'} {sign}{h['amount']:,}\n"
+    text += f"\n💰 موجودی: {bal:,}"
     await q.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]), parse_mode="Markdown")
 
 async def buy_config(update, context):
     q = update.callback_query; await q.answer()
-    kb = [[InlineKeyboardButton(f"📦 {v['name']} - {v['price']} تومان", callback_data=f"config_{k}")] for k,v in CONFIG_PLANS.items()]
+    kb = [[InlineKeyboardButton(f"📦 {v['name']} — {v['price']}", callback_data=f"config_{k}")] for k,v in CONFIG_PLANS.items()]
     kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")])
-    await q.edit_message_text("📦 **انتخاب پلن کانفیگ:** (همه یک ماهه)", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    await q.edit_message_text("📦 **انتخاب پلن:**", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
 async def select_config(update, context):
     q = update.callback_query; await q.answer()
@@ -356,17 +332,16 @@ async def select_config(update, context):
     if not plan: return
     uid = q.from_user.id; bal = get_balance(uid)
     kb = []
-    if bal >= plan["price_int"]: kb.append([InlineKeyboardButton(f"💰 پرداخت از کیف پول ({plan['price']})", callback_data=f"pay_wallet_config_{pid}")])
-    kb.append([InlineKeyboardButton("💳 پرداخت با کارت", callback_data=f"pay_config_{pid}")])
+    if bal >= plan["price_int"]: kb.append([InlineKeyboardButton(f"💰 کیف پول ({plan['price']})", callback_data=f"pay_wallet_config_{pid}")])
+    kb.append([InlineKeyboardButton("💳 کارت", callback_data=f"pay_config_{pid}")])
     kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="buy_config")])
-    await q.edit_message_text(f"📦 **{plan['name']}** — {plan['price']} تومان\n💰 موجودی: {bal:,} تومان\n\nروش پرداخت:", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    await q.edit_message_text(f"📦 **{plan['name']}** — {plan['price']} تومان\n💰 موجودی: {bal:,}", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
 async def pay_config(update, context):
     q = update.callback_query; await q.answer()
     pid = q.data.replace("pay_config_", ""); plan = CONFIG_PLANS.get(pid)
     if not plan: return
     kb = [[InlineKeyboardButton("📸 ارسال رسید", callback_data=f"receipt_{pid}")],
-          [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
           [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]]
     await q.edit_message_text(f"💳 **{plan['price']} تومان**\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
@@ -375,7 +350,7 @@ async def receipt_received(update, context):
     pid = q.data.replace("receipt_", ""); plan = CONFIG_PLANS.get(pid)
     if not plan: return
     uid = str(q.from_user.id); p = load_pending(); p[uid] = {"waiting": True, "plan": pid, "type": "config"}; save_pending(p)
-    await q.edit_message_text("📸 **رسید پرداخت را ارسال کنید:**")
+    await q.edit_message_text("📸 **رسید رو بفرستید:**")
 
 async def pay_wallet_config(update, context):
     q = update.callback_query; await q.answer()
@@ -385,13 +360,13 @@ async def pay_wallet_config(update, context):
     if not spend_balance(uid, plan["price_int"]):
         await q.edit_message_text("❌ موجودی کافی نیست!"); return
     p = load_pending(); p[str(uid)] = {"waiting": True, "type": "config_wallet_name", "plan": pid, "plan_data": plan}; save_pending(p)
-    await q.edit_message_text(f"✅ **پرداخت موفق!** {plan['price']} تومان کسر شد.\n\n📝 **اسمتون رو بفرستید:**")
+    await q.edit_message_text(f"✅ **{plan['price']} تومان کسر شد!**\n\n📝 **اسمتون رو بفرستید:**")
 
 async def buy_express(update, context):
     q = update.callback_query; await q.answer()
-    kb = [[InlineKeyboardButton(f"⏰ {v['name']} - {v['price']}", callback_data=f"express_{k}")] for k,v in EXPRESS_PLANS.items()]
+    kb = [[InlineKeyboardButton(f"⏰ {v['name']} — {v['price']}", callback_data=f"express_{k}")] for k,v in EXPRESS_PLANS.items()]
     kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")])
-    await q.edit_message_text("🔐 **ExpressVPN**\n\n• اسپانسر رسمی جام جهانی ۲۰۲۶\n• دارای Killswitch\n• ۳۰۰ سرور از ۱۰۰ کشور\n\n**انتخاب پلن:**", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    await q.edit_message_text("🔐 **ExpressVPN**\n\n• Killswitch\n• ۳۰۰ سرور از ۱۰۰ کشور\n• مناسب گیمینگ\n\n**انتخاب پلن:**", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
 async def select_express(update, context):
     q = update.callback_query; await q.answer()
@@ -402,7 +377,7 @@ async def select_express(update, context):
     if bal >= plan["price_int"]: kb.append([InlineKeyboardButton(f"💰 کیف پول ({plan['price']})", callback_data=f"pay_wallet_express_{pid}")])
     kb.append([InlineKeyboardButton("💳 کارت", callback_data=f"pay_express_{pid}")])
     kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="buy_express")])
-    await q.edit_message_text(f"🔐 **{plan['name']}** — {plan['price']} تومان\n💰 موجودی: {bal:,} تومان", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    await q.edit_message_text(f"🔐 **{plan['name']}** — {plan['price']} تومان\n💰 موجودی: {bal:,}", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
 async def pay_express(update, context):
     q = update.callback_query; await q.answer()
@@ -417,7 +392,7 @@ async def receipt_express_received(update, context):
     pid = q.data.replace("receipt_express_", ""); plan = EXPRESS_PLANS.get(pid)
     if not plan: return
     uid = str(q.from_user.id); p = load_pending(); p[uid] = {"waiting": True, "plan": pid, "type": "express"}; save_pending(p)
-    await q.edit_message_text("📸 **رسید پرداخت را ارسال کنید:**")
+    await q.edit_message_text("📸 **رسید رو بفرستید:**")
 
 async def pay_wallet_express(update, context):
     q = update.callback_query; await q.answer()
@@ -427,8 +402,8 @@ async def pay_wallet_express(update, context):
     if not spend_balance(uid, plan["price_int"]):
         await q.edit_message_text("❌ موجودی کافی نیست!"); return
     kb = [[InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]
-    await q.edit_message_text(f"✅ **پرداخت موفق!** {plan['price']} تومان کسر شد.\n\n⏳ اشتراک به زودی ارسال می‌شود!", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
-    await context.bot.send_message(chat_id=OWNER_ID, text=f"💰 **ExpressVPN از کیف پول!**\n\n👤 {q.from_user.first_name}\n🆔 {uid}\n📦 {plan['name']}\n💰 {plan['price']} تومان", parse_mode="Markdown")
+    await q.edit_message_text(f"✅ **{plan['price']} تومان کسر شد!**\n⏳ اشتراک به زودی ارسال می‌شود!", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    await context.bot.send_message(chat_id=OWNER_ID, text=f"💰 ExpressVPN از کیف پول!\n\n👤 {q.from_user.first_name}\n🆔 {uid}\n📦 {plan['name']}", parse_mode="Markdown")
 
 async def user_panel(update, context):
     q = update.callback_query; await q.answer()
@@ -444,7 +419,7 @@ async def user_panel(update, context):
           [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]]
     await q.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
-# ─── Receipt Photo Handler ───────────────────────────────
+# ─── Receipt & Text Handlers ─────────────────────────────
 async def handle_photo(update, context):
     uid = str(update.effective_user.id); p = load_pending(); state = p.get(uid)
     if not state or not state.get("waiting"): return
@@ -456,49 +431,45 @@ async def handle_photo(update, context):
                InlineKeyboardButton("❌ رد", callback_data=f"reject_{user.id}")]]
         try: await context.bot.send_photo(chat_id=OWNER_ID, photo=update.message.photo[-1].file_id, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
         except: pass
-        await update.message.reply_text("✅ رسید دریافت شد! بزودی بررسی می‌شه.")
-        return
+        await update.message.reply_text("✅ رسید دریافت شد!"); return
     if ptype == "charge_custom": del p[uid]; save_pending(p); await update.message.reply_text("❌ ابتدا مبلغ رو عددی تایپ کنید."); return
     plan_id = state.get("plan")
     plan = CONFIG_PLANS.get(plan_id) if "config" in ptype else EXPRESS_PLANS.get(plan_id)
     if not plan: return
     del p[uid]; save_pending(p)
-    caption = f"📸 **رسید جدید**\n\n👤 {user.first_name} (@{user.username or 'ندارد'})\n🆔 {uid}\n📦 {plan['name']}\n💰 {plan['price']} تومان\nنوع: {'کانفیگ' if 'config' in ptype else 'ExpressVPN'}"
+    caption = f"📸 **رسید**\n\n👤 {user.first_name} (@{user.username or 'ندارد'})\n🆔 {uid}\n📦 {plan['name']}\n💰 {plan['price']} تومان"
     kb = [[InlineKeyboardButton("✅ تایید", callback_data=f"approve_{ptype}_{user.id}_{plan_id}"),
            InlineKeyboardButton("❌ رد", callback_data=f"reject_{user.id}")]]
     try: await context.bot.send_photo(chat_id=OWNER_ID, photo=update.message.photo[-1].file_id, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
     except: pass
-    await update.message.reply_text("✅ رسید دریافت شد! بزودی پیگیری می‌شه.")
+    await update.message.reply_text("✅ رسید دریافت شد!")
 
 async def handle_text(update, context):
     uid = str(update.effective_user.id); p = load_pending(); state = p.get(uid)
     if not state or not state.get("waiting"): return
     if state["type"] == "charge_custom":
         try: amount = int(update.message.text.strip())
-        except: await update.message.reply_text("❌ فقط عدد وارد کنید."); return
+        except: await update.message.reply_text("❌ فقط عدد."); return
         del p[uid]; save_pending(p)
-        kb = [[InlineKeyboardButton("📸 ارسال رسید", callback_data=f"charge_receipt_{amount}")],
-              [InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
-        await update.message.reply_text(f"💳 **واریز {amount:,} تومان**\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+        kb = [[InlineKeyboardButton("📸 ارسال رسید", callback_data=f"charge_receipt_{amount}")]]
+        await update.message.reply_text(f"💳 واریز {amount:,} تومان\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
         return
     if state["type"] in ("config_wallet_name", "config_receipt_name"):
         name = update.message.text.strip(); plan = state.get("plan_data", {}); pid = state.get("plan", "")
         del p[uid]; save_pending(p)
-        await update.message.reply_text(f"⏳ **در حال ساخت کانفیگ...**\n\n📝 اسم: {name}")
+        await update.message.reply_text(f"⏳ **در حال ساخت...**\n\n📝 اسم: {name}")
         result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
         if result:
-            cfg_text = result.get("config", "بدون کانفیگ")
-            if not cfg_text and result.get("subscription_url"): cfg_text = result["subscription_url"]
+            cfg = result.get("config", "") or result.get("subscription_url", "")
             await update.message.reply_text(
-                f"✅ **کانفیگ شما ساخته شد!**\n\n📦 **پلن:** {plan.get('name', '')}\n⏰ **انقضا:** {result.get('expire_at', 'نامشخص')}\n\n🔗 **کانفیگ:**\n`{cfg_text[:500]}`",
+                f"✅ **کانفیگ ساخته شد!**\n\n📦 {plan.get('name', '')}\n⏰ {result.get('expire_at', '')}\n\n🔗 `{cfg[:500]}`",
                 parse_mode="Markdown")
             configs = load_configs(); k = str(update.effective_user.id)
             if k not in configs: configs[k] = []
-            configs[k].append({"type": "کانفیگ", "data": plan.get("name", ""), "link": cfg_text[:200]})
+            configs[k].append({"type": "کانفیگ", "data": plan.get("name", ""), "link": cfg[:200]})
             save_configs(configs)
         else:
-            await update.message.reply_text("❌ خطا در ساخت کانفیگ! با پشتیبانی تماس بگیرید.")
-        return
+            await update.message.reply_text("❌ خطا در ساخت کانفیگ!")
 
 # ─── Admin Approve/Reject ────────────────────────────────
 async def approve_receipt(update, context):
@@ -506,66 +477,48 @@ async def approve_receipt(update, context):
     parts = q.data.split("_"); ptype = parts[1]; user_id = int(parts[2])
     if ptype == "charge":
         amount = int(parts[3]); add_balance(user_id, amount)
-        await context.bot.send_message(chat_id=user_id, text=f"✅ کیف پول شما {amount:,} تومان شارژ شد!")
+        await context.bot.send_message(chat_id=user_id, text=f"✅ کیف پول {amount:,} تومان شارژ شد!")
         await q.edit_message_caption(caption=q.message.caption + "\n\n✅ تایید شد!", parse_mode="Markdown")
         return
     plan_id = parts[3]
     plan = CONFIG_PLANS.get(plan_id) if "config" in ptype else EXPRESS_PLANS.get(plan_id)
-    plan_name = plan["name"] if plan else plan_id
     if "config" in ptype:
-        p = load_pending(); p[str(user_id)] = {"waiting": True, "type": "config_receipt_name", "plan": plan_id, "plan_data": plan, "paid_via": "receipt"}; save_pending(p)
-        await context.bot.send_message(chat_id=user_id, text=f"✅ **پرداخت تایید شد!**\n\n📝 **اسمتون رو بفرستید:**", parse_mode="Markdown")
+        p = load_pending(); p[str(user_id)] = {"waiting": True, "type": "config_receipt_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
+        await context.bot.send_message(chat_id=user_id, text="✅ **پرداخت تایید شد!**\n\n📝 **اسمتون رو بفرستید:**", parse_mode="Markdown")
     else:
-        await context.bot.send_message(chat_id=OWNER_ID, text=f"📝 **لینک ExpressVPN رو بفرست:**\n\n👤 {user_id}\n📦 {plan_name}", parse_mode="Markdown")
+        await context.bot.send_message(chat_id=OWNER_ID, text=f"📝 **لینک ExpressVPN رو بفرست:**\n\n👤 {user_id}", parse_mode="Markdown")
     await q.edit_message_caption(caption=q.message.caption + "\n\n✅ تایید شد!", parse_mode="Markdown")
 
 async def reject_receipt(update, context):
     q = update.callback_query; await q.answer()
     user_id = int(q.data.split("_")[1])
-    await context.bot.send_message(chat_id=user_id, text="❌ رسید پرداخت شما تایید نشد.\nلطفاً با پشتیبانی تماس بگیرید.")
+    await context.bot.send_message(chat_id=user_id, text="❌ رسید تایید نشد.\nبا پشتیبانی تماس بگیرید.")
     await q.edit_message_caption(caption=q.message.caption + "\n\n❌ رد شد!", parse_mode="Markdown")
 
-async def charge_custom_text(update, context):
-    uid = str(update.effective_user.id); p = load_pending(); state = p.get(uid)
-    if state and state.get("waiting") and state["type"] == "charge_custom":
-        try: amount = int(update.message.text.strip())
-        except: await update.message.reply_text("❌ فقط عدد."); return
-        del p[uid]; save_pending(p)
-        kb = [[InlineKeyboardButton("📸 ارسال رسید", callback_data=f"charge_receipt_{amount}")],
-              [InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
-        await update.message.reply_text(f"💳 واریز {amount:,} تومان\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
-
-# ─── Web API (for mini app) ──────────────────────────────
+# ─── Web API ─────────────────────────────────────────────
 async def api_user(request):
     uid = request.match_info["uid"]
-    bal = get_balance(uid)
-    ref_count = get_referral_count(int(uid))
-    free_done = has_free_sub(int(uid))
-    configs = load_configs().get(uid, [])
-    wallet = load_wallet().get(uid, {})
     return web.json_response({
-        "balance": bal, "referral_count": ref_count, "free_done": free_done,
-        "configs": configs, "history": wallet.get("history", [])[-10:],
+        "balance": get_balance(uid),
+        "referral_count": get_referral_count(int(uid)),
+        "free_done": has_free_sub(int(uid)),
+        "configs": load_configs().get(uid, []),
+        "history": load_wallet().get(uid, {}).get("history", [])[-10:],
         "card_number": CARD_NUMBER, "card_name": CARD_NAME,
-        "referral_target": REFERRAL_TARGET,
-        "bot_username": "Diazpshopbot",
+        "referral_target": REFERRAL_TARGET, "bot_username": "Diazpshopbot",
     })
 
 async def api_buy_config(request):
     data = await request.json()
-    uid = data.get("uid"); plan_id = data.get("plan")
+    uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = CONFIG_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
-    method = data.get("method", "wallet")
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
-        # Save name request
         p = load_pending(); p[uid] = {"waiting": True, "type": "config_wallet_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
-        return web.json_response({"ok": True, "action": "need_name", "plan": plan})
-    else:
-        # Card payment — redirect to bot
-        return web.json_response({"ok": True, "action": "card_payment", "plan": plan, "card": CARD_NUMBER, "card_name": CARD_NAME})
+        return web.json_response({"ok": True, "action": "need_name"})
+    return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
 async def api_buy_config_name(request):
     data = await request.json()
@@ -573,30 +526,28 @@ async def api_buy_config_name(request):
     if not name: return web.json_response({"error": "name required"}, status=400)
     p = load_pending(); state = p.get(uid)
     if not state: return web.json_response({"error": "no pending order"})
-    plan = state.get("plan_data", {}); pid = state.get("plan", "")
+    plan = state.get("plan_data", {})
     del p[uid]; save_pending(p)
     result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
     if result:
         configs = load_configs()
         if uid not in configs: configs[uid] = []
-        configs[uid].append({"type": "کانفیگ", "data": plan.get("name", ""), "link": (result.get("config") or result.get("subscription_url", ""))[:200]})
+        cfg = result.get("config", "") or result.get("subscription_url", "")
+        configs[uid].append({"type": "کانفیگ", "data": plan.get("name", ""), "link": cfg[:200]})
         save_configs(configs)
-        return web.json_response({"ok": True, "config": result.get("config", result.get("subscription_url", "")),
-                                   "expire_at": result.get("expire_at", ""), "plan": plan.get("name", "")})
+        return web.json_response({"ok": True, "config": cfg, "expire_at": result.get("expire_at", ""), "plan": plan.get("name", "")})
     return web.json_response({"error": "creation failed"}, status=500)
 
 async def api_buy_express(request):
     data = await request.json()
-    uid = data.get("uid"); plan_id = data.get("plan")
+    uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = EXPRESS_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
-    method = data.get("method", "wallet")
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
-        return web.json_response({"ok": True, "action": "wallet_paid", "plan": plan})
-    else:
-        return web.json_response({"ok": True, "action": "card_payment", "plan": plan, "card": CARD_NUMBER, "card_name": CARD_NAME})
+        return web.json_response({"ok": True, "action": "wallet_paid"})
+    return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
 async def api_wallet_charge(request):
     data = await request.json()
@@ -605,15 +556,13 @@ async def api_wallet_charge(request):
     p = load_pending(); p[uid] = {"waiting": True, "type": "charge", "amount": amount}; save_pending(p)
     return web.json_response({"ok": True, "card": CARD_NUMBER, "card_name": CARD_NAME, "amount": amount})
 
-# ─── Web Server ──────────────────────────────────────────
 async def serve_index(request):
     return web.FileResponse("/opt/data/diaz-shop-bot/index.html")
 
 async def serve_static(request):
     fname = request.match_info["name"]
     fpath = f"/opt/data/diaz-shop-bot/{fname}"
-    if os.path.exists(fpath):
-        return web.FileResponse(fpath)
+    if os.path.exists(fpath): return web.FileResponse(fpath)
     return web.Response(status=404)
 
 def create_web_app():
@@ -621,7 +570,6 @@ def create_web_app():
     app.router.add_get("/", serve_index)
     app.router.add_get("/index.html", serve_index)
     app.router.add_get("/{name}", serve_static)
-    # API
     app.router.add_get("/api/user/{uid}", api_user)
     app.router.add_post("/api/buy_config", api_buy_config)
     app.router.add_post("/api/buy_config_name", api_buy_config_name)
@@ -629,20 +577,28 @@ def create_web_app():
     app.router.add_post("/api/wallet_charge", api_wallet_charge)
     return app
 
-# ─── Main: Run Bot + Web Server ──────────────────────────
+# ─── Main ────────────────────────────────────────────────
 def main():
     PORT = int(os.environ.get("PORT", 8080))
 
-    # Start web server in background
-    async def run_web():
+    def run_web():
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         web_app = create_web_app()
         runner = web.AppRunner(web_app)
-        await runner.setup()
+        loop.run_until_complete(runner.setup())
         site = web.TCPSite(runner, "0.0.0.0", PORT)
-        await site.start()
-        logger.info(f"Web server running on port {PORT}")
+        loop.run_until_complete(site.start())
+        logger.info(f"Web server on port {PORT}")
+        loop.run_forever()
 
-    # Start bot
+    # Start web server in background thread
+    web_thread = threading.Thread(target=run_web, daemon=True)
+    web_thread.start()
+
+    # Run bot in main thread
+    import asyncio
     async def run_bot():
         app = Application.builder().token(BOT_TOKEN).build()
         app.add_handler(CommandHandler("start", start))
@@ -674,11 +630,7 @@ def main():
         logger.info("Bot started!")
         await app.run_polling(allowed_updates=Update.ALL_TYPES)
 
-    async def run_all():
-        await run_web()
-        await run_bot()
-
-    asyncio.run(run_all())
+    asyncio.run(run_bot())
 
 if __name__ == "__main__":
     main()
