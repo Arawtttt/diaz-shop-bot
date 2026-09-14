@@ -181,8 +181,10 @@ function initTelegram() {
     }
     // Update debug display
     var dbg = document.getElementById('uDebug');
-    if (dbg) dbg.textContent = UID || ('tg=' + !!tg + ' data=' + !!(tg && tg.initData));
-    console.log('[Diaz] UID=' + UID + ' tg=' + !!tg);
+    var tgKeys = window.Telegram ? Object.keys(window.Telegram).join(',') : 'NONE';
+    var info = UID || ('tg=' + tgKeys + ' wp=' + !!window.TelegramWebApp);
+    if (dbg) dbg.textContent = info;
+    console.log('[Diaz] UID=' + UID + ' window.Telegram=' + tgKeys);
 }
 
 // Initialize immediately AND on DOMContentLoaded
