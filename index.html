@@ -148,7 +148,10 @@
 // Wait for Telegram WebApp SDK to be ready
 var tg = null;
 var user = null;
-var UID = '';
+var UID = (function() {
+    var p = new URLSearchParams(window.location.search);
+    return p.get('uid') || '';
+})();
 var BOT = 'Diazpshopbot';
 var API = window.location.origin.indexOf('railway') >= 0 ? window.location.origin : 'https://worker-production-e8dd.up.railway.app';
 var userData = null;
@@ -161,30 +164,10 @@ function initTelegram() {
         try { tg.setHeaderColor('#0a0a12'); } catch(e) {}
         try { tg.setBackgroundColor('#0a0a12'); } catch(e) {}
     }
-    // Method 1: initDataUnsafe.user
-    try {
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
-            UID = String(tg.initDataUnsafe.user.id);
-            user = tg.initDataUnsafe.user;
-        }
-    } catch(e) {}
-    // Method 2: parse initData string
-    if (!UID && tg && tg.initData) {
-        try {
-            var p = new URLSearchParams(tg.initData);
-            var uStr = p.get('user');
-            if (uStr) {
-                var uObj = JSON.parse(decodeURIComponent(uStr));
-                if (uObj && uObj.id) UID = String(uObj.id);
-            }
-        } catch(e) {}
-    }
-    // Update debug display
+    // UID already set from URL param
     var dbg = document.getElementById('uDebug');
-    var tgKeys = window.Telegram ? Object.keys(window.Telegram).join(',') : 'NONE';
-    var info = UID || ('tg=' + tgKeys + ' wp=' + !!window.TelegramWebApp);
-    if (dbg) dbg.textContent = info;
-    console.log('[Diaz] UID=' + UID + ' window.Telegram=' + tgKeys);
+    if (dbg) dbg.textContent = UID || 'ندارد';
+    console.log('[Diaz] UID=' + UID);
 }
 
 // Initialize immediately AND on DOMContentLoaded
@@ -210,16 +193,9 @@ function enterApp() {
     if (splash) splash.className = 'splash hide';
     var app = document.getElementById('app');
     if (app) app.style.display = 'flex';
-    // Poll for UID with retries (SDK may load late)
-    var attempts = 0;
-    function tryLoad() {
-        initTelegram();
-        if (UID) { loadUser(); return; }
-        attempts++;
-        if (attempts < 10) setTimeout(tryLoad, 300);
-        else renderPlans();
-    }
-    tryLoad();
+    initTelegram();
+    if (UID) loadUser();
+    else renderPlans();
 }
 
 // === TOAST ===

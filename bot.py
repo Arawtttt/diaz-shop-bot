@@ -187,13 +187,20 @@ WELCOME_TEXT = (
     f" پشتیبانی: @{SUPPORT_USERNAME}"
 )
 
+async def open_shop(update, context):
+    q = update.callback_query; await q.answer()
+    uid = q.from_user.id
+    url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}"
+    kb = [[InlineKeyboardButton("🚀 باز کردن فروشگاه", web_app=WebAppInfo(url=url))]]
+    await q.edit_message_text("🛍️ فروشگاه diazplaylist", reply_markup=InlineKeyboardMarkup(kb))
+
 def main_menu_kb():
     railway_url = "worker-production-e8dd.up.railway.app"
     mini_url = railway_url if railway_url else "https://arawtttt.github.io/diaz-shop-bot/"
     if railway_url and not railway_url.startswith("http"):
         mini_url = f"https://{railway_url}"
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=mini_url))],
+        [InlineKeyboardButton("🕷️ فروشگاه", callback_data="open_shop")],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
