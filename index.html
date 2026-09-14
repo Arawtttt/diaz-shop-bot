@@ -127,6 +127,7 @@
                 <div class="st">👤 پنل کاربری</div>
                 <div class="gl" style="padding:20px;margin-bottom:14px">
                     <div class="ir"><span class="lb">نام</span><span class="vl" id="uName">—</span></div>
+                <div class="ir"><span class="lb">UID</span><span class="vl" id="uDebug" style="font-size:10px;color:var(--red)">بررسی...</span></div>
                     <div class="ir"><span class="lb">آیدی</span><span class="vl" id="uId">—</span></div>
                     <div class="ir"><span class="lb">موجودی</span><span class="vl" style="color:var(--gold)" id="uBal">—</span></div>
                 </div>
@@ -155,33 +156,39 @@ var userData = null;
 function initTelegram() {
     tg = window.Telegram && window.Telegram.WebApp;
     if (tg) {
-        tg.ready();
-        tg.expand();
+        try { tg.ready(); } catch(e) {}
+        try { tg.expand(); } catch(e) {}
         try { tg.setHeaderColor('#0a0a12'); } catch(e) {}
         try { tg.setBackgroundColor('#0a0a12'); } catch(e) {}
     }
-    // Extract user ID — try multiple methods
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
-        UID = String(tg.initDataUnsafe.user.id);
-        user = tg.initDataUnsafe.user;
-    }
+    // Method 1: initDataUnsafe.user
+    try {
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+            UID = String(tg.initDataUnsafe.user.id);
+            user = tg.initDataUnsafe.user;
+        }
+    } catch(e) {}
+    // Method 2: parse initData string
     if (!UID && tg && tg.initData) {
         try {
-            var params = new URLSearchParams(tg.initData);
-            var userDataStr = params.get('user');
-            if (userDataStr) {
-                var parsed = JSON.parse(decodeURIComponent(userDataStr));
-                if (parsed && parsed.id) UID = String(parsed.id);
+            var p = new URLSearchParams(tg.initData);
+            var uStr = p.get('user');
+            if (uStr) {
+                var uObj = JSON.parse(decodeURIComponent(uStr));
+                if (uObj && uObj.id) UID = String(uObj.id);
             }
         } catch(e) {}
     }
-    console.log('[Diaz] Telegram ready, UID=' + UID);
+    // Update debug display
+    var dbg = document.getElementById('uDebug');
+    if (dbg) dbg.textContent = UID || ('tg=' + !!tg + ' data=' + !!(tg && tg.initData));
+    console.log('[Diaz] UID=' + UID + ' tg=' + !!tg);
 }
 
 // Initialize immediately AND on DOMContentLoaded
 initTelegram();
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTelegram);
+    
 }
 
 // === SPLASH ===
@@ -201,12 +208,16 @@ function enterApp() {
     if (splash) splash.className = 'splash hide';
     var app = document.getElementById('app');
     if (app) app.style.display = 'flex';
-    // Re-check UID after a short delay (SDK might load late)
-    setTimeout(function() {
+    // Poll for UID with retries (SDK may load late)
+    var attempts = 0;
+    function tryLoad() {
         initTelegram();
-        if (UID) loadUser();
+        if (UID) { loadUser(); return; }
+        attempts++;
+        if (attempts < 10) setTimeout(tryLoad, 300);
         else renderPlans();
-    }, 500);
+    }
+    tryLoad();
 }
 
 // === TOAST ===
