@@ -75,9 +75,8 @@
     <div class="splash" id="splash">
         <img src="spider-bg.jpg" alt="">
         <h2>🕷️ Diaz Shop</h2>
-        <p>فروشگاه اختصاصی VPN و اشتراک</p>
-        <button class="sbtn" id="playBtn">▶ ورود با موزیک</button>
-        <button class="sskip" id="skipBtn">بدون موزیک</button>
+        <p>فروشگاه اختصاصی diazplaylist</p>
+        <button class="sbtn" id="playBtn">🕷️ ورود</button>
     </div>
     <audio id="bgm" loop preload="auto"><source src="sunflower.mp3" type="audio/mpeg"></audio>
     <div id="toast" class="toast"></div>
@@ -90,10 +89,10 @@
         </div>
     </div>
     <div class="app" id="app" style="display:none">
-        <div class="hdr"><h1>🕷️ Diaz Shop</h1><p>فروشگاه اختصاصی VPN</p></div>
+        <div class="hdr"><h1>🕷️ Diaz Shop</h1><p>فروشگاه اختصاصی diazplaylist</p></div>
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
-                <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی VPN و اشتراک</p></div></div>
+                <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی diazplaylist</p></div></div>
                 <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('config')"><div class="ic">🔐</div><div class="tx"><div class="ti">خرید کانفیگ</div><div class="sb">VPN با حجم‌های مختلف</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('express')"><div class="ic">⚡</div><div class="tx"><div class="ti">ExpressVPN</div><div class="sb">اشتراک اکسپرس وی‌پی‌ان</div></div><div class="aw">‹</div></div>
@@ -105,8 +104,16 @@
             <div class="sec" id="sec-express"><div class="st">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div><button class="bk" onclick="showSection('home')">← بازگشت</button></div>
             <div class="sec" id="sec-wallet">
                 <div class="st">💰 کیف پول</div>
-                <div class="gl" style="padding:24px;text-align:center;margin-bottom:14px"><div class="wa" id="walletBal">—</div><div class="wl">تومان موجودی</div></div>
-                <div class="mi" onclick="requestCharge()"><div class="ic">💳</div><div class="tx"><div class="ti">افزایش موجودی</div><div class="sb">واریز به کارت</div></div><div class="aw">‹</div></div>
+                <div class="gl" style="padding:24px;text-align:center;margin-bottom:14px"><div class="wa" id="walletBal">—</div><div class="wl">تومان موجودی فعلی</div></div>
+                <div class="gl" style="padding:18px;margin-bottom:14px">
+                    <p style="font-size:13px;color:var(--dim);line-height:2">
+                        💳 برای شارژ کیف پول:<br>
+                        ۱. از منوی ربات روی <b>💰 کیف پول</b> بزنید<br>
+                        ۲. مبلغ مورد نظر رو انتخاب کنید<br>
+                        ۳. رسید پرداخت رو بفرستید<br>
+                        ۴. پس از تایید، موجودی شارژ می‌شود
+                    </p>
+                </div>
                 <button class="bk" onclick="showSection('home')">← بازگشت</button>
             </div>
             <div class="sec" id="sec-referral">
@@ -122,6 +129,7 @@
                     <div class="ir"><span class="lb">آیدی</span><span class="vl" id="uId">—</span></div>
                     <div class="ir"><span class="lb">موجودی</span><span class="vl" style="color:var(--gold)" id="uBal">—</span></div>
                 </div>
+                <div id="userConfigs"></div>
                 <button class="bk" onclick="showSection('home')">← بازگشت</button>
             </div>
         </div>
@@ -148,10 +156,10 @@ var bgm = document.getElementById('bgm');
 if (bgm) bgm.volume = 0.5;
 
 document.getElementById('playBtn').addEventListener('click', function() {
-    if (bgm) { bgm.play().then(enterApp).catch(enterApp); }
-    else { enterApp(); }
+    if (bgm) { bgm.volume = 0.5; bgm.play().catch(function(){}); }
+    enterApp();
 });
-document.getElementById('skipBtn').addEventListener('click', enterApp);
+
 
 function enterApp() {
     document.getElementById('splash').className = 'splash hide';
@@ -254,6 +262,22 @@ function renderUser() {
     if (uid) uid.textContent = '@' + ((user && user.username) || 'ندارد');
     var ub = document.getElementById('uBal');
     if (ub) ub.textContent = bal.toLocaleString('fa-IR') + ' تومان';
+    // Show subscription links
+    var uc = document.getElementById('userConfigs');
+    if (uc && userData.configs && userData.configs.length) {
+        var h = '<div class="gl" style="padding:16px;margin-bottom:14px"><div class="st">📦 اشتراک‌های شما</div>';
+        for (var i = 0; i < userData.configs.length; i++) {
+            var c = userData.configs[i];
+            h += '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
+            h += '<div style="font-size:13px;font-weight:600">' + (c.type || '') + ' — ' + (c.data || '') + '</div>';
+            if (c.link) h += '<div style="font-size:11px;color:var(--red);word-break:break-all;margin-top:4px;font-family:monospace;direction:ltr;text-align:left">' + c.link + '</div>';
+            h += '</div>';
+        }
+        h += '</div>';
+        uc.innerHTML = h;
+    } else if (uc) {
+        uc.innerHTML = '<div class="gl" style="padding:20px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📦 هنوز اشتراکی ندارید</p></div>';
+    }
 }
 
 // === BUY CONFIG ===
@@ -261,9 +285,14 @@ function buyConfig(planId) {
     var names = {'10gb':'۱۰ گیگ','20gb':'۲۰ گیگ','50gb':'۵۰ گیگ','80gb':'۸۰ گیگ'};
     var prices = {'10gb':'۱۲,۰۰۰','20gb':'۳۰,۰۰۰','50gb':'۷۰,۰۰۰','80gb':'۱۱۰,۰۰۰'};
     var bal = (userData && userData.balance) || 0;
+    var planPrice = {'10gb':12000,'20gb':30000,'50gb':70000,'80gb':110000};
+    var canPay = bal >= (planPrice[planId] || 0);
     var html = '<div class="st">📦 ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
-    html += '<div class="mi" onclick="payConfigWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + '</div></div><div class="aw">‹</div></div>';
-    html += '<div class="mi" onclick="payConfigCard()"><div class="ic">💳</div><div class="tx"><div class="ti">کارت</div><div class="sb">واریز و ارسال رسید</div></div><div class="aw">‹</div></div>';
+    if (canPay) {
+        html += '<div class="mi" onclick="payConfigWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
+    } else {
+        html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!<br>از ربات کیف پول رو شارژ کنید</p></div>';
+    }
     html += '<button class="bk" onclick="showSection(\'config\')">← بازگشت</button>';
     document.getElementById('sec-config').innerHTML = html;
 }
@@ -304,19 +333,20 @@ document.getElementById('nameCancel').addEventListener('click', function() {
     document.getElementById('nameModal').className = 'modal';
 });
 
-function payConfigCard() {
-    if (tg) tg.openTelegramLink('https://t.me/' + BOT + '?start=buy_config');
-    showToast('از منوی ربات رسید بفرستید');
-}
 
 // === BUY EXPRESS ===
 function buyExpress(planId) {
     var names = {'1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','1y':'۱ ساله'};
     var prices = {'1m':'۲۲۰,۰۰۰','3m':'۳۳۰,۰۰۰','6m':'۴۹۰,۰۰۰','1y':'۹۵۰,۰۰۰'};
     var bal = (userData && userData.balance) || 0;
+    var planPrice = {'1m':220000,'3m':330000,'6m':490000,'1y':950000};
+    var canPay = bal >= (planPrice[planId] || 0);
     var html = '<div class="st">⚡ ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
-    html += '<div class="mi" onclick="payExpressWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + '</div></div><div class="aw">‹</div></div>';
-    html += '<div class="mi" onclick="payExpressCard()"><div class="ic">💳</div><div class="tx"><div class="ti">کارت</div><div class="sb">واریز و ارسال رسید</div></div><div class="aw">‹</div></div>';
+    if (canPay) {
+        html += '<div class="mi" onclick="payExpressWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
+    } else {
+        html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!<br>از ربات کیف پول رو شارژ کنید</p></div>';
+    }
     html += '<button class="bk" onclick="showSection(\'express\')">← بازگشت</button>';
     document.getElementById('sec-express').innerHTML = html;
 }
@@ -335,17 +365,9 @@ function payExpressWallet(planId) {
     }).catch(function() { showToast('❌ خطا'); });
 }
 
-function payExpressCard() {
-    if (tg) tg.openTelegramLink('https://t.me/' + BOT + '?start=buy_express');
-    showToast('از منوی ربات رسید بفرستید');
-}
 
 // === WALLET ===
-function requestCharge() {
-    showSection('home');
-    if (tg) tg.openTelegramLink('https://t.me/' + BOT + '?start=wallet_charge');
-    showToast('از منوی ربات شارژ کنید');
-}
+
 
 function copyLink() {
     var link = 'https://t.me/' + BOT + '?start=ref' + UID;

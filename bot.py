@@ -183,18 +183,14 @@ WELCOME_TEXT = (
 )
 
 def main_menu_kb():
-    # MINI_APP_URL — use Railway public URL or fallback
-    port = os.environ.get("PORT", "8080")
     railway_url = os.environ.get("RAILWAY_PUBLIC_DOMAIN", os.environ.get("MINI_APP_URL", ""))
-    mini_url = railway_url if railway_url else f"https://arawtttt.github.io/diaz-shop-bot/"
+    mini_url = railway_url if railway_url else "https://arawtttt.github.io/diaz-shop-bot/"
     if railway_url and not railway_url.startswith("http"):
         mini_url = f"https://{railway_url}"
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=mini_url))],
-        [InlineKeyboardButton("🔐 خرید ExpressVPN", callback_data="buy_express")],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
-        [InlineKeyboardButton("👤 پنل کاربری", callback_data="user_panel")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
     ])
 
@@ -405,9 +401,16 @@ async def pay_wallet_express(update, context):
     uid = q.from_user.id
     if not spend_balance(uid, plan["price_int"]):
         await q.edit_message_text("❌ موجودی کافی نیست!"); return
-    kb = [[InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]
-    await q.edit_message_text(f"✅ **{plan['price']} تومان کسر شد!**\n⏳ اشتراک به زودی ارسال می‌شود!", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
-    await context.bot.send_message(chat_id=OWNER_ID, text=f"💰 ExpressVPN از کیف پول!\n\n👤 {q.from_user.first_name}\n🆔 {uid}\n📦 {plan['name']}", parse_mode="Markdown")
+    # Notify admin
+    kb = [[InlineKeyboardButton("✅ تایید و ارسال", callback_data=f"approve_express_{uid}_{pid}")],
+          [InlineKeyboardButton("❌ رد", callback_data=f"reject_{uid}")]]
+    try:
+        await context.bot.send_message(chat_id=OWNER_ID,
+            text=f"💰 **خرید ExpressVPN از کیف پول!**\n\n👤 {q.from_user.first_name} (@{q.from_user.username or ''})\n🆔 {uid}\n📦 {plan['name']}\n💰 {plan['price']} تومان\n\nلطفاً اشتراک رو بفرستید.",
+            reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    except: pass
+    kb2 = [[InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]
+    await q.edit_message_text(f"✅ **پرداخت موفق!** {plan['price']} تومان کسر شد.\n\n⏳ سفارش شما ثبت شد. به زودی اشتراک به پنل کاربری شما اضافه می‌شود!", reply_markup=InlineKeyboardMarkup(kb2), parse_mode="Markdown")
 
 async def user_panel(update, context):
     q = update.callback_query; await q.answer()
@@ -458,24 +461,59 @@ async def handle_text(update, context):
         kb = [[InlineKeyboardButton("📸 ارسال رسید", callback_data=f"charge_receipt_{amount}")]]
         await update.message.reply_text(f"💳 واریز {amount:,} تومان\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
         return
+    # Admin sending subscription/config link to user
+    if state.get("waiting_admin"):
+        admin_type = state["type"]; target_user = state["user_id"]
+        link = update.message.text.strip()
+        del p[uid]; save_pending(p)
+        configs = load_configs(); k = str(target_user)
+        if k not in configs: configs[k] = []
+        configs[k].append({"type": admin_type, "data": state.get("plan", ""), "link": link[:300]})
+        save_configs(configs)
+        await update.message.reply_text(f"✅ اشتراک برای کاربر {target_user} ارسال شد!")
+        try:
+            await context.bot.send_message(chat_id=target_user,
+                text=f"✅ **اشتراک شما فعال شد!**\n\n📦 **نوع:** {admin_type}\n🔗 **لینک:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.",
+                parse_mode="Markdown")
+        except: pass
+        return
+
     if state["type"] in ("config_wallet_name", "config_receipt_name"):
         name = update.message.text.strip(); plan = state.get("plan_data", {})
         del p[uid]; save_pending(p)
-        await update.message.reply_text(f"⏳ **در حال ساخت...**\n\n📝 اسم: {name}")
-        result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
-        if result:
-            cfg = result.get("config", "") or result.get("subscription_url", "")
-            await update.message.reply_text(
-                f"✅ **کانفیگ ساخته شد!**\n\n📦 {plan.get('name', '')}\n⏰ {result.get('expire_at', '')}\n\n🔗 `{cfg[:500]}`",
+        # Notify admin to create config
+        try:
+            await context.bot.send_message(chat_id=OWNER_ID,
+                text=f"📝 **کانفیگ جدید!**\n\n👤 {update.effective_user.first_name}\n🆔 {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\nلطفاً لینک کانفیگ رو بفرستید.",
                 parse_mode="Markdown")
-            configs = load_configs(); k = str(update.effective_user.id)
-            if k not in configs: configs[k] = []
-            configs[k].append({"type": "کانفیگ", "data": plan.get("name", ""), "link": cfg[:200]})
-            save_configs(configs)
-        else:
-            await update.message.reply_text("❌ خطا در ساخت کانفیگ!")
+        except: pass
+        # Set pending for admin to send config
+        pending2 = load_pending()
+        pending2[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
+        save_pending(pending2)
+        await update.message.reply_text("✅ **سفارش شما ثبت شد!**\n\n⏳ به زودی اشتراک به پنل کاربری شما اضافه می‌شود.")
 
 # ─── Admin Approve/Reject ────────────────────────────────
+
+async def approve_express(update, context):
+    q = update.callback_query; await q.answer()
+    parts = q.data.split("_"); user_id = int(parts[2]); plan_id = parts[3]
+    plan = EXPRESS_PLANS.get(plan_id)
+    # Ask admin for the subscription link
+    pending = load_pending()
+    pending[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": user_id, "plan": plan_id}
+    save_pending(pending)
+    await q.edit_message_caption(caption=q.message.caption + "\n\n📝 **لینک اشتراک رو بفرستید:**", parse_mode="Markdown")
+
+
+async def approve_config(update, context):
+    q = update.callback_query; await q.answer()
+    parts = q.data.split("_"); user_id = int(parts[2]); plan_id = parts[3]
+    pending = load_pending()
+    pending[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": user_id, "plan": plan_id}
+    save_pending(pending)
+    await q.edit_message_caption(caption=q.message.caption + "\n\n📝 **لینک کانفیگ رو بفرستید:**", parse_mode="Markdown")
+
 async def approve_receipt(update, context):
     q = update.callback_query; await q.answer()
     parts = q.data.split("_"); ptype = parts[1]; user_id = int(parts[2])
@@ -626,6 +664,8 @@ def main():
         app.add_handler(CallbackQueryHandler(wallet_history, pattern="^wallet_history$"))
         app.add_handler(CallbackQueryHandler(user_panel, pattern="^user_panel$"))
         app.add_handler(CallbackQueryHandler(back_main, pattern="^back_main$"))
+        app.add_handler(CallbackQueryHandler(approve_express, pattern="^approve_express_"))
+        app.add_handler(CallbackQueryHandler(approve_config, pattern="^approve_config_"))
         app.add_handler(CallbackQueryHandler(approve_receipt, pattern="^approve_"))
         app.add_handler(CallbackQueryHandler(reject_receipt, pattern="^reject_"))
         app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
