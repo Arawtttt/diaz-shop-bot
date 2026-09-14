@@ -550,8 +550,26 @@ async def serve_static(request):
     return web.Response(status=404)
 
 # API handlers
+def _extract_uid_from_initdata(initdata):
+    """Parse Telegram initData to get user ID"""
+    if not initdata:
+        return None
+    try:
+        from urllib.parse import parse_qs
+        params = parse_qs(initdata)
+        if "user" in params:
+            import json
+            user = json.loads(params["user"][0])
+            return str(user.get("id", ""))
+    except:
+        pass
+    return None
+
 async def api_user(request):
-    uid = request.match_info["uid"]
+    uid = request.match_info.get("uid", "")
+    if not uid:
+        initdata = request.headers.get("X-Telegram-Init-Data", "")
+        uid = _extract_uid_from_initdata(initdata) or ""
     return web.json_response({
         "balance": get_balance(uid),
         "referral_count": get_referral_count(int(uid)),

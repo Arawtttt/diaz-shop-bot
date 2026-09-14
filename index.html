@@ -200,7 +200,7 @@ function openChannel() {
 
 // === LOAD USER DATA ===
 function loadUser() {
-    fetch(API + '/api/user/' + UID)
+    fetch(API + '/api/user/' + UID, { headers: tg && tg.initData ? {'X-Telegram-Init-Data': tg.initData} : {} })
         .then(function(r) { return r.json(); })
         .then(function(d) { userData = d; renderPlans(); renderUser(); })
         .catch(function(e) { console.error('API error:', e); renderPlans(); });
