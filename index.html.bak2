@@ -120,7 +120,6 @@
                 <div class="st">🎁 اشتراک رایگان</div>
                 <div class="gl" style="padding:24px;margin-bottom:14px"><p style="text-align:center;font-size:13px;color:var(--dim);margin-bottom:4px">با دعوت ۳ نفر رایگان بگیرید!</p><div class="rc" id="refCount">—</div><div class="rs">تعداد دعوت‌شده</div></div>
                 <div class="lb2" onclick="copyLink()"><div style="font-size:11px;color:var(--dim);margin-bottom:6px">🔗 لینک دعوت</div><div style="font-size:12px;color:var(--red);word-break:break-all;font-family:monospace" id="refLink">—</div></div>
-                <div class="mi" onclick="claimFreeSub()" style="margin-top:14px"><div class="ic">🎁</div><div class="tx"><div class="ti">دریافت اشتراک رایگان</div><div class="sb">وقتی ۳ نفر دعوت کردید</div></div><div class="aw">‹</div></div>
                 <button class="bk" onclick="showSection('home')" style="margin-top:14px">← بازگشت</button>
             </div>
             <div class="sec" id="sec-panel">
@@ -292,8 +291,7 @@ function buyConfig(planId) {
     if (canPay) {
         html += '<div class="mi" onclick="payConfigWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
     } else {
-        html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
-        html += '<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
+        html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!<br>از ربات کیف پول رو شارژ کنید</p></div>';
     }
     html += '<button class="bk" onclick="showSection(\'config\')">← بازگشت</button>';
     document.getElementById('sec-config').innerHTML = html;
@@ -347,8 +345,7 @@ function buyExpress(planId) {
     if (canPay) {
         html += '<div class="mi" onclick="payExpressWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
     } else {
-        html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
-        html += '<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
+        html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!<br>از ربات کیف پول رو شارژ کنید</p></div>';
     }
     html += '<button class="bk" onclick="showSection(\'express\')">← بازگشت</button>';
     document.getElementById('sec-express').innerHTML = html;
