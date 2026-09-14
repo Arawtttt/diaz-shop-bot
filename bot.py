@@ -1273,6 +1273,108 @@ def main():
     app.add_handler(CallbackQueryHandler(approve_receipt, pattern="^approve_"))
     app.add_handler(CallbackQueryHandler(reject_receipt, pattern="^reject_"))
 
+
+    # Web App data (from mini app buttons)
+    async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        data = update.effective_message.web_app_data.data
+        user = update.effective_user
+        logger.info(f"WEB_APP_DATA from {user.id}: {data}")
+        
+        action = data.strip()
+        
+        if action == "channel":
+            await update.message.reply_text(f"📡 کانال ما: https://t.me/diazplaylist\nلطفاً عضو شوید!")
+        
+        elif action == "buy_config":
+            kb = [
+                [InlineKeyboardButton("📦 ۱۰ گیگ — ۱۲,۰۰۰ تومان", callback_data="config_10gb")],
+                [InlineKeyboardButton("📦 ۲۰ گیگ — ۳۰,۰۰۰ تومان", callback_data="config_20gb")],
+                [InlineKeyboardButton("📦 ۵۰ گیگ — ۷۰,۰۰۰ تومان", callback_data="config_50gb")],
+                [InlineKeyboardButton("📦 ۸۰ گیگ — ۱۱۰,۰۰۰ تومان", callback_data="config_80gb")],
+                [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]
+            ]
+            await update.message.reply_text("📦 پلن مورد نظر رو انتخاب کنید:", reply_markup=InlineKeyboardMarkup(kb))
+        
+        elif action == "buy_express":
+            kb = [
+                [InlineKeyboardButton("⚡ ۱ ماهه — ۲۲۰,۰۰۰ تومان", callback_data="express_1m")],
+                [InlineKeyboardButton("⚡ ۳ ماهه — ۳۳۰,۰۰۰ تومان", callback_data="express_3m")],
+                [InlineKeyboardButton("⚡ ۶ ماهه — ۴۹۰,۰۰۰ تومان", callback_data="express_6m")],
+                [InlineKeyboardButton("⚡ ۱ ساله — ۹۵۰,۰۰۰ تومان", callback_data="express_1y")],
+                [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]
+            ]
+            await update.message.reply_text("⚡ پلن ExpressVPN رو انتخاب کنید:", reply_markup=InlineKeyboardMarkup(kb))
+        
+        elif action == "wallet_menu":
+            from pathlib import Path
+            wallet = {}
+            if Path(WALLET_FILE).exists():
+                with open(WALLET_FILE) as f: wallet = json.load(f)
+            balance = wallet.get(str(user.id), {}).get("balance", 0)
+            kb = [
+                [InlineKeyboardButton("💳 افزایش موجودی", callback_data="wallet_charge")],
+                [InlineKeyboardButton("📋 تاریخچه", callback_data="wallet_history")],
+                [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]
+            ]
+            await update.message.reply_text(f"💰 موجودی کیف پول: {balance:,} تومان", reply_markup=InlineKeyboardMarkup(kb))
+        
+        elif action == "free_sub":
+            count = get_referral_count(user.id)
+            free_done = has_free_sub(user.id)
+            if free_done:
+                text = "🎁 <b>اشتراک رایگان</b>\n\nشما قبلاً اشتراک رایگان خود را دریافت کرده‌اید! ✅"
+            elif count >= REFERRAL_TARGET:
+                text = f"🎉 <b>تبریک!</b>\n\nشما {count} نفر را دعوت کرده‌اید!\nروی «دریافت اشتراک» کلیک کنید 👇"
+            else:
+                remaining = REFERRAL_TARGET - count
+                username = context.bot.username
+                text = (f"🎁 <b>اشتراک رایگان</b>\n\n"
+                        f"با دعوت {REFERRAL_TARGET} نفر، اشتراک رایگان بگیرید!\n\n"
+                        f"📊 تعداد دعوت‌شده: <b>{count}/{REFERRAL_TARGET}</b>\n"
+                        f"   باقی‌مانده: <b>{remaining} نفر</b>\n\n"
+                        f"🔗 لینک دعوت:\n<code>https://t.me/{username}?start=ref{user.id}</code>")
+            kb = []
+            if count >= REFERRAL_TARGET and not free_done:
+                kb.append([InlineKeyboardButton("🎁 دریافت اشتراک رایگان", callback_data="claim_free_sub")])
+            kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")])
+            await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML")
+        
+        elif action == "user_panel":
+            kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]]
+            await update.message.reply_text(
+                f"👤 پنل کاربری\n\n"
+                f"🆔 آیدی: <code>{user.id}</code>\n"
+                f"📛 نام: {user.first_name}\n\n"
+                f"برای اطلاعات بیشتر با پشتیبانی تماس بگیرید.",
+                reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML"
+            )
+        
+        elif action == "support":
+            kb = [
+                [InlineKeyboardButton("💬 پشتیبانی در تلگرام", url=f"https://t.me/{SUPPORT_USERNAME}")],
+                [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]
+            ]
+            await update.message.reply_text("💬 پشتیبانی", reply_markup=InlineKeyboardMarkup(kb))
+        
+        elif action == "wallet_charge":
+            kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
+            await update.message.reply_text(
+                f"💳 کارت بانکی:\n<code>{CARD_NUMBER}</code>\n"
+                f"👤 به نام: {CARD_NAME}\n\n"
+                f"مبلغ مورد نظر رو واریز کنید و رسید رو اینجا بفرستید.",
+                reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML"
+            )
+        
+        elif action == "wallet_history":
+            kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
+            await update.message.reply_text("📋 تاریخچه تراکنش‌ها: خالی", reply_markup=InlineKeyboardMarkup(kb))
+        
+        else:
+            await update.message.reply_text(f"❓ عملیات ناشناخته: {action}")
+
+    # Register web app data handler
+    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
+
     # Photos
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
 
