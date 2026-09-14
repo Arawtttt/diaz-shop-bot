@@ -50,27 +50,61 @@ REFERRAL_TARGET = 3
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ─── File Helpers ─────────────────────────────────────────
-def _load(fn):
+# ─── Supabase Storage ─────────────────────────────────────
+SUPABASE_URL = "https://nleuwjmxxucirwnizd.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXV3am14eHh1Y2lyd25paXpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MTE3NTAsImV4cCI6MjEwNDk4Nzc1MH0.TyBI03rxBYsl2UacAQCDWvAM99g0VzdM8AJ124ujQd0"
+_SB_HEADERS = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json"}
+
+def _sb_get(table, query=""):
     try:
-        if os.path.exists(fn):
-            with open(fn) as f: return json.load(f)
-    except: pass
-    return {}
+        r = httpx.get(f"{SUPABASE_URL}/rest/v1/{table}?{query}", headers=_SB_HEADERS, timeout=10)
+        return r.json() if r.status_code == 200 else []
+    except: return []
 
-def _save(fn, d):
-    with open(fn, "w") as f: json.dump(d, f, indent=2, ensure_ascii=False)
+def _sb_upsert(table, data):
+    try:
+        r = httpx.post(f"{SUPABASE_URL}/rest/v1/{table}", headers={**_SB_HEADERS, "Prefer": "resolution=merge-duplicates,return=minimal"}, json=data, timeout=10)
+        return r.status_code in (200, 201)
+    except: return False
 
-def load_pending(): return _load(PENDING_FILE)
-def save_pending(d): _save(PENDING_FILE, d)
-def load_configs(): return _load(CONFIGS_FILE)
-def save_configs(d): _save(CONFIGS_FILE, d)
-def load_wallet(): return _load(WALLET_FILE)
-def save_wallet(d): _save(WALLET_FILE, d)
-def load_referrals(): return _load(REFERRALS_FILE)
-def save_referrals(d): _save(REFERRALS_FILE, d)
-def load_accounts(): return _load(ACCOUNTS_FILE) if os.path.exists(ACCOUNTS_FILE) else []
-def save_accounts(d): _save(ACCOUNTS_FILE, d)
+def load_wallet():
+    rows = _sb_get("wallet", "select=user_id,balance,history")
+    return {r["user_id"]: {"balance": r.get("balance", 0), "history": r.get("history", [])} for r in rows}
+
+def save_wallet(d):
+    for uid, data in d.items():
+        _sb_upsert("wallet", {"user_id": uid, "balance": data.get("balance", 0), "history": data.get("history", [])})
+
+def load_configs():
+    rows = _sb_get("configs", "select=user_id,items")
+    return {r["user_id"]: r.get("items", []) for r in rows}
+
+def save_configs(d):
+    for uid, items in d.items():
+        _sb_upsert("configs", {"user_id": uid, "items": items})
+
+def load_referrals():
+    rows = _sb_get("referrals", "select=user_id,invited_users,free_given")
+    return {r["user_id"]: {"invited_users": r.get("invited_users", []), "free_given": r.get("free_given", False)} for r in rows}
+
+def save_referrals(d):
+    for uid, data in d.items():
+        _sb_upsert("referrals", {"user_id": uid, "invited_users": data.get("invited_users", []), "free_given": data.get("free_given", False)})
+
+def load_pending():
+    rows = _sb_get("pending", "select=id,data")
+    return {r["id"]: r.get("data", {}) for r in rows}
+
+def save_pending(d):
+    for pid, data in d.items():
+        _sb_upsert("pending", {"id": pid, "data": data})
+
+def load_accounts():
+    return _sb_get("accounts", "select=*")
+
+def save_accounts(d):
+    for acc in d:
+        _sb_upsert("accounts", acc)
 
 # ─── Business Logic ──────────────────────────────────────
 def get_balance(uid):
