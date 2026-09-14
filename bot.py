@@ -183,7 +183,7 @@ WELCOME_TEXT = (
 )
 
 def main_menu_kb():
-    railway_url = os.environ.get("RAILWAY_PUBLIC_DOMAIN", os.environ.get("MINI_APP_URL", ""))
+    railway_url = "worker-production-e8dd.up.railway.app"
     mini_url = railway_url if railway_url else "https://arawtttt.github.io/diaz-shop-bot/"
     if railway_url and not railway_url.startswith("http"):
         mini_url = f"https://{railway_url}"
