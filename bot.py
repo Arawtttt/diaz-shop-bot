@@ -13,6 +13,8 @@ from telegram.ext import (
 )
 
 # ─── Config ───────────────────────────────────────────────
+# Data directory — use /data/ if it exists (Railway volume), else current dir
+DATA_DIR = Path("/data") if Path("/data").exists() else Path(__file__).parent.resolve()
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 CHANNEL_ID = os.environ.get("CHANNEL_ID", "@diazplaylist")
 OWNER_ID = int(os.environ.get("OWNER_ID", "6326889425"))
