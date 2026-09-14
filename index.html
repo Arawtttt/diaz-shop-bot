@@ -144,111 +144,150 @@
     </div>
 
 <script>
-var tg = window.Telegram && window.Telegram.WebApp;
-if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0a12'); tg.setBackgroundColor('#0a0a12'); }
-var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-var UID = (user && user.id) ? String(user.id) : '';
-if (!UID && tg && tg.initData) { try { var p = new URLSearchParams(tg.initData); var u = JSON.parse(p.get('user') || '{}'); if (u.id) UID = String(u.id); } catch(e) {} }
+// Wait for Telegram WebApp SDK to be ready
+var tg = null;
+var user = null;
+var UID = '';
 var BOT = 'Diazpshopbot';
-var API = window.location.origin.indexOf("railway") >= 0 ? window.location.origin : "https://worker-production-e8dd.up.railway.app";
+var API = window.location.origin.indexOf('railway') >= 0 ? window.location.origin : 'https://worker-production-e8dd.up.railway.app';
 var userData = null;
+
+function initTelegram() {
+    tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        try { tg.setHeaderColor('#0a0a12'); } catch(e) {}
+        try { tg.setBackgroundColor('#0a0a12'); } catch(e) {}
+    }
+    // Extract user ID — try multiple methods
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+        UID = String(tg.initDataUnsafe.user.id);
+        user = tg.initDataUnsafe.user;
+    }
+    if (!UID && tg && tg.initData) {
+        try {
+            var params = new URLSearchParams(tg.initData);
+            var userDataStr = params.get('user');
+            if (userDataStr) {
+                var parsed = JSON.parse(decodeURIComponent(userDataStr));
+                if (parsed && parsed.id) UID = String(parsed.id);
+            }
+        } catch(e) {}
+    }
+    console.log('[Diaz] Telegram ready, UID=' + UID);
+}
+
+// Initialize immediately AND on DOMContentLoaded
+initTelegram();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTelegram);
+}
 
 // === SPLASH ===
 var bgm = document.getElementById('bgm');
 if (bgm) bgm.volume = 0.5;
 
-document.getElementById('playBtn').addEventListener('click', function() {
-    if (bgm) { bgm.volume = 0.5; bgm.play().catch(function(){}); }
-    enterApp();
-});
-
+var playBtn = document.getElementById('playBtn');
+if (playBtn) {
+    playBtn.addEventListener('click', function() {
+        if (bgm) { bgm.volume = 0.5; bgm.play().catch(function(){}); }
+        enterApp();
+    });
+}
 
 function enterApp() {
-    document.getElementById('splash').className = 'splash hide';
-    document.getElementById('app').style.display = 'flex';
-    if (UID) loadUser();
-    else renderPlans();
+    var splash = document.getElementById('splash');
+    if (splash) splash.className = 'splash hide';
+    var app = document.getElementById('app');
+    if (app) app.style.display = 'flex';
+    // Re-check UID after a short delay (SDK might load late)
+    setTimeout(function() {
+        initTelegram();
+        if (UID) loadUser();
+        else renderPlans();
+    }, 500);
 }
 
 // === TOAST ===
 function showToast(msg) {
     var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast show';
-    setTimeout(function() { t.className = 'toast'; }, 2500);
+    if (t) { t.textContent = msg; t.className = 'toast show'; setTimeout(function() { t.className = 'toast'; }, 2500); }
 }
 
-// === NAV ===
+// === NAVIGATION ===
 function showSection(name) {
     var secs = document.querySelectorAll('.sec');
     for (var i = 0; i < secs.length; i++) secs[i].className = 'sec';
-    var el = document.getElementById('sec-' + name);
-    if (el) el.className = 'sec act';
-    document.getElementById('ct').scrollTop = 0;
-    var nvs = document.querySelectorAll('.nv');
-    for (var j = 0; j < nvs.length; j++) {
-        nvs[j].className = nvs[j].getAttribute('data-n') === name ? 'nv act' : 'nv';
-    }
+    var target = document.getElementById('sec-' + name);
+    if (target) target.className = 'sec act';
+    var navs = document.querySelectorAll('.navi');
+    for (var j = 0; j < navs.length; j++) navs[j].className = 'navi';
+    var nav = document.querySelector('.navi[data-sec="' + name + '"]');
+    if (nav) nav.className = 'navi active';
 }
 function navTo(name) { showSection(name); }
 
+// === CHANNEL ===
 function openChannel() {
-    var url = 'https://t.me/diazplaylist';
-    if (tg) tg.openLink(url);
-    else window.open(url, '_blank');
+    if (tg) tg.openTelegramLink('https://t.me/diazplaylist');
+    else window.open('https://t.me/diazplaylist', '_blank');
 }
 
 // === LOAD USER DATA ===
 function loadUser() {
-    fetch(API + '/api/user/' + UID, { headers: tg && tg.initData ? {'X-Telegram-Init-Data': tg.initData} : {} })
+    if (!UID) { renderPlans(); return; }
+    var headers = {};
+    if (tg && tg.initData) headers['X-Telegram-Init-Data'] = tg.initData;
+    fetch(API + '/api/user/' + UID, { headers: headers })
         .then(function(r) { return r.json(); })
         .then(function(d) { userData = d; renderPlans(); renderUser(); })
-        .catch(function(e) { console.error('API error:', e); renderPlans(); });
+        .catch(function(e) { console.error('[Diaz] API error:', e); renderPlans(); });
 }
 
+// === RENDER PLANS ===
 function renderPlans() {
-    // Config plans
+    var cfgPlans = [
+        {id:'10gb',name:'۱۰ گیگ',price:'۱۲,۰۰۰'},
+        {id:'20gb',name:'۲۰ گیگ',price:'۳۰,۰۰۰'},
+        {id:'50gb',name:'۵۰ گیگ',price:'۷۰,۰۰۰'},
+        {id:'80gb',name:'۸۰ گیگ',price:'۱۱۰,۰۰۰'}
+    ];
+    var exPlans = [
+        {id:'1m',name:'۱ ماهه',price:'۲۲۰,۰۰۰'},
+        {id:'3m',name:'۳ ماهه',price:'۳۳۰,۰۰۰'},
+        {id:'6m',name:'۶ ماهه',price:'۴۹۰,۰۰۰'},
+        {id:'1y',name:'۱ ساله',price:'۹۵۰,۰۰۰'}
+    ];
     var cp = document.getElementById('cfgPlans');
     if (cp) {
         cp.innerHTML = '';
-        var cfgP = [
-            {k:'10gb',n:'۱۰',u:'گیگابایت',p:'۱۲,۰۰۰'},
-            {k:'20gb',n:'۲۰',u:'گیگابایت',p:'۳۰,۰۰۰'},
-            {k:'50gb',n:'۵۰',u:'گیگابایت',p:'۷۰,۰۰۰'},
-            {k:'80gb',n:'۸۰',u:'گیگابایت',p:'۱۱۰,۰۰۰'}
-        ];
-        for (var i = 0; i < cfgP.length; i++) {
-            var pl = cfgP[i];
+        for (var i = 0; i < cfgPlans.length; i++) {
+            var p = cfgPlans[i];
             var d = document.createElement('div');
             d.className = 'pln';
-            d.setAttribute('data-plan', pl.k);
+            d.setAttribute('data-plan', p.id);
+            d.innerHTML = '<div class="pn">' + p.name + '</div><div class="pp">' + p.price + ' تومان</div>';
             d.onclick = function() { buyConfig(this.getAttribute('data-plan')); };
-            d.innerHTML = '<div class="nm">' + pl.n + '</div><div class="un">' + pl.u + '</div><div class="pr">' + pl.p + ' <small>تومان</small></div>';
             cp.appendChild(d);
         }
     }
-    // Express plans
     var ep = document.getElementById('exPlans');
     if (ep) {
         ep.innerHTML = '';
-        var exP = [
-            {k:'1m',n:'۱',u:'ماهه',p:'۲۲۰,۰۰۰'},
-            {k:'3m',n:'۳',u:'ماهه',p:'۳۳۰,۰۰۰'},
-            {k:'6m',n:'۶',u:'ماهه',p:'۴۹۰,۰۰۰'},
-            {k:'1y',n:'۱۲',u:'ماهه',p:'۹۵۰,۰۰۰'}
-        ];
-        for (var j = 0; j < exP.length; j++) {
-            var pl2 = exP[j];
+        for (var j = 0; j < exPlans.length; j++) {
+            var q = exPlans[j];
             var d2 = document.createElement('div');
             d2.className = 'pln';
-            d2.setAttribute('data-plan', pl2.k);
+            d2.setAttribute('data-plan', q.id);
+            d2.innerHTML = '<div class="pn">' + q.name + '</div><div class="pp">' + q.price + ' تومان</div>';
             d2.onclick = function() { buyExpress(this.getAttribute('data-plan')); };
-            d2.innerHTML = '<div class="nm">' + pl2.n + '</div><div class="un">' + pl2.u + '</div><div class="pr">' + pl2.p + ' <small>تومان</small></div>';
             ep.appendChild(d2);
         }
     }
 }
 
+// === RENDER USER ===
 function renderUser() {
     if (!userData) return;
     var bal = userData.balance || 0;
@@ -259,9 +298,9 @@ function renderUser() {
     var rl = document.getElementById('refLink');
     if (rl) rl.textContent = 'https://t.me/' + BOT + '?start=ref' + UID;
     var un = document.getElementById('uName');
-    if (un) un.textContent = (user && user.first_name) || '—';
-    var uid = document.getElementById('uId');
-    if (uid) uid.textContent = '@' + ((user && user.username) || 'ندارد');
+    if (un) un.textContent = (user && user.first_name) ? user.first_name : (userData.bot_username || '—');
+    var uidEl = document.getElementById('uId');
+    if (uidEl) uidEl.textContent = user ? ('@' + (user.username || 'ندارد')) : UID;
     var ub = document.getElementById('uBal');
     if (ub) ub.textContent = bal.toLocaleString('fa-IR') + ' تومان';
     // Show subscription links
@@ -286,8 +325,8 @@ function renderUser() {
 function buyConfig(planId) {
     var names = {'10gb':'۱۰ گیگ','20gb':'۲۰ گیگ','50gb':'۵۰ گیگ','80gb':'۸۰ گیگ'};
     var prices = {'10gb':'۱۲,۰۰۰','20gb':'۳۰,۰۰۰','50gb':'۷۰,۰۰۰','80gb':'۱۱۰,۰۰۰'};
-    var bal = (userData && userData.balance) || 0;
     var planPrice = {'10gb':12000,'20gb':30000,'50gb':70000,'80gb':110000};
+    var bal = (userData && userData.balance) || 0;
     var canPay = bal >= (planPrice[planId] || 0);
     var html = '<div class="st">📦 ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
     if (canPay) {
@@ -297,52 +336,24 @@ function buyConfig(planId) {
         html += '<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
     }
     html += '<button class="bk" onclick="showSection(\'config\')">← بازگشت</button>';
-    document.getElementById('sec-config').innerHTML = html;
+    var el = document.getElementById('sec-config');
+    if (el) el.innerHTML = html;
 }
 
 function payConfigWallet(planId) {
     if (!UID) { showToast('لطفاً از داخل تلگرام باز کنید'); return; }
     document.getElementById('nameModal').className = 'modal show';
     document.getElementById('nameInput').value = '';
-    document.getElementById('nameInput').setAttribute('data-plan', planId);
+    window._buyPlanId = planId;
+    window._buyType = 'config';
 }
-
-document.getElementById('nameSubmit').addEventListener('click', function() {
-    var name = document.getElementById('nameInput').value.trim();
-    var planId = document.getElementById('nameInput').getAttribute('data-plan');
-    if (!name) { showToast('اسم رو وارد کنید'); return; }
-    document.getElementById('nameModal').className = 'modal';
-    showToast('⏳ در حال ساخت...');
-    fetch(API + '/api/buy_config', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({uid: UID, plan: planId, method: 'wallet'})
-    }).then(function(r) { return r.json(); }).then(function(d) {
-        if (d.error) { showToast('❌ ' + d.error); return; }
-        return fetch(API + '/api/buy_config_name', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({uid: UID, name: name})
-        });
-    }).then(function(r) { return r && r.json(); }).then(function(d) {
-        if (d && d.error) { showToast('❌ ' + d.error); return; }
-        showToast('✅ کانفیگ ساخته شد!');
-        loadUser();
-        showSection('home');
-    }).catch(function() { showToast('❌ خطا'); });
-});
-
-document.getElementById('nameCancel').addEventListener('click', function() {
-    document.getElementById('nameModal').className = 'modal';
-});
-
 
 // === BUY EXPRESS ===
 function buyExpress(planId) {
     var names = {'1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','1y':'۱ ساله'};
     var prices = {'1m':'۲۲۰,۰۰۰','3m':'۳۳۰,۰۰۰','6m':'۴۹۰,۰۰۰','1y':'۹۵۰,۰۰۰'};
-    var bal = (userData && userData.balance) || 0;
     var planPrice = {'1m':220000,'3m':330000,'6m':490000,'1y':950000};
+    var bal = (userData && userData.balance) || 0;
     var canPay = bal >= (planPrice[planId] || 0);
     var html = '<div class="st">⚡ ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
     if (canPay) {
@@ -352,7 +363,8 @@ function buyExpress(planId) {
         html += '<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
     }
     html += '<button class="bk" onclick="showSection(\'express\')">← بازگشت</button>';
-    document.getElementById('sec-express').innerHTML = html;
+    var el = document.getElementById('sec-express');
+    if (el) el.innerHTML = html;
 }
 
 function payExpressWallet(planId) {
@@ -364,19 +376,78 @@ function payExpressWallet(planId) {
         body: JSON.stringify({uid: UID, plan: planId, method: 'wallet'})
     }).then(function(r) { return r.json(); }).then(function(d) {
         if (d.error) { showToast('❌ ' + d.error); return; }
-        showToast('✅ پرداخت موفق!');
-        loadUser(); showSection('home');
+        showToast('✅ سفارش ثبت شد!');
+        loadUser();
+        showSection('home');
     }).catch(function() { showToast('❌ خطا'); });
 }
 
+// === MODAL CONFIRM ===
+document.getElementById('nameConfirm').addEventListener('click', function() {
+    var name = document.getElementById('nameInput').value.trim();
+    if (!name) { showToast('اسم رو وارد کنید'); return; }
+    document.getElementById('nameModal').className = 'modal';
+    showToast('⏳ در حال ساخت...');
+    var planId = window._buyPlanId;
+    var buyType = window._buyType;
+    var apiPath = buyType === 'config' ? '/api/buy_config' : '/api/buy_config';
+    fetch(API + apiPath, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({uid: UID, plan: planId, method: 'wallet'})
+    }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.error) { showToast('❌ ' + d.error); return; }
+        return fetch(API + '/api/buy_config_name', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({uid: UID, name: name})
+        });
+    }).then(function(r) { return r ? r.json() : null; }).then(function(d) {
+        if (d && d.error) { showToast('❌ ' + d.error); return; }
+        showToast('✅ سفارش ثبت شد!');
+        loadUser();
+        showSection('home');
+    }).catch(function() { showToast('❌ خطا'); });
+});
+
+document.getElementById('nameCancel').addEventListener('click', function() {
+    document.getElementById('nameModal').className = 'modal';
+});
 
 // === WALLET ===
-
-
-function copyLink() {
-    var link = 'https://t.me/' + BOT + '?start=ref' + UID;
-    if (navigator.clipboard) navigator.clipboard.writeText(link).then(function() { showToast('✅ لینک کپی شد!'); });
+function goChargeWallet() {
+    if (tg) tg.close();
+    showToast('💡 از منوی ربات کیف پول رو شارژ کنید');
 }
+
+// === REFERRAL ===
+function copyLink() {
+    var link = document.getElementById('refLink');
+    if (!link) return;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(link.textContent).then(function() { showToast('✅ کپی شد!'); });
+    } else {
+        var ta = document.createElement('textarea');
+        ta.value = link.textContent;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('✅ کپی شد!');
+    }
+}
+
+function claimFreeSub() {
+    showToast('💡 برای دریافت اشتراک رایگان به ربات مراجعه کنید');
+    if (tg) tg.close();
+}
+
+// === BOOT ===
+window.addEventListener('load', function() {
+    initTelegram();
+    showSection('home');
+    renderPlans();
+});
 </script>
 </body>
 </html>
