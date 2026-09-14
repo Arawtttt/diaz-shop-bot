@@ -2,8 +2,8 @@
 """Diaz Shop — Telegram Bot + Web Server + Mini App API (all-in-one)"""
 
 import os, json, time, logging, threading, secrets as _secrets
-import httpx
 from pathlib import Path
+import httpx
 from aiohttp import web
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
@@ -16,11 +16,9 @@ from telegram.ext import (
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 CHANNEL_ID = os.environ.get("CHANNEL_ID", "@diazplaylist")
 OWNER_ID = int(os.environ.get("OWNER_ID", "6326889425"))
-MINI_APP_URL = os.environ.get("MINI_APP_URL", "https://arawtttt.github.io/diaz-shop-bot/")
 SUPPORT_USERNAME = "MrArat"
 CARD_NUMBER = "6219861825198608"
 CARD_NAME = "امیرمحمد زارعی"
-WEB_SECRET = os.environ.get("WEB_SECRET", "diaz-shop-secret-2024")
 
 PENDING_FILE = "pending_state.json"
 WALLET_FILE = "wallet.json"
@@ -185,8 +183,14 @@ WELCOME_TEXT = (
 )
 
 def main_menu_kb():
+    # MINI_APP_URL — use Railway public URL or fallback
+    port = os.environ.get("PORT", "8080")
+    railway_url = os.environ.get("RAILWAY_PUBLIC_DOMAIN", os.environ.get("MINI_APP_URL", ""))
+    mini_url = railway_url if railway_url else f"https://arawtttt.github.io/diaz-shop-bot/"
+    if railway_url and not railway_url.startswith("http"):
+        mini_url = f"https://{railway_url}"
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=MINI_APP_URL))],
+        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=mini_url))],
         [InlineKeyboardButton("🔐 خرید ExpressVPN", callback_data="buy_express")],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
@@ -202,7 +206,7 @@ async def _process_referral(context, inviter_id, invited_id):
         try:
             await context.bot.send_message(chat_id=inviter_id,
                 text="🎉 <b>تبریک!</b>\n\nشما ۳ نفر رو دعوت کردید!\n\nروی دکمه زیر کلیک کنید 👇",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🎁 دریافت اشتراک رایگان", callback_data="claim_free_sub")]]),
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🎁 دریافت", callback_data="claim_free_sub")]]),
                 parse_mode="HTML")
         except: pass
 
@@ -455,7 +459,7 @@ async def handle_text(update, context):
         await update.message.reply_text(f"💳 واریز {amount:,} تومان\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
         return
     if state["type"] in ("config_wallet_name", "config_receipt_name"):
-        name = update.message.text.strip(); plan = state.get("plan_data", {}); pid = state.get("plan", "")
+        name = update.message.text.strip(); plan = state.get("plan_data", {})
         del p[uid]; save_pending(p)
         await update.message.reply_text(f"⏳ **در حال ساخت...**\n\n📝 اسم: {name}")
         result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
@@ -481,9 +485,8 @@ async def approve_receipt(update, context):
         await q.edit_message_caption(caption=q.message.caption + "\n\n✅ تایید شد!", parse_mode="Markdown")
         return
     plan_id = parts[3]
-    plan = CONFIG_PLANS.get(plan_id) if "config" in ptype else EXPRESS_PLANS.get(plan_id)
     if "config" in ptype:
-        p = load_pending(); p[str(user_id)] = {"waiting": True, "type": "config_receipt_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
+        p = load_pending(); p[str(user_id)] = {"waiting": True, "type": "config_receipt_name", "plan": plan_id, "plan_data": CONFIG_PLANS.get(plan_id, {})}; save_pending(p)
         await context.bot.send_message(chat_id=user_id, text="✅ **پرداخت تایید شد!**\n\n📝 **اسمتون رو بفرستید:**", parse_mode="Markdown")
     else:
         await context.bot.send_message(chat_id=OWNER_ID, text=f"📝 **لینک ExpressVPN رو بفرست:**\n\n👤 {user_id}", parse_mode="Markdown")
@@ -495,7 +498,20 @@ async def reject_receipt(update, context):
     await context.bot.send_message(chat_id=user_id, text="❌ رسید تایید نشد.\nبا پشتیبانی تماس بگیرید.")
     await q.edit_message_caption(caption=q.message.caption + "\n\n❌ رد شد!", parse_mode="Markdown")
 
-# ─── Web API ─────────────────────────────────────────────
+# ─── Web Server (serves mini app + API) ──────────────────
+STATIC_DIR = Path(__file__).parent.resolve()
+
+async def serve_index(request):
+    return web.FileResponse(str(STATIC_DIR / "index.html"))
+
+async def serve_static(request):
+    fname = request.match_info["name"]
+    fpath = STATIC_DIR / fname
+    if fpath.exists() and fpath.is_file():
+        return web.FileResponse(str(fpath))
+    return web.Response(status=404)
+
+# API handlers
 async def api_user(request):
     uid = request.match_info["uid"]
     return web.json_response({
@@ -556,48 +572,35 @@ async def api_wallet_charge(request):
     p = load_pending(); p[uid] = {"waiting": True, "type": "charge", "amount": amount}; save_pending(p)
     return web.json_response({"ok": True, "card": CARD_NUMBER, "card_name": CARD_NAME, "amount": amount})
 
-async def serve_index(request):
-    return web.FileResponse("/opt/data/diaz-shop-bot/index.html")
-
-async def serve_static(request):
-    fname = request.match_info["name"]
-    fpath = f"/opt/data/diaz-shop-bot/{fname}"
-    if os.path.exists(fpath): return web.FileResponse(fpath)
-    return web.Response(status=404)
-
 def create_web_app():
     app = web.Application()
     app.router.add_get("/", serve_index)
     app.router.add_get("/index.html", serve_index)
-    app.router.add_get("/{name}", serve_static)
     app.router.add_get("/api/user/{uid}", api_user)
     app.router.add_post("/api/buy_config", api_buy_config)
     app.router.add_post("/api/buy_config_name", api_buy_config_name)
     app.router.add_post("/api/buy_express", api_buy_express)
     app.router.add_post("/api/wallet_charge", api_wallet_charge)
+    # Static files — must come AFTER specific routes
+    app.router.add_get("/{name}", serve_static)
     return app
 
-# ─── Main ────────────────────────────────────────────────
+# ─── Main: Web Server (thread) + Bot (main thread) ──────
 def main():
     PORT = int(os.environ.get("PORT", 8080))
 
     def run_web():
-        import asyncio
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        web_app = create_web_app()
-        runner = web.AppRunner(web_app)
+        import asyncio as _aio
+        loop = _aio.new_event_loop()
+        _aio.set_event_loop(loop)
+        runner = web.AppRunner(create_web_app())
         loop.run_until_complete(runner.setup())
-        site = web.TCPSite(runner, "0.0.0.0", PORT)
-        loop.run_until_complete(site.start())
+        loop.run_until_complete(web.TCPSite(runner, "0.0.0.0", PORT).start())
         logger.info(f"Web server on port {PORT}")
         loop.run_forever()
 
-    # Start web server in background thread
-    web_thread = threading.Thread(target=run_web, daemon=True)
-    web_thread.start()
+    threading.Thread(target=run_web, daemon=True).start()
 
-    # Run bot in main thread
     import asyncio
     async def run_bot():
         app = Application.builder().token(BOT_TOKEN).build()
