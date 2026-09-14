@@ -149,7 +149,7 @@ if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0a12'); tg.setBackgroun
 var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
 var UID = (user && user.id) ? String(user.id) : '';
 var BOT = 'Diazpshopbot';
-var API = window.location.origin;
+var API = window.location.origin.indexOf("railway") >= 0 ? window.location.origin : "https://worker-production-e8dd.up.railway.app";
 var userData = null;
 
 // === SPLASH ===
