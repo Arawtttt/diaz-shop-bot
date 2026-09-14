@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Diaz Shop</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -12,23 +11,18 @@
         html,body{height:100%;overflow:hidden}
         body{font-family:'Vazirmatn',sans-serif;background:var(--dk);color:#fff}
         .bg{position:fixed;inset:0;z-index:0;background:url('spider-bg.jpg') center top/cover no-repeat;opacity:.3}
-        .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,18,.3) 0%,rgba(10,10,18,.7) 40%,var(--dk) 70%)}
-        .wp{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cdefs%3E%3Cpattern id='w' width='400' height='400' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='200' cy='200' r='180' fill='none' stroke='white' stroke-width='.5'/%3E%3Ccircle cx='200' cy='200' r='130' fill='none' stroke='white' stroke-width='.5'/%3E%3Ccircle cx='200' cy='200' r='80' fill='none' stroke='white' stroke-width='.5'/%3E%3Ccircle cx='200' cy='200' r='30' fill='none' stroke='white' stroke-width='.5'/%3E%3Cline x1='200' y1='20' x2='200' y2='380' stroke='white' stroke-width='.4'/%3E%3Cline x1='20' y1='200' x2='380' y2='200' stroke='white' stroke-width='.4'/%3E%3Cline x1='50' y1='50' x2='350' y2='350' stroke='white' stroke-width='.4'/%3E%3Cline x1='350' y1='50' x2='50' y2='350' stroke='white' stroke-width='.4'/%3E%3C/pattern%3E%3C/defs%3E%3Crect fill='url(%23w)' width='400' height='400'/%3E%3C/svg%3E");background-size:280px 280px}
-        .pt{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-        .pt span{position:absolute;opacity:.07;animation:fu linear infinite}
-        @keyframes fu{0%{transform:translateY(100vh) rotate(0);opacity:0}10%{opacity:.07}90%{opacity:.07}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
-        .splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,10,18,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:opacity .6s,transform .6s}
-        .splash.hid{opacity:0;transform:scale(1.05);pointer-events:none}
-        .splash img{width:140px;height:140px;border-radius:50%;object-fit:cover;border:3px solid var(--red);box-shadow:0 0 40px rgba(226,54,54,.4);animation:sp 2s ease-in-out infinite}
-        @keyframes sp{0%,100%{box-shadow:0 0 40px rgba(226,54,54,.4)}50%{box-shadow:0 0 60px rgba(226,54,54,.6)}}
-        .splash h2{font-size:24px;font-weight:900;margin-top:20px;background:linear-gradient(135deg,#fff 20%,var(--red) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,18,.3),rgba(10,10,18,.7) 40%,var(--dk) 70%)}
+        .splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,10,18,.95);backdrop-filter:blur(16px);transition:opacity .6s,transform .6s}
+        .splash.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+        .splash img{width:140px;height:140px;border-radius:50%;object-fit:cover;border:3px solid var(--red);box-shadow:0 0 40px rgba(226,54,54,.4)}
+        .splash h2{font-size:24px;font-weight:900;margin-top:20px;background:linear-gradient(135deg,#fff 20%,var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
         .splash p{font-size:13px;color:var(--dim);margin-top:6px}
-        .sbtn{margin-top:28px;padding:14px 40px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;font-family:'Vazirmatn';font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(226,54,54,.4);display:flex;align-items:center;gap:8px}
+        .sbtn{margin-top:28px;padding:14px 40px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;font-family:'Vazirmatn';font-size:16px;font-weight:700;cursor:pointer}
         .sbtn:active{transform:scale(.95)}
         .sskip{margin-top:14px;font-size:12px;color:var(--dim);cursor:pointer;border:none;background:none;font-family:'Vazirmatn'}
         .app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column}
         .hdr{padding:14px 20px 10px;text-align:center;flex-shrink:0}
-        .hdr h1{font-size:20px;font-weight:900;background:linear-gradient(135deg,#fff 20%,var(--red) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hdr h1{font-size:20px;font-weight:900;background:linear-gradient(135deg,#fff 20%,var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
         .hdr p{font-size:11px;color:var(--dim);margin-top:2px}
         .ct{flex:1;overflow-y:auto;padding:0 16px 16px;-webkit-overflow-scrolling:touch}
         .gl{background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.03));backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid rgba(255,255,255,.15);border-radius:24px;position:relative;overflow:hidden}
@@ -42,45 +36,30 @@
         @keyframes fs{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
         .st{font-size:17px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
         .plns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-        .pln{padding:18px 12px;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relative;overflow:hidden;transition:all .15s}
-        .pln::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent)}
+        .pln{padding:18px 12px;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));backdrop-filter:blur(12px);position:relative;overflow:hidden;transition:all .15s}
         .pln:active{transform:scale(.94);border-color:var(--red)}
-        .pln .nm{font-size:28px;font-weight:900;color:#fff;line-height:1}
+        .pln .nm{font-size:28px;font-weight:900;line-height:1}
         .pln .un{font-size:11px;color:var(--dim);margin:4px 0 10px}
         .pln .pr{font-size:14px;font-weight:700;color:var(--red)}
         .pln .pr small{font-size:10px;color:var(--dim);font-weight:400}
-        .ir{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-        .ir:last-child{border-bottom:none}
-        .ir .lb{font-size:13px;color:var(--dim)}
-        .ir .vl{font-size:14px;font-weight:600}
-        .mi{display:flex;align-items:center;gap:14px;padding:15px 16px;margin-bottom:10px;cursor:pointer;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relative;overflow:hidden;transition:all .15s}
-        .mi::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent)}
+        .ir{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}.ir:last-child{border-bottom:none}
+        .ir .lb{font-size:13px;color:var(--dim)}.ir .vl{font-size:14px;font-weight:600}
+        .mi{display:flex;align-items:center;gap:14px;padding:15px 16px;margin-bottom:10px;cursor:pointer;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));backdrop-filter:blur(12px);position:relative;overflow:hidden;transition:all .15s}
         .mi:active{transform:scale(.97)}
-        .mi .ic{font-size:26px;width:44px;text-align:center;flex-shrink:0}
-        .mi .tx{flex:1}
-        .mi .ti{font-size:14px;font-weight:600}
-        .mi .sb{font-size:11px;color:var(--dim);margin-top:2px}
-        .mi .aw{color:var(--dim);font-size:18px}
+        .mi .ic{font-size:26px;width:44px;text-align:center;flex-shrink:0}.mi .tx{flex:1}.mi .ti{font-size:14px;font-weight:600}.mi .sb{font-size:11px;color:var(--dim);margin-top:2px}.mi .aw{color:var(--dim);font-size:18px}
         .mi.ch{background:linear-gradient(135deg,rgba(226,54,54,.18),rgba(226,54,54,.04));border-color:rgba(226,54,54,.25)}
-        .bk{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;margin-top:12px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.05);color:var(--dim);font-family:'Vazirmatn';font-size:13px;cursor:pointer}
-        .bk:active{background:rgba(255,255,255,.1)}
-        .bnav{flex-shrink:0;display:flex;padding:8px 8px;padding-bottom:max(8px,env(safe-area-inset-bottom));gap:2px;background:rgba(10,10,18,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06)}
-        .nv{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 2px;border-radius:14px;cursor:pointer;transition:all .2s;font-size:10px;color:var(--dim);gap:3px;border:none;background:none;font-family:'Vazirmatn'}
+        .bk{display:flex;align-items:center;justify-content:center;padding:12px;margin-top:12px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.05);color:var(--dim);font-family:'Vazirmatn';font-size:13px;cursor:pointer}
+        .bnav{flex-shrink:0;display:flex;padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom));gap:2px;background:rgba(10,10,18,.92);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06)}
+        .nv{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 2px;border-radius:14px;cursor:pointer;font-size:10px;color:var(--dim);gap:3px;border:none;background:none;font-family:'Vazirmatn'}
         .nv .ni{font-size:21px;transition:transform .2s}
-        .nv.act{color:var(--red);background:rgba(226,54,54,.12)}
-        .nv.act .ni{transform:scale(1.12)}
+        .nv.act{color:var(--red);background:rgba(226,54,54,.12)}.nv.act .ni{transform:scale(1.12)}
         .rc{font-size:44px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:12px 0 4px}
         .rs{text-align:center;font-size:13px;color:var(--dim);margin-bottom:14px}
         .lb2{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;text-align:center;cursor:pointer}
-        .lb2:active{background:rgba(0,0,0,.6)}
-        .lb2 .ll{font-size:11px;color:var(--dim);margin-bottom:6px}
-        .lb2 .lu{font-size:12px;color:var(--red);word-break:break-all;font-family:monospace}
         .wa{font-size:36px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--gold),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:8px 0}
         .wl{text-align:center;font-size:12px;color:var(--dim);margin-bottom:16px}
-        /* Toast */
         .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-family:'Vazirmatn';z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
         .toast.show{opacity:1}
-        /* Modal overlay for name input */
         .modal{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}
         .modal.show{display:flex}
         .modal-box{background:linear-gradient(135deg,rgba(30,30,50,.95),rgba(15,15,30,.98));border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:28px 20px;width:90%;max-width:360px;text-align:center}
@@ -88,112 +67,54 @@
         .modal-box input{width:100%;padding:14px;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(255,255,255,.08);color:#fff;font-family:'Vazirmatn';font-size:15px;text-align:center;outline:none;margin-bottom:16px}
         .modal-box input:focus{border-color:var(--red)}
         .modal-box .mbtn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;font-family:'Vazirmatn';font-size:15px;font-weight:700;cursor:pointer}
-        .modal-box .mbtn:active{transform:scale(.97)}
         .modal-box .mcancel{margin-top:10px;font-size:12px;color:var(--dim);cursor:pointer;border:none;background:none;font-family:'Vazirmatn'}
-        /* Loading */
-        .ld{display:none;text-align:center;padding:40px;font-size:14px;color:var(--dim)}
-        .ld.show{display:block}
     </style>
 </head>
 <body>
     <div class="bg"></div>
-    <div class="wp"></div>
-    <div class="pt" id="pt"></div>
     <div class="splash" id="splash">
         <img src="spider-bg.jpg" alt="">
         <h2>🕷️ Diaz Shop</h2>
         <p>فروشگاه اختصاصی VPN و اشتراک</p>
-        <button class="sbtn" id="playBtn"><span>▶</span>ورود با موزیک</button>
+        <button class="sbtn" id="playBtn">▶ ورود با موزیک</button>
         <button class="sskip" id="skipBtn">بدون موزیک</button>
     </div>
     <audio id="bgm" loop preload="auto"><source src="sunflower.mp3" type="audio/mpeg"></audio>
     <div id="toast" class="toast"></div>
-
-    <!-- Name input modal -->
     <div class="modal" id="nameModal">
         <div class="modal-box">
             <h3>📝 اسم رو وارد کنید</h3>
-            <p style="font-size:12px;color:var(--dim);margin-bottom:14px">این اسم روی کانفیگ شما ثبت میشه</p>
             <input type="text" id="nameInput" placeholder="مثال: amir_vpn">
-            <button class="mbtn" id="nameSubmit">تایید و ساخت کانفیگ</button>
+            <button class="mbtn" id="nameSubmit">تایید</button>
             <button class="mcancel" id="nameCancel">لغو</button>
         </div>
     </div>
-
-    <div class="app">
-        <div class="hdr">
-            <h1>🕷️ Diaz Shop</h1>
-            <p>فروشگاه اختصاصی VPN</p>
-        </div>
+    <div class="app" id="app" style="display:none">
+        <div class="hdr"><h1>🕷️ Diaz Shop</h1><p>فروشگاه اختصاصی VPN</p></div>
         <div class="ct" id="ct">
-            <!-- HOME -->
             <div class="sec act" id="sec-home">
-                <div class="gl hero">
-                    <img src="spider-bg.jpg" alt="">
-                    <div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی VPN و اشتراک</p></div>
-                </div>
-                <div class="mi ch" onclick="apiNav('channel')">
-                    <div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div>
-                </div>
-                <div class="mi" onclick="apiNav('buy_config')">
-                    <div class="ic">🔐</div><div class="tx"><div class="ti">خرید کانفیگ</div><div class="sb">VPN با حجم‌های مختلف</div></div><div class="aw">‹</div>
-                </div>
-                <div class="mi" onclick="apiNav('buy_express')">
-                    <div class="ic">⚡</div><div class="tx"><div class="ti">ExpressVPN</div><div class="sb">اشتراک اکسپرس وی‌پی‌ان</div></div><div class="aw">‹</div>
-                </div>
-                <div class="mi" onclick="apiNav('wallet')">
-                    <div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div>
-                </div>
-                <div class="mi" onclick="apiNav('referral')">
-                    <div class="ic">🎁</div><div class="tx"><div class="ti">اشتراک رایگان</div><div class="sb">دعوت دوستان، جایزه بگیر</div></div><div class="aw">‹</div>
-                </div>
-                <div class="mi" onclick="apiNav('panel')">
-                    <div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div>
-                </div>
+                <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی VPN و اشتراک</p></div></div>
+                <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('config')"><div class="ic">🔐</div><div class="tx"><div class="ti">خرید کانفیگ</div><div class="sb">VPN با حجم‌های مختلف</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('express')"><div class="ic">⚡</div><div class="tx"><div class="ti">ExpressVPN</div><div class="sb">اشتراک اکسپرس وی‌پی‌ان</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">اشتراک رایگان</div><div class="sb">دعوت دوستان</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
             </div>
-            <!-- CONFIG PLANS -->
-            <div class="sec" id="sec-config">
-                <div class="st">📦 انتخاب پلن کانفیگ</div>
-                <div class="plns" id="configPlans"></div>
-                <button class="bk" onclick="show('home')">← بازگشت</button>
-            </div>
-            <!-- EXPRESS PLANS -->
-            <div class="sec" id="sec-express">
-                <div class="st">⚡ ExpressVPN</div>
-                <div class="plns" id="expressPlans"></div>
-                <button class="bk" onclick="show('home')">← بازگشت</button>
-            </div>
-            <!-- WALLET -->
+            <div class="sec" id="sec-config"><div class="st">📦 انتخاب پلن کانفیگ</div><div class="plns" id="cfgPlans"></div><button class="bk" onclick="showSection('home')">← بازگشت</button></div>
+            <div class="sec" id="sec-express"><div class="st">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div><button class="bk" onclick="showSection('home')">← بازگشت</button></div>
             <div class="sec" id="sec-wallet">
                 <div class="st">💰 کیف پول</div>
-                <div class="gl" style="padding:24px;text-align:center;margin-bottom:14px">
-                    <div class="wa" id="walletBal">—</div>
-                    <div class="wl">تومان موجودی</div>
-                </div>
-                <div class="mi" onclick="chargeWallet()">
-                    <div class="ic">💳</div><div class="tx"><div class="ti">افزایش موجودی</div><div class="sb">واریز به کارت و ارسال رسید</div></div><div class="aw">‹</div>
-                </div>
-                <div class="mi" onclick="showWalletHistory()">
-                    <div class="ic">📋</div><div class="tx"><div class="ti">تاریخچه تراکنش‌ها</div><div class="sb">سابقه شارژ و خرید</div></div><div class="aw">‹</div>
-                </div>
-                <div id="walletHistory"></div>
-                <button class="bk" onclick="show('home')">← بازگشت</button>
+                <div class="gl" style="padding:24px;text-align:center;margin-bottom:14px"><div class="wa" id="walletBal">—</div><div class="wl">تومان موجودی</div></div>
+                <div class="mi" onclick="requestCharge()"><div class="ic">💳</div><div class="tx"><div class="ti">افزایش موجودی</div><div class="sb">واریز به کارت</div></div><div class="aw">‹</div></div>
+                <button class="bk" onclick="showSection('home')">← بازگشت</button>
             </div>
-            <!-- REFERRAL -->
             <div class="sec" id="sec-referral">
                 <div class="st">🎁 اشتراک رایگان</div>
-                <div class="gl" style="padding:24px;margin-bottom:14px">
-                    <p style="text-align:center;font-size:13px;color:var(--dim);margin-bottom:4px">با دعوت ۳ نفر اشتراک رایگان بگیرید!</p>
-                    <div class="rc" id="refCount">—</div>
-                    <div class="rs">تعداد دعوت‌شده</div>
-                </div>
-                <div class="lb2" onclick="copyLink()">
-                    <div class="ll">🔗 لینک دعوت اختصاصی شما</div>
-                    <div class="lu" id="refLink">—</div>
-                </div>
-                <button class="bk" onclick="show('home')" style="margin-top:14px">← بازگشت</button>
+                <div class="gl" style="padding:24px;margin-bottom:14px"><p style="text-align:center;font-size:13px;color:var(--dim);margin-bottom:4px">با دعوت ۳ نفر رایگان بگیرید!</p><div class="rc" id="refCount">—</div><div class="rs">تعداد دعوت‌شده</div></div>
+                <div class="lb2" onclick="copyLink()"><div style="font-size:11px;color:var(--dim);margin-bottom:6px">🔗 لینک دعوت</div><div style="font-size:12px;color:var(--red);word-break:break-all;font-family:monospace" id="refLink">—</div></div>
+                <button class="bk" onclick="showSection('home')" style="margin-top:14px">← بازگشت</button>
             </div>
-            <!-- PANEL -->
             <div class="sec" id="sec-panel">
                 <div class="st">👤 پنل کاربری</div>
                 <div class="gl" style="padding:20px;margin-bottom:14px">
@@ -201,218 +122,235 @@
                     <div class="ir"><span class="lb">آیدی</span><span class="vl" id="uId">—</span></div>
                     <div class="ir"><span class="lb">موجودی</span><span class="vl" style="color:var(--gold)" id="uBal">—</span></div>
                 </div>
-                <div id="userConfigs"></div>
-                <button class="bk" onclick="show('home')">← بازگشت</button>
-            </div>
-            <!-- CHARGE AMOUNTS -->
-            <div class="sec" id="sec-charge">
-                <div class="st">💳 افزایش موجودی</div>
-                <div class="plns" id="chargeAmounts"></div>
-                <button class="bk" onclick="show('home')">← بازگشت</button>
+                <button class="bk" onclick="showSection('home')">← بازگشت</button>
             </div>
         </div>
         <div class="bnav">
-            <button class="nv act" onclick="nav('home')" data-n="home"><span class="ni">🏠</span><span>خانه</span></button>
-            <button class="nv" onclick="nav('config')" data-n="config"><span class="ni">🔐</span><span>کانفیگ</span></button>
-            <button class="nv" onclick="nav('express')" data-n="express"><span class="ni">⚡</span><span>Express</span></button>
-            <button class="nv" onclick="nav('wallet')" data-n="wallet"><span class="ni">💰</span><span>کیف پول</span></button>
-            <button class="nv" onclick="nav('panel')" data-n="panel"><span class="ni">👤</span><span>پنل</span></button>
+            <button class="nv act" onclick="navTo('home')" data-n="home"><span class="ni">🏠</span><span>خانه</span></button>
+            <button class="nv" onclick="navTo('config')" data-n="config"><span class="ni">🔐</span><span>کانفیگ</span></button>
+            <button class="nv" onclick="navTo('express')" data-n="express"><span class="ni">⚡</span><span>Express</span></button>
+            <button class="nv" onclick="navTo('wallet')" data-n="wallet"><span class="ni">💰</span><span>کیف پول</span></button>
+            <button class="nv" onclick="navTo('panel')" data-n="panel"><span class="ni">👤</span><span>پنل</span></button>
         </div>
     </div>
 
 <script>
-const tg = window.Telegram?.WebApp;
-if(tg){tg.ready();tg.expand();tg.setHeaderColor('#0a0a12');tg.setBackgroundColor('#0a0a12')}
-const user = tg?.initDataUnsafe?.user;
-const UID = user?.id || '';
-const BOT = 'Diazpshopbot';
-const API = window.location.origin; // same server
+var tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0a12'); tg.setBackgroundColor('#0a0a12'); }
+var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+var UID = (user && user.id) ? String(user.id) : '';
+var BOT = 'Diazpshopbot';
+var API = window.location.origin;
+var userData = null;
 
-let userData = null;
-let pendingPlan = null;
+// === SPLASH ===
+var bgm = document.getElementById('bgm');
+if (bgm) bgm.volume = 0.5;
 
-// === Splash ===
-const bgm = document.getElementById('bgm'); bgm.volume = .5;
-document.getElementById('playBtn').onclick = ()=>{bgm.play().then(enter).catch(enter)};
-document.getElementById('skipBtn').onclick = enter;
-function enter(){document.getElementById('splash').classList.add('hid')}
+document.getElementById('playBtn').addEventListener('click', function() {
+    if (bgm) { bgm.play().then(enterApp).catch(enterApp); }
+    else { enterApp(); }
+});
+document.getElementById('skipBtn').addEventListener('click', enterApp);
 
-// === Toast ===
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
-
-// === Navigation ===
-function show(n){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('act'));const e=document.getElementById('sec-'+n);if(e)e.classList.add('act');document.getElementById('ct').scrollTop=0;document.querySelectorAll('.nv').forEach(v=>v.classList.toggle('act',v.dataset.n===n))}
-function nav(n){show(n)}
-
-// === API calls ===
-async function loadUser(){
-    try{const r=await fetch(API+'/api/user/'+UID);userData=await r.json();renderHome()}catch(e){console.error(e)}
+function enterApp() {
+    document.getElementById('splash').className = 'splash hide';
+    document.getElementById('app').style.display = 'flex';
+    if (UID) loadUser();
+    else renderPlans();
 }
 
-function renderHome(){
-    if(!userData)return;
-    document.getElementById('walletBal').textContent=(userData.balance||0).toLocaleString('fa-IR');
-    document.getElementById('refCount').textContent=`${userData.referral_count||0}/${userData.referral_target||3}`;
-    document.getElementById('refLink').textContent=`https://t.me/${BOT}?start=ref${UID}`;
-    document.getElementById('uName').textContent=user?.first_name||'—';
-    document.getElementById('uId').textContent='@'+(user?.username||'ندارد');
-    document.getElementById('uBal').textContent=(userData.balance||0).toLocaleString('fa-IR')+' تومان';
+// === TOAST ===
+function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show';
+    setTimeout(function() { t.className = 'toast'; }, 2500);
+}
 
+// === NAV ===
+function showSection(name) {
+    var secs = document.querySelectorAll('.sec');
+    for (var i = 0; i < secs.length; i++) secs[i].className = 'sec';
+    var el = document.getElementById('sec-' + name);
+    if (el) el.className = 'sec act';
+    document.getElementById('ct').scrollTop = 0;
+    var nvs = document.querySelectorAll('.nv');
+    for (var j = 0; j < nvs.length; j++) {
+        nvs[j].className = nvs[j].getAttribute('data-n') === name ? 'nv act' : 'nv';
+    }
+}
+function navTo(name) { showSection(name); }
+
+function openChannel() {
+    var url = 'https://t.me/diazplaylist';
+    if (tg) tg.openLink(url);
+    else window.open(url, '_blank');
+}
+
+// === LOAD USER DATA ===
+function loadUser() {
+    fetch(API + '/api/user/' + UID)
+        .then(function(r) { return r.json(); })
+        .then(function(d) { userData = d; renderPlans(); renderUser(); })
+        .catch(function(e) { console.error('API error:', e); renderPlans(); });
+}
+
+function renderPlans() {
     // Config plans
-    const cp=document.getElementById('configPlans');
-    cp.innerHTML='';
-    const cfgPlans=[{k:'10gb',n:'۱۰',u:'گیگابایت',p:'۱۲,۰۰۰'},{k:'20gb',n:'۲۰',u:'گیگابایت',p:'۳۰,۰۰۰'},{k:'50gb',n:'۵۰',u:'گیگابایت',p:'۷۰,۰۰۰'},{k:'80gb',n:'۸۰',u:'گیگابایت',p:'۱۱۰,۰۰۰'}];
-    cfgPlans.forEach(pl=>{
-        const d=document.createElement('div');d.className='pln';d.onclick=()=>buyConfig(pl.k);
-        d.innerHTML=`<div class="nm">${pl.n}</div><div class="un">${pl.u}</div><div class="pr">${pl.p} <small>تومان</small></div>`;
-        cp.appendChild(d);
-    });
-
+    var cp = document.getElementById('cfgPlans');
+    if (cp) {
+        cp.innerHTML = '';
+        var cfgP = [
+            {k:'10gb',n:'۱۰',u:'گیگابایت',p:'۱۲,۰۰۰'},
+            {k:'20gb',n:'۲۰',u:'گیگابایت',p:'۳۰,۰۰۰'},
+            {k:'50gb',n:'۵۰',u:'گیگابایت',p:'۷۰,۰۰۰'},
+            {k:'80gb',n:'۸۰',u:'گیگابایت',p:'۱۱۰,۰۰۰'}
+        ];
+        for (var i = 0; i < cfgP.length; i++) {
+            var pl = cfgP[i];
+            var d = document.createElement('div');
+            d.className = 'pln';
+            d.setAttribute('data-plan', pl.k);
+            d.onclick = function() { buyConfig(this.getAttribute('data-plan')); };
+            d.innerHTML = '<div class="nm">' + pl.n + '</div><div class="un">' + pl.u + '</div><div class="pr">' + pl.p + ' <small>تومان</small></div>';
+            cp.appendChild(d);
+        }
+    }
     // Express plans
-    const ep=document.getElementById('expressPlans');
-    ep.innerHTML='';
-    const exPlans=[{k:'1m',n:'۱',u:'ماهه',p:'۲۲۰,۰۰۰'},{k:'3m',n:'۳',u:'ماهه',p:'۳۳۰,۰۰۰'},{k:'6m',n:'۶',u:'ماهه',p:'۴۹۰,۰۰۰'},{k:'1y',n:'۱۲',u:'ماهه',p:'۹۵۰,۰۰۰'}];
-    exPlans.forEach(pl=>{
-        const d=document.createElement('div');d.className='pln';d.onclick=()=>buyExpress(pl.k);
-        d.innerHTML=`<div class="nm">${pl.n}</div><div class="un">${pl.u}</div><div class="pr">${pl.p} <small>تومان</small></div>`;
-        ep.appendChild(d);
-    });
-
-    // Charge amounts
-    const ca=document.getElementById('chargeAmounts');
-    ca.innerHTML='';
-    [50000,100000,200000,500000].forEach(a=>{
-        const d=document.createElement('div');d.className='pln';d.onclick=()=>requestCharge(a);
-        d.innerHTML=`<div class="nm">${a.toLocaleString('fa-IR')}</div><div class="un">تومان</div><div class="pr">شارژ</div>`;
-        ca.appendChild(d);
-    });
-
-    // User configs
-    const uc=document.getElementById('userConfigs');
-    if(userData.configs?.length){
-        uc.innerHTML='<div class="gl" style="padding:20px;margin-bottom:14px"><div class="st">📦 اشتراک‌های شما</div>'+
-            userData.configs.map((c,i)=>`<div class="ir"><span class="lb">${i+1}. ${c.type||''}</span><span class="vl" style="font-size:12px">${c.data||''}</span></div>`).join('')+'</div>';
+    var ep = document.getElementById('exPlans');
+    if (ep) {
+        ep.innerHTML = '';
+        var exP = [
+            {k:'1m',n:'۱',u:'ماهه',p:'۲۲۰,۰۰۰'},
+            {k:'3m',n:'۳',u:'ماهه',p:'۳۳۰,۰۰۰'},
+            {k:'6m',n:'۶',u:'ماهه',p:'۴۹۰,۰۰۰'},
+            {k:'1y',n:'۱۲',u:'ماهه',p:'۹۵۰,۰۰۰'}
+        ];
+        for (var j = 0; j < exP.length; j++) {
+            var pl2 = exP[j];
+            var d2 = document.createElement('div');
+            d2.className = 'pln';
+            d2.setAttribute('data-plan', pl2.k);
+            d2.onclick = function() { buyExpress(this.getAttribute('data-plan')); };
+            d2.innerHTML = '<div class="nm">' + pl2.n + '</div><div class="un">' + pl2.u + '</div><div class="pr">' + pl2.p + ' <small>تومان</small></div>';
+            ep.appendChild(d2);
+        }
     }
 }
 
-// === Actions ===
-function apiNav(action){
-    if(action==='channel'){window.open('https://t.me/diazplaylist','_blank');return}
-    if(action==='config'||action==='buy_config'){show('config');return}
-    if(action==='express'||action==='buy_express'){show('express');return}
-    if(action==='wallet'){show('wallet');return}
-    if(action==='referral'){show('referral');return}
-    if(action==='panel'){show('panel');return}
+function renderUser() {
+    if (!userData) return;
+    var bal = userData.balance || 0;
+    var we = document.getElementById('walletBal');
+    if (we) we.textContent = bal.toLocaleString('fa-IR');
+    var rc = document.getElementById('refCount');
+    if (rc) rc.textContent = (userData.referral_count || 0) + '/' + (userData.referral_target || 3);
+    var rl = document.getElementById('refLink');
+    if (rl) rl.textContent = 'https://t.me/' + BOT + '?start=ref' + UID;
+    var un = document.getElementById('uName');
+    if (un) un.textContent = (user && user.first_name) || '—';
+    var uid = document.getElementById('uId');
+    if (uid) uid.textContent = '@' + ((user && user.username) || 'ندارد');
+    var ub = document.getElementById('uBal');
+    if (ub) ub.textContent = bal.toLocaleString('fa-IR') + ' تومان';
 }
 
-async function buyConfig(planId){
-    const planNames={'10gb':'۱۰ گیگ','20gb':'۲۰ گیگ','50gb':'۵۰ گیگ','80gb':'۸۰ گیگ'};
-    const planPrices={'10gb':'۱۲,۰۰۰','20gb':'۳۰,۰۰۰','50gb':'۷۰,۰۰۰','80gb':'۱۱۰,۰۰۰'};
-    // Show payment method selection
-    const html=`<div class="st">📦 ${planNames[planId]} — ${planPrices[planId]} تومان</div>
-        <p style="font-size:13px;color:var(--dim);margin-bottom:16px;text-align:center">روش پرداخت رو انتخاب کنید</p>
-        <div class="mi" onclick="payConfig('${planId}','wallet')">
-            <div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ${(userData?.balance||0).toLocaleString('fa-IR')} تومان</div></div><div class="aw">‹</div>
-        </div>
-        <div class="mi" onclick="payConfig('${planId}','card')">
-            <div class="ic">💳</div><div class="tx"><div class="ti">پرداخت با کارت</div><div class="sb">واریز به کارت و ارسال رسید</div></div><div class="aw">‹</div>
-        </div>
-        <button class="bk" onclick="show('config')">← بازگشت</button>`;
-    document.getElementById('sec-config').innerHTML=html;
+// === BUY CONFIG ===
+function buyConfig(planId) {
+    var names = {'10gb':'۱۰ گیگ','20gb':'۲۰ گیگ','50gb':'۵۰ گیگ','80gb':'۸۰ گیگ'};
+    var prices = {'10gb':'۱۲,۰۰۰','20gb':'۳۰,۰۰۰','50gb':'۷۰,۰۰۰','80gb':'۱۱۰,۰۰۰'};
+    var bal = (userData && userData.balance) || 0;
+    var html = '<div class="st">📦 ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
+    html += '<div class="mi" onclick="payConfigWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + '</div></div><div class="aw">‹</div></div>';
+    html += '<div class="mi" onclick="payConfigCard()"><div class="ic">💳</div><div class="tx"><div class="ti">کارت</div><div class="sb">واریز و ارسال رسید</div></div><div class="aw">‹</div></div>';
+    html += '<button class="bk" onclick="showSection(\'config\')">← بازگشت</button>';
+    document.getElementById('sec-config').innerHTML = html;
 }
 
-async function payConfig(planId, method){
-    if(method==='card'){
-        // Card payment — redirect to bot for receipt
-        tg?.openTelegramLink(`https://t.me/${BOT}?start=buy_config`);
-        toast('از منوی ربات رسید بفرستید');
-        return;
-    }
-    // Wallet payment — need name
-    pendingPlan={type:'config',plan:planId,method:'wallet'};
-    document.getElementById('nameModal').classList.add('show');
-    document.getElementById('nameInput').value='';
-    document.getElementById('nameInput').focus();
+function payConfigWallet(planId) {
+    if (!UID) { showToast('لطفاً از داخل تلگرام باز کنید'); return; }
+    document.getElementById('nameModal').className = 'modal show';
+    document.getElementById('nameInput').value = '';
+    document.getElementById('nameInput').setAttribute('data-plan', planId);
 }
 
-document.getElementById('nameSubmit').onclick=async()=>{
-    const name=document.getElementById('nameInput').value.trim();
-    if(!name){toast('اسم رو وارد کنید');return}
-    document.getElementById('nameModal').classList.remove('show');
-    toast('⏳ در حال ساخت...');
-    try{
-        const r=await fetch(API+'/api/buy_config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:String(UID),plan:pendingPlan.plan,method:'wallet'})});
-        const d=await r.json();
-        if(d.error){toast('❌ '+d.error);return}
-        // Now send name
-        const r2=await fetch(API+'/api/buy_config_name',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:String(UID),name})});
-        const d2=await r2.json();
-        if(d2.error){toast('❌ '+d2.error);return}
-        toast('✅ کانفیگ ساخته شد!');
+document.getElementById('nameSubmit').addEventListener('click', function() {
+    var name = document.getElementById('nameInput').value.trim();
+    var planId = document.getElementById('nameInput').getAttribute('data-plan');
+    if (!name) { showToast('اسم رو وارد کنید'); return; }
+    document.getElementById('nameModal').className = 'modal';
+    showToast('⏳ در حال ساخت...');
+    fetch(API + '/api/buy_config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({uid: UID, plan: planId, method: 'wallet'})
+    }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.error) { showToast('❌ ' + d.error); return; }
+        return fetch(API + '/api/buy_config_name', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({uid: UID, name: name})
+        });
+    }).then(function(r) { return r && r.json(); }).then(function(d) {
+        if (d && d.error) { showToast('❌ ' + d.error); return; }
+        showToast('✅ کانفیگ ساخته شد!');
         loadUser();
-        show('home');
-    }catch(e){toast('❌ خطا');console.error(e)}
-};
-document.getElementById('nameCancel').onclick=()=>{document.getElementById('nameModal').classList.remove('show')};
+        showSection('home');
+    }).catch(function() { showToast('❌ خطا'); });
+});
 
-async function buyExpress(planId){
-    const planNames={'1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','1y':'۱ ساله'};
-    const planPrices={'1m':'۲۲۰,۰۰۰','3m':'۳۳۰,۰۰۰','6m':'۴۹۰,۰۰۰','1y':'۹۵۰,۰۰۰'};
-    const html=`<div class="st">⚡ ${planNames[planId]} — ${planPrices[planId]} تومان</div>
-        <p style="font-size:13px;color:var(--dim);margin-bottom:16px;text-align:center">روش پرداخت</p>
-        <div class="mi" onclick="payExpress('${planId}','wallet')">
-            <div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی: ${(userData?.balance||0).toLocaleString('fa-IR')} تومان</div></div><div class="aw">‹</div>
-        </div>
-        <div class="mi" onclick="payExpress('${planId}','card')">
-            <div class="ic">💳</div><div class="tx"><div class="ti">کارت</div><div class="sb">واریز و ارسال رسید</div></div><div class="aw">‹</div>
-        </div>
-        <button class="bk" onclick="show('express')">← بازگشت</button>`;
-    document.getElementById('sec-express').innerHTML=html;
+document.getElementById('nameCancel').addEventListener('click', function() {
+    document.getElementById('nameModal').className = 'modal';
+});
+
+function payConfigCard() {
+    if (tg) tg.openTelegramLink('https://t.me/' + BOT + '?start=buy_config');
+    showToast('از منوی ربات رسید بفرستید');
 }
 
-async function payExpress(planId, method){
-    if(method==='card'){tg?.openTelegramLink(`https://t.me/${BOT}?start=buy_express`);toast('از منوی ربات رسید بفرستید');return}
-    toast('⏳ در حال پردازش...');
-    try{
-        const r=await fetch(API+'/api/buy_express',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:String(UID),plan:planId,method:'wallet'})});
-        const d=await r.json();
-        if(d.error){toast('❌ '+d.error);return}
-        toast('✅ پرداخت موفق! اشتراک به زودی ارسال می‌شود');
-        loadUser();show('home');
-    }catch(e){toast('❌ خطا')}
+// === BUY EXPRESS ===
+function buyExpress(planId) {
+    var names = {'1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','1y':'۱ ساله'};
+    var prices = {'1m':'۲۲۰,۰۰۰','3m':'۳۳۰,۰۰۰','6m':'۴۹۰,۰۰۰','1y':'۹۵۰,۰۰۰'};
+    var bal = (userData && userData.balance) || 0;
+    var html = '<div class="st">⚡ ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
+    html += '<div class="mi" onclick="payExpressWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + '</div></div><div class="aw">‹</div></div>';
+    html += '<div class="mi" onclick="payExpressCard()"><div class="ic">💳</div><div class="tx"><div class="ti">کارت</div><div class="sb">واریز و ارسال رسید</div></div><div class="aw">‹</div></div>';
+    html += '<button class="bk" onclick="showSection(\'express\')">← بازگشت</button>';
+    document.getElementById('sec-express').innerHTML = html;
 }
 
-function chargeWallet(){show('charge')}
-async function requestCharge(amount){
-    try{
-        const r=await fetch(API+'/api/wallet_charge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:String(UID),amount})});
-        const d=await r.json();
-        if(d.error){toast('❌ '+d.error);return}
-        toast('💳 رسید بفرستید به ربات');
-        tg?.openTelegramLink(`https://t.me/${BOT}?start=wallet_charge`);
-    }catch(e){toast('❌ خطا')}
+function payExpressWallet(planId) {
+    if (!UID) { showToast('لطفاً از داخل تلگرام باز کنید'); return; }
+    showToast('⏳ در حال پردازش...');
+    fetch(API + '/api/buy_express', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({uid: UID, plan: planId, method: 'wallet'})
+    }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.error) { showToast('❌ ' + d.error); return; }
+        showToast('✅ پرداخت موفق!');
+        loadUser(); showSection('home');
+    }).catch(function() { showToast('❌ خطا'); });
 }
 
-function showWalletHistory(){
-    const wh=document.getElementById('walletHistory');
-    if(!userData?.history?.length){wh.innerHTML='<div class="gl" style="padding:20px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">هنوز تراکنشی ثبت نشده</p></div>';return}
-    wh.innerHTML='<div class="gl" style="padding:16px;margin-bottom:14px">'+userData.history.map(h=>{
-        const sign=h.amount>0?'+':'';
-        const icon=h.type==='charge'?'💳':'📦';
-        return `<div class="ir"><span class="lb">${icon} ${sign}${h.amount.toLocaleString('fa-IR')} تومان</span></div>`;
-    }).join('')+'</div>';
+function payExpressCard() {
+    if (tg) tg.openTelegramLink('https://t.me/' + BOT + '?start=buy_express');
+    showToast('از منوی ربات رسید بفرستید');
 }
 
-function copyLink(){
-    const link=`https://t.me/${BOT}?start=ref${UID}`;
-    if(navigator.clipboard)navigator.clipboard.writeText(link).then(()=>toast('✅ لینک کپی شد!'));
+// === WALLET ===
+function requestCharge() {
+    showSection('home');
+    if (tg) tg.openTelegramLink('https://t.me/' + BOT + '?start=wallet_charge');
+    showToast('از منوی ربات شارژ کنید');
 }
 
-// Particles
-(function(){const c=document.getElementById('pt');['🕷️','🕸️','🔴','⚡'].forEach(e=>{const s=document.createElement('span');s.textContent=e;s.style.left=Math.random()*100+'%';s.style.fontSize=(14+Math.random()*16)+'px';s.style.animationDuration=(15+Math.random()*20)+'s';s.style.animationDelay=(Math.random()*15)+'s';c.appendChild(s)});})()
-
-// Init
-if(UID)loadUser();
+function copyLink() {
+    var link = 'https://t.me/' + BOT + '?start=ref' + UID;
+    if (navigator.clipboard) navigator.clipboard.writeText(link).then(function() { showToast('✅ لینک کپی شد!'); });
+}
 </script>
 </body>
 </html>
