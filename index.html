@@ -148,6 +148,7 @@ var tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0a12'); tg.setBackgroundColor('#0a0a12'); }
 var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
 var UID = (user && user.id) ? String(user.id) : '';
+if (!UID && tg && tg.initData) { try { var p = new URLSearchParams(tg.initData); var u = JSON.parse(p.get('user') || '{}'); if (u.id) UID = String(u.id); } catch(e) {} }
 var BOT = 'Diazpshopbot';
 var API = window.location.origin.indexOf("railway") >= 0 ? window.location.origin : "https://worker-production-e8dd.up.railway.app";
 var userData = null;
