@@ -43,7 +43,7 @@ EXPRESS_PLANS = {
     "1y": {"name": "۱ ساله", "price": "۹۵۰,۰۰۰", "price_int": 950000, "days": 365},
 }
 
-REFERRAL_TARGET = 3
+REFERRAL_TARGET = 1
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
