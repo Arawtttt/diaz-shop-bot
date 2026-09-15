@@ -183,12 +183,9 @@ WELCOME_TEXT = (
 )
 
 def main_menu_kb(uid=0):
-    railway_url = os.environ.get("RAILWAY_PUBLIC_DOMAIN", os.environ.get("MINI_APP_URL", ""))
-    mini_url = railway_url if railway_url else "https://arawtttt.github.io/diaz-shop-bot/"
-    if railway_url and not railway_url.startswith("http"):
-        mini_url = f"https://{railway_url}"
+    shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}"
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=mini_url))],
+        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
