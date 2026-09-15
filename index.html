@@ -139,22 +139,6 @@
                         </div>
                     </div>
                 </div>
-                <script>
-                (function(){
-                    var R=1763527800000;
-                    function T(){
-                        var d=R-Date.now();
-                        if(d<0)return;
-                        var a=document.getElementById('gtaDays'),b=document.getElementById('gtaHours'),c=document.getElementById('gtaMins'),e=document.getElementById('gtaSecs');
-                        if(!a)return;
-                        a.textContent=String(Math.floor(d/864e5)).padStart(2,'0');
-                        b.textContent=String(Math.floor(d%864e5/36e5)).padStart(2,'0');
-                        c.textContent=String(Math.floor(d%36e5/6e4)).padStart(2,'0');
-                        e.textContent=String(Math.floor(d%6e4/1e3)).padStart(2,'0');
-                    }
-                    T();setInterval(T,1000);
-                })();
-                </script>
                 <div style="margin:16px 10px;padding:14px;background:rgba(224,64,251,0.08);border:1px solid rgba(224,64,251,0.3);border-radius:12px;">
                     <div style="text-align:center;font-size:11px;color:#bb86fc;margin-bottom:10px;">📦 Ultimate Edition — Xbox Home</div>
                     <div style="text-align:center;font-size:24px;font-weight:bold;color:#e040fb;margin-bottom:4px;">۱۲,۰۰۰,۰۰۰ تومان</div>
@@ -543,6 +527,24 @@ function buyGta() {
         }
     }).catch(function(e) { showToast('خطا'); });
 }
+
+// GTA VI Timer - runs immediately when script parses
+var _R = 1763527800000;
+function _tick() {
+    var d = _R - Date.now();
+    if (d < 0) return;
+    var a = document.getElementById('gtaDays');
+    var b = document.getElementById('gtaHours');
+    var c = document.getElementById('gtaMins');
+    var e = document.getElementById('gtaSecs');
+    if (!a) { setTimeout(_tick, 500); return; }
+    a.textContent = String(Math.floor(d/864e5)).padStart(2,'0');
+    b.textContent = String(Math.floor(d%864e5/36e5)).padStart(2,'0');
+    c.textContent = String(Math.floor(d%36e5/6e4)).padStart(2,'0');
+    e.textContent = String(Math.floor(d%6e4/1e3)).padStart(2,'0');
+}
+_tick();
+setInterval(_tick, 1000);
 </script>
 </body>
 </html>
