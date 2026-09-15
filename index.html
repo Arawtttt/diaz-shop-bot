@@ -249,6 +249,7 @@ function enterApp() {
     initTelegram();
     if (UID) loadUser();
     else renderPlans();
+    try { startGtaTimer(); } catch(e) { console.log('GTA timer err:', e); }
 }
 
 // === TOAST ===
