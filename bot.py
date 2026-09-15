@@ -183,7 +183,7 @@ WELCOME_TEXT = (
 )
 
 def main_menu_kb(uid=0):
-    shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}"
+    import time as _ts; _t = int(_ts.time()); shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}&t={_t}"
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
@@ -553,7 +553,11 @@ def _notify_admin(text):
 STATIC_DIR = Path(__file__).parent.resolve()
 
 async def serve_index(request):
-    return web.FileResponse(str(STATIC_DIR / "index.html"))
+    resp = web.FileResponse(str(STATIC_DIR / "index.html"))
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
 
 async def serve_static(request):
     fname = request.match_info["name"]
