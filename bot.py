@@ -182,7 +182,7 @@ WELCOME_TEXT = (
     f" پشتیبانی: @{SUPPORT_USERNAME}"
 )
 
-def main_menu_kb():
+def main_menu_kb(uid=0):
     railway_url = os.environ.get("RAILWAY_PUBLIC_DOMAIN", os.environ.get("MINI_APP_URL", ""))
     mini_url = railway_url if railway_url else "https://arawtttt.github.io/diaz-shop-bot/"
     if railway_url and not railway_url.startswith("http"):
@@ -230,7 +230,7 @@ async def start(update, context):
             await update.message.reply_text("⚠️ برای استفاده از ربات ابتدا باید در کانال عضو شوید!", reply_markup=InlineKeyboardMarkup(kb))
         return
     if update.message:
-        await update.message.reply_text(WELCOME_TEXT, reply_markup=main_menu_kb())
+        await update.message.reply_text(WELCOME_TEXT, reply_markup=main_menu_kb(uid=user.id))
 
 async def check_member(update, context):
     q = update.callback_query; await q.answer()
@@ -243,11 +243,11 @@ async def check_member(update, context):
     pr = context.user_data.pop("pending_ref", None)
     if pr: await _process_referral(context, pr, q.from_user.id)
     await q.message.delete()
-    await q.message.reply_text(WELCOME_TEXT, reply_markup=main_menu_kb())
+    await q.message.reply_text(WELCOME_TEXT, reply_markup=main_menu_kb(uid=q.from_user.id))
 
 async def back_main(update, context):
     q = update.callback_query; await q.answer()
-    await q.edit_message_text(WELCOME_TEXT, reply_markup=main_menu_kb())
+    await q.edit_message_text(WELCOME_TEXT, reply_markup=main_menu_kb(uid=q.from_user.id))
 
 async def free_sub_menu(update, context):
     q = update.callback_query; await q.answer()
@@ -300,13 +300,15 @@ async def charge_amount(update, context):
 async def charge_custom(update, context):
     q = update.callback_query; await q.answer()
     uid = str(q.from_user.id); p = load_pending(); p[uid] = {"waiting": True, "type": "charge_custom"}; save_pending(p)
-    await q.edit_message_text("📝 **مبلغ دلخواه (فقط عدد):**")
+    kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
+    await q.edit_message_text("📝 **مبلغ دلخواه (فقط عدد):**", reply_markup=InlineKeyboardMarkup(kb))
 
 async def charge_receipt_step(update, context):
     q = update.callback_query; await q.answer()
     amount = int(q.data.replace("charge_receipt_", ""))
     uid = str(q.from_user.id); p = load_pending(); p[uid] = {"waiting": True, "type": "charge", "amount": amount}; save_pending(p)
-    await q.edit_message_text(f"📸 **رسید ({amount:,} تومان) رو بفرستید:**")
+    kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
+    await q.edit_message_text(f"📸 **رسید ({amount:,} تومان) رو بفرستید:**", reply_markup=InlineKeyboardMarkup(kb))
 
 async def wallet_history(update, context):
     q = update.callback_query; await q.answer()
@@ -519,7 +521,8 @@ async def approve_receipt(update, context):
     parts = q.data.split("_"); ptype = parts[1]; user_id = int(parts[2])
     if ptype == "charge":
         amount = int(parts[3]); add_balance(user_id, amount)
-        await context.bot.send_message(chat_id=user_id, text=f"✅ کیف پول {amount:,} تومان شارژ شد!")
+        kb = [[InlineKeyboardButton("🏠 صفحه اصلی", callback_data="back_main")]]
+        await context.bot.send_message(chat_id=user_id, text=f"✅ کیف پول {amount:,} تومان شارژ شد!", reply_markup=InlineKeyboardMarkup(kb))
         await q.edit_message_caption(caption=q.message.caption + "\n\n✅ تایید شد!", parse_mode="Markdown")
         return
     plan_id = parts[3]
@@ -535,6 +538,19 @@ async def reject_receipt(update, context):
     user_id = int(q.data.split("_")[1])
     await context.bot.send_message(chat_id=user_id, text="❌ رسید تایید نشد.\nبا پشتیبانی تماس بگیرید.")
     await q.edit_message_caption(caption=q.message.caption + "\n\n❌ رد شد!", parse_mode="Markdown")
+
+
+def _notify_admin(text):
+    """Send notification to admin via Telegram HTTP API (thread-safe)"""
+    try:
+        import httpx
+        httpx.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            json={"chat_id": OWNER_ID, "text": text, "parse_mode": "Markdown"},
+            timeout=10
+        )
+    except Exception:
+        pass
 
 # ─── Web Server (serves mini app + API) ──────────────────
 STATIC_DIR = Path(__file__).parent.resolve()
@@ -571,6 +587,7 @@ async def api_buy_config(request):
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
         p = load_pending(); p[uid] = {"waiting": True, "type": "config_wallet_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
+        _notify_admin(f"📦 **سفارش کانفیگ (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n📝 منتظر اسم کاربر...")
         return web.json_response({"ok": True, "action": "need_name"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
@@ -581,7 +598,10 @@ async def api_buy_config_name(request):
     p = load_pending(); state = p.get(uid)
     if not state: return web.json_response({"error": "no pending order"})
     plan = state.get("plan_data", {})
-    del p[uid]; save_pending(p)
+    del p[uid]
+    p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
+    save_pending(p)
+    _notify_admin(f"📦 **کانفیگ جدید (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:")
     result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
     if result:
         configs = load_configs()
@@ -600,6 +620,10 @@ async def api_buy_express(request):
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
+        p = load_pending()
+        p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}
+        save_pending(p)
+        _notify_admin(f"⚡ **سفارش ExpressVPN (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
