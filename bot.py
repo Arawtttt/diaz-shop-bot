@@ -188,6 +188,7 @@ def main_menu_kb(uid=0):
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
+        [InlineKeyboardButton("📦 کانفیگ‌ها", callback_data="configs_section")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
     ])
 
@@ -644,6 +645,11 @@ def create_web_app():
     return app
 
 # ─── Main: Web Server (thread) + Bot (main thread) ──────
+async def configs_disabled(update, context):
+    q = update.callback_query; await q.answer()
+    kb = [[InlineKeyboardButton("🏠 صفحه اصلی", callback_data="back_main")]]
+    await q.edit_message_text("📦 **کانفیگ‌ها**\n\n⏳ این بخش موقتاً غیرفعال است.\nبه زودی فعال خواهد شد.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+
 def main():
     PORT = int(os.environ.get("PORT", 8080))
 
@@ -681,6 +687,7 @@ def main():
     app.add_handler(CallbackQueryHandler(charge_receipt_step, pattern="^charge_receipt_"))
     app.add_handler(CallbackQueryHandler(wallet_history, pattern="^wallet_history$"))
     app.add_handler(CallbackQueryHandler(user_panel, pattern="^user_panel$"))
+    app.add_handler(CallbackQueryHandler(configs_disabled, pattern="^configs_section$"))
     app.add_handler(CallbackQueryHandler(back_main, pattern="^back_main$"))
     app.add_handler(CallbackQueryHandler(approve_express, pattern="^approve_express_"))
     app.add_handler(CallbackQueryHandler(approve_config, pattern="^approve_config_"))
