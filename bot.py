@@ -474,9 +474,8 @@ async def handle_text(update, context):
         save_configs(configs)
         await update.message.reply_text(f"✅ اشتراک برای کاربر {target_user} ارسال شد!")
         try:
-            kb = [[InlineKeyboardButton("🏠 صفحه اصلی", callback_data="back_main")]]
             await context.bot.send_message(chat_id=target_user,
-                text=f"✅ **اشتراک شما فعال شد!**\n\n📦 **نوع:** {admin_type}\n🔗 **لینک:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.", reply_markup=InlineKeyboardMarkup(kb),
+                text=f"✅ **اشتراک شما فعال شد!**\n\n📦 **نوع:** {admin_type}\n🔗 **لینک:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.",
                 parse_mode="Markdown")
         except: pass
         return
@@ -540,6 +539,15 @@ async def reject_receipt(update, context):
     await context.bot.send_message(chat_id=user_id, text="❌ رسید تایید نشد.\nبا پشتیبانی تماس بگیرید.")
     await q.edit_message_caption(caption=q.message.caption + "\n\n❌ رد شد!", parse_mode="Markdown")
 
+
+def _notify_admin(text):
+    """Send notification to admin via Telegram HTTP API (thread-safe)"""
+    try:
+        import httpx as _hx
+        _hx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                 json={"chat_id": OWNER_ID, "text": text, "parse_mode": "Markdown"}, timeout=10)
+    except: pass
+
 # ─── Web Server (serves mini app + API) ──────────────────
 STATIC_DIR = Path(__file__).parent.resolve()
 
@@ -575,18 +583,7 @@ async def api_buy_config(request):
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
         p = load_pending(); p[uid] = {"waiting": True, "type": "config_wallet_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
-        # Notify admin
-        try:
-            from telegram import Bot as _Bot
-            import threading, asyncio
-            def _n():
-                loop = asyncio.new_event_loop()
-                async def _s():
-                    b = _Bot(BOT_TOKEN)
-                    await b.send_message(chat_id=OWNER_ID, text=f"📦 **سفارش کانفیگ (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n📝 منتظر اسم کاربر...", parse_mode="Markdown")
-                loop.run_until_complete(_s()); loop.close()
-            threading.Thread(target=_n, daemon=True).start()
-        except: pass
+        _notify_admin(f"📦 **سفارش کانفیگ (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n📝 منتظر اسم کاربر...")
         return web.json_response({"ok": True, "action": "need_name"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
@@ -598,21 +595,9 @@ async def api_buy_config_name(request):
     if not state: return web.json_response({"error": "no pending order"})
     plan = state.get("plan_data", {})
     del p[uid]
-    # Set pending for admin
     p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
     save_pending(p)
-    # Notify admin
-    try:
-        from telegram import Bot as _Bot
-        import threading, asyncio
-        def _n():
-            loop = asyncio.new_event_loop()
-            async def _s():
-                b = _Bot(BOT_TOKEN)
-                await b.send_message(chat_id=OWNER_ID, text=f"📦 **کانفیگ جدید (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:", parse_mode="Markdown")
-            loop.run_until_complete(_s()); loop.close()
-        threading.Thread(target=_n, daemon=True).start()
-    except: pass
+    _notify_admin(f"📦 **کانفیگ جدید (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:")
     result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
     if result:
         configs = load_configs()
@@ -631,19 +616,8 @@ async def api_buy_express(request):
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
-        # Set pending for admin + notify
         p = load_pending(); p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}; save_pending(p)
-        try:
-            from telegram import Bot as _Bot
-            import threading, asyncio
-            def _n():
-                loop = asyncio.new_event_loop()
-                async def _s():
-                    b = _Bot(BOT_TOKEN)
-                    await b.send_message(chat_id=OWNER_ID, text=f"⚡ **سفارش ExpressVPN (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:", parse_mode="Markdown")
-                loop.run_until_complete(_s()); loop.close()
-            threading.Thread(target=_n, daemon=True).start()
-        except: pass
+        _notify_admin(f"⚡ **سفارش ExpressVPN (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
