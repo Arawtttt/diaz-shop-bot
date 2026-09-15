@@ -573,6 +573,7 @@ async def serve_index(request):
     resp.headers["Pragma"] = "no-cache"
     resp.headers["Expires"] = "0"
     return resp
+
     @routes.post("/api/buy_gta")
     async def api_buy_gta(request):
         data = await request.json()
