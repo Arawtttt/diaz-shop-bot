@@ -461,10 +461,11 @@ async def handle_text(update, context):
         if k not in configs: configs[k] = []
         configs[k].append({"type": admin_type, "data": state.get("plan", ""), "link": link[:300]})
         save_configs(configs)
-        await update.message.reply_text(f"✅ اشتراک برای کاربر {target_user} ارسال شد!")
+        await update.message.reply_text(f"✅ اشتراک/ظرفیت برای کاربر {target_user} ارسال شد!")
         try:
+            label = admin_type.replace("send_gta", "🎮 GTA VI — Ultimate Edition").replace("send_express", "⚡ ExpressVPN").replace("send_config", "📦 کانفیگ VPN")
             await context.bot.send_message(chat_id=target_user,
-                text=f"✅ **اشتراک شما فعال شد!**\n\n📦 **نوع:** {admin_type}\n🔗 **لینک:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.",
+                text=f"✅ **سفارش شما تأیید شد!**\n\n📦 **نوع:** {label}\n\n🔑 **اطلاعات:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.",
                 parse_mode="Markdown")
         except: pass
         return
@@ -620,6 +621,25 @@ async def api_buy_express(request):
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}
         save_pending(p)
         _notify_admin(f"⚡ **سفارش ExpressVPN (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
+        return web.json_response({"ok": True, "action": "wallet_paid"})
+
+
+    # ─── API: Buy GTA VI ─────────────────
+    @routes.post("/api/buy_gta")
+    async def api_buy_gta(request):
+        data = await request.json()
+        uid = data.get("uid")
+        if not uid: return web.json_response({"error": "uid required"})
+        uid = str(uid)
+        balance = get_balance(int(uid))
+        if balance < 12000000:
+            return web.json_response({"error": "موجودی کافی نیست"})
+        if not spend_balance(int(uid), 12000000):
+            return web.json_response({"error": "خطا در کسر موجودی"})
+        p = load_pending()
+        p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_gta", "user_id": uid, "plan": "GTA VI Ultimate Edition Xbox Home"}
+        save_pending(p)
+        _notify_admin("🎮 **سفارش GTA VI (مینی\u200cاپ)**\n\n👤 کاربر: {}\n📦 پلن: Ultimate Edition — Xbox Home\n💰 12,000,000 تومان\n\n🔑 ظرفیت هوم رو بفرستید:".format(uid))
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 

@@ -96,11 +96,60 @@
                 <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('config')"><div class="ic">🔐</div><div class="tx"><div class="ti">خرید کانفیگ</div><div class="sb">VPN با حجم‌های مختلف</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('express')"><div class="ic">⚡</div><div class="tx"><div class="ti">ExpressVPN</div><div class="sb">اشتراک اکسپرس وی‌پی‌ان</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('games')"><div class="ic">🎮</div><div class="tx"><div class="ti">بازی‌ها</div><div class="sb">فروش ظرفیت بازی‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">اشتراک رایگان</div><div class="sb">دعوت دوستان</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
             </div>
             <div class="sec" id="sec-config"><div class="st">📦 خرید کانفیگ</div><div style="text-align:center;padding:40px 20px;color:var(--dim)"><div style="font-size:48px;margin-bottom:16px">⏳</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">این بخش موقتاً غیرفعال است</div><div style="font-size:12px">به زودی فعال خواهد شد</div></div><button class="bk" onclick="showSection('home')">← بازگشت</button></div>
+
+            <div class="sec" id="sec-games">
+                <div class="st">🎮 بازی‌ها</div>
+                <div class="mi" onclick="showSection('gtavi')">
+                    <div class="ic">🔫</div>
+                    <div class="tx"><div class="ti">GTA VI</div><div class="sb">Ultimate Edition — Xbox Home</div></div>
+                    <div class="aw">‹</div>
+                </div>
+                <button class="bk" onclick="showSection('home')">← بازگشت</button>
+            </div>
+
+            <div class="sec" id="sec-gtavi" style="background:linear-gradient(180deg,#0a0014 0%,#1a0030 40%,#0d0020 100%);">
+                <div class="st" style="font-size:18px;color:#e040fb;">🔫 Grand Theft Auto VI</div>
+                <div style="text-align:center;padding:10px 0;">
+                    <div style="font-size:13px;color:#bb86fc;letter-spacing:3px;margin-bottom:8px;">RELEASE COUNTDOWN</div>
+                    <div id="gtaTimer" style="display:flex;justify-content:center;gap:8px;">
+                        <div style="background:rgba(224,64,251,0.15);border:1px solid #e040fb;border-radius:10px;padding:12px 10px;min-width:60px;">
+                            <div id="gtaDays" style="font-size:28px;font-weight:bold;color:#e040fb;">00</div>
+                            <div style="font-size:9px;color:#bb86fc;">روز</div>
+                        </div>
+                        <div style="background:rgba(224,64,251,0.15);border:1px solid #e040fb;border-radius:10px;padding:12px 10px;min-width:60px;">
+                            <div id="gtaHours" style="font-size:28px;font-weight:bold;color:#e040fb;">00</div>
+                            <div style="font-size:9px;color:#bb86fc;">ساعت</div>
+                        </div>
+                        <div style="background:rgba(224,64,251,0.15);border:1px solid #e040fb;border-radius:10px;padding:12px 10px;min-width:60px;">
+                            <div id="gtaMins" style="font-size:28px;font-weight:bold;color:#e040fb;">00</div>
+                            <div style="font-size:9px;color:#bb86fc;">دقیقه</div>
+                        </div>
+                        <div style="background:rgba(224,64,251,0.15);border:1px solid #e040fb;border-radius:10px;padding:12px 10px;min-width:60px;">
+                            <div id="gtaSecs" style="font-size:28px;font-weight:bold;color:#e040fb;">00</div>
+                            <div style="font-size:9px;color:#bb86fc;">ثانیه</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin:16px 10px;padding:14px;background:rgba(224,64,251,0.08);border:1px solid rgba(224,64,251,0.3);border-radius:12px;">
+                    <div style="text-align:center;font-size:11px;color:#bb86fc;margin-bottom:10px;">📦 Ultimate Edition — Xbox Home</div>
+                    <div style="text-align:center;font-size:24px;font-weight:bold;color:#e040fb;margin-bottom:4px;">۱۲,۰۰۰,۰۰۰ تومان</div>
+                    <div style="text-align:center;font-size:11px;color:var(--dim);">ظرفیت هوم | تحویل فوری</div>
+                </div>
+                <div style="margin:0 10px;">
+                    <div class="mi" onclick="buyGta()" style="border:1px solid #e040fb;background:rgba(224,64,251,0.1);">
+                        <div class="ic">🛒</div>
+                        <div class="tx"><div class="ti" style="color:#e040fb;">خرید ظرفیت</div><div class="sb">پرداخت از کیف پول</div></div>
+                        <div class="aw">‹</div>
+                    </div>
+                </div>
+                <button class="bk" onclick="showSection('games')" style="margin-top:14px;border-color:rgba(224,64,251,0.3);">← بازگشت به بازی‌ها</button>
+            </div>
             <div class="sec" id="sec-express"><div class="st">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div><button class="bk" onclick="showSection('home')">← بازگشت</button></div>
             <div class="sec" id="sec-wallet">
                 <div class="st">💰 کیف پول</div>
@@ -139,6 +188,7 @@
             <button class="nv act" onclick="navTo('home')" data-n="home"><span class="ni">🏠</span><span>خانه</span></button>
             <button class="nv" onclick="navTo('config')" data-n="config"><span class="ni">🔐</span><span>کانفیگ</span></button>
             <button class="nv" onclick="navTo('express')" data-n="express"><span class="ni">⚡</span><span>Express</span></button>
+            <button class="nv" onclick="navTo('games')" data-n="games"><span class="ni">🎮</span><span>بازی</span></button>
             <button class="nv" onclick="navTo('wallet')" data-n="wallet"><span class="ni">💰</span><span>کیف پول</span></button>
             <button class="nv" onclick="navTo('panel')" data-n="panel"><span class="ni">👤</span><span>پنل</span></button>
         </div>
@@ -437,6 +487,48 @@ window.addEventListener('load', function() {
     showSection('home');
     renderPlans();
 });
+
+// ═══ GTA VI ═══
+(function() {
+    var gtaRelease = new Date('2026-11-19T00:00:00+03:30');
+    function updateGtaTimer() {
+        var now = new Date();
+        var diff = gtaRelease - now;
+        if (diff <= 0) {
+            document.getElementById('gtaDays').textContent = '🎉';
+            document.getElementById('gtaHours').textContent = '🎉';
+            document.getElementById('gtaMins').textContent = '🎉';
+            document.getElementById('gtaSecs').textContent = '🎉';
+            return;
+        }
+        var d = Math.floor(diff / 86400000);
+        var h = Math.floor((diff % 86400000) / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('gtaDays').textContent = String(d).padStart(2, '0');
+        document.getElementById('gtaHours').textContent = String(h).padStart(2, '0');
+        document.getElementById('gtaMins').textContent = String(m).padStart(2, '0');
+        document.getElementById('gtaSecs').textContent = String(s).padStart(2, '0');
+    }
+    updateGtaTimer();
+    setInterval(updateGtaTimer, 1000);
+})();
+
+function buyGta() {
+    if (!UID) { showToast('لطفاً از داخل تلگرام باز کنید'); return; }
+    showToast('🛒 در حال ثبت سفارش...');
+    fetch(API + '/api/buy_gta', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({uid: UID})
+    }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.error) { showToast('❌ ' + d.error); return; }
+        if (d.ok) {
+            showToast('✅ سفارش ثبت شد! منتظر تأیید باشید.');
+            loadUser();
+        }
+    }).catch(function(e) { showToast('خطا'); });
+}
 </script>
 </body>
 </html>
