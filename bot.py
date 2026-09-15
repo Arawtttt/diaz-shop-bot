@@ -13,8 +13,6 @@ from telegram.ext import (
 )
 
 # ─── Config ───────────────────────────────────────────────
-# Data directory — use /data/ if it exists (Railway volume), else current dir
-DATA_DIR = Path("/data") if Path("/data").exists() else Path(__file__).parent.resolve()
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 CHANNEL_ID = os.environ.get("CHANNEL_ID", "@diazplaylist")
 OWNER_ID = int(os.environ.get("OWNER_ID", "6326889425"))
@@ -49,20 +47,17 @@ REFERRAL_TARGET = 3
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# ─── Local JSON Storage ──────────────────────────────────
-DATA_DIR = Path(__file__).parent.resolve()
 
+# ─── File Helpers ─────────────────────────────────────────
 def _load(fn):
-    fp = DATA_DIR / fn
     try:
-        if fp.exists():
-            with open(fp) as f: return json.load(f)
+        if os.path.exists(fn):
+            with open(fn) as f: return json.load(f)
     except: pass
     return {}
 
 def _save(fn, d):
-    fp = DATA_DIR / fn
-    with open(fp, "w") as f: json.dump(d, f, indent=2, ensure_ascii=False)
+    with open(fn, "w") as f: json.dump(d, f, indent=2, ensure_ascii=False)
 
 def load_pending(): return _load(PENDING_FILE)
 def save_pending(d): _save(PENDING_FILE, d)
@@ -72,7 +67,7 @@ def load_wallet(): return _load(WALLET_FILE)
 def save_wallet(d): _save(WALLET_FILE, d)
 def load_referrals(): return _load(REFERRALS_FILE)
 def save_referrals(d): _save(REFERRALS_FILE, d)
-def load_accounts(): return _load(ACCOUNTS_FILE) if os.path.exists(str(DATA_DIR / ACCOUNTS_FILE)) else []
+def load_accounts(): return _load(ACCOUNTS_FILE) if os.path.exists(ACCOUNTS_FILE) else []
 def save_accounts(d): _save(ACCOUNTS_FILE, d)
 
 # ─── Business Logic ──────────────────────────────────────
@@ -187,14 +182,13 @@ WELCOME_TEXT = (
     f" پشتیبانی: @{SUPPORT_USERNAME}"
 )
 
-def main_menu_kb(uid=0):
-    railway_url = "worker-production-e8dd.up.railway.app"
+def main_menu_kb():
+    railway_url = os.environ.get("RAILWAY_PUBLIC_DOMAIN", os.environ.get("MINI_APP_URL", ""))
     mini_url = railway_url if railway_url else "https://arawtttt.github.io/diaz-shop-bot/"
     if railway_url and not railway_url.startswith("http"):
         mini_url = f"https://{railway_url}"
-    shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}"
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
+        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=mini_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
@@ -306,14 +300,14 @@ async def charge_amount(update, context):
 async def charge_custom(update, context):
     q = update.callback_query; await q.answer()
     uid = str(q.from_user.id); p = load_pending(); p[uid] = {"waiting": True, "type": "charge_custom"}; save_pending(p)
-    kb = [[InlineKeyboardButton("🔙 لغو", callback_data="back_main")]]
+    kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
     await q.edit_message_text("📝 **مبلغ دلخواه (فقط عدد):**", reply_markup=InlineKeyboardMarkup(kb))
 
 async def charge_receipt_step(update, context):
     q = update.callback_query; await q.answer()
     amount = int(q.data.replace("charge_receipt_", ""))
     uid = str(q.from_user.id); p = load_pending(); p[uid] = {"waiting": True, "type": "charge", "amount": amount}; save_pending(p)
-    kb = [[InlineKeyboardButton("🔙 لغو", callback_data="back_main")]]
+    kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="wallet_menu")]]
     await q.edit_message_text(f"📸 **رسید ({amount:,} تومان) رو بفرستید:**", reply_markup=InlineKeyboardMarkup(kb))
 
 async def wallet_history(update, context):
@@ -480,8 +474,9 @@ async def handle_text(update, context):
         save_configs(configs)
         await update.message.reply_text(f"✅ اشتراک برای کاربر {target_user} ارسال شد!")
         try:
+            kb = [[InlineKeyboardButton("🏠 صفحه اصلی", callback_data="back_main")]]
             await context.bot.send_message(chat_id=target_user,
-                text=f"✅ **اشتراک شما فعال شد!**\n\n📦 **نوع:** {admin_type}\n🔗 **لینک:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.",
+                text=f"✅ **اشتراک شما فعال شد!**\n\n📦 **نوع:** {admin_type}\n🔗 **لینک:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.", reply_markup=InlineKeyboardMarkup(kb),
                 parse_mode="Markdown")
         except: pass
         return
@@ -527,7 +522,8 @@ async def approve_receipt(update, context):
     parts = q.data.split("_"); ptype = parts[1]; user_id = int(parts[2])
     if ptype == "charge":
         amount = int(parts[3]); add_balance(user_id, amount)
-        await context.bot.send_message(chat_id=user_id, text=f"✅ کیف پول {amount:,} تومان شارژ شد!")
+        kb = [[InlineKeyboardButton("🏠 صفحه اصلی", callback_data="back_main")]]
+        await context.bot.send_message(chat_id=user_id, text=f"✅ کیف پول {amount:,} تومان شارژ شد!", reply_markup=InlineKeyboardMarkup(kb))
         await q.edit_message_caption(caption=q.message.caption + "\n\n✅ تایید شد!", parse_mode="Markdown")
         return
     plan_id = parts[3]
@@ -558,26 +554,8 @@ async def serve_static(request):
     return web.Response(status=404)
 
 # API handlers
-def _extract_uid_from_initdata(initdata):
-    """Parse Telegram initData to get user ID"""
-    if not initdata:
-        return None
-    try:
-        from urllib.parse import parse_qs
-        params = parse_qs(initdata)
-        if "user" in params:
-            import json
-            user = json.loads(params["user"][0])
-            return str(user.get("id", ""))
-    except:
-        pass
-    return None
-
 async def api_user(request):
-    uid = request.match_info.get("uid", "")
-    if not uid:
-        initdata = request.headers.get("X-Telegram-Init-Data", "")
-        uid = _extract_uid_from_initdata(initdata) or ""
+    uid = request.match_info["uid"]
     return web.json_response({
         "balance": get_balance(uid),
         "referral_count": get_referral_count(int(uid)),
@@ -597,20 +575,18 @@ async def api_buy_config(request):
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
         p = load_pending(); p[uid] = {"waiting": True, "type": "config_wallet_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
-        # Notify admin via bot (fire and forget)
-        import threading
-        def notify():
-            import asyncio
-            loop = asyncio.new_event_loop()
-            async def _send():
-                from telegram import Bot
-                bot = Bot(BOT_TOKEN)
-                await bot.send_message(chat_id=OWNER_ID,
-                    text=f"📦 **سفارش کانفیگ (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان از کیف پول کسر شد\n\n📝 منتظر اسم کاربر...",
-                    parse_mode="Markdown")
-            loop.run_until_complete(_send())
-            loop.close()
-        threading.Thread(target=notify, daemon=True).start()
+        # Notify admin
+        try:
+            from telegram import Bot as _Bot
+            import threading, asyncio
+            def _n():
+                loop = asyncio.new_event_loop()
+                async def _s():
+                    b = _Bot(BOT_TOKEN)
+                    await b.send_message(chat_id=OWNER_ID, text=f"📦 **سفارش کانفیگ (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n📝 منتظر اسم کاربر...", parse_mode="Markdown")
+                loop.run_until_complete(_s()); loop.close()
+            threading.Thread(target=_n, daemon=True).start()
+        except: pass
         return web.json_response({"ok": True, "action": "need_name"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
@@ -621,21 +597,22 @@ async def api_buy_config_name(request):
     p = load_pending(); state = p.get(uid)
     if not state: return web.json_response({"error": "no pending order"})
     plan = state.get("plan_data", {})
-    del p[uid]; save_pending(p)
+    del p[uid]
+    # Set pending for admin
+    p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
+    save_pending(p)
     # Notify admin
-    import threading
-    def notify2():
-        import asyncio
-        loop = asyncio.new_event_loop()
-        async def _send():
-            from telegram import Bot
-            bot = Bot(BOT_TOKEN)
-            await bot.send_message(chat_id=OWNER_ID,
-                text=f"📦 **کانفیگ جدید (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:",
-                parse_mode="Markdown")
-        loop.run_until_complete(_send())
-        loop.close()
-    threading.Thread(target=notify2, daemon=True).start()
+    try:
+        from telegram import Bot as _Bot
+        import threading, asyncio
+        def _n():
+            loop = asyncio.new_event_loop()
+            async def _s():
+                b = _Bot(BOT_TOKEN)
+                await b.send_message(chat_id=OWNER_ID, text=f"📦 **کانفیگ جدید (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:", parse_mode="Markdown")
+            loop.run_until_complete(_s()); loop.close()
+        threading.Thread(target=_n, daemon=True).start()
+    except: pass
     result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
     if result:
         configs = load_configs()
@@ -654,20 +631,19 @@ async def api_buy_express(request):
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
-        # Notify admin
-        import threading
-        def notify3():
-            import asyncio
-            loop = asyncio.new_event_loop()
-            async def _send():
-                from telegram import Bot
-                bot = Bot(BOT_TOKEN)
-                await bot.send_message(chat_id=OWNER_ID,
-                    text=f"⚡ **سفارش ExpressVPN (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان از کیف پول کسر شد\n\n🔗 لینک اشتراک رو بفرستید:",
-                    parse_mode="Markdown")
-            loop.run_until_complete(_send())
-            loop.close()
-        threading.Thread(target=notify3, daemon=True).start()
+        # Set pending for admin + notify
+        p = load_pending(); p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}; save_pending(p)
+        try:
+            from telegram import Bot as _Bot
+            import threading, asyncio
+            def _n():
+                loop = asyncio.new_event_loop()
+                async def _s():
+                    b = _Bot(BOT_TOKEN)
+                    await b.send_message(chat_id=OWNER_ID, text=f"⚡ **سفارش ExpressVPN (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:", parse_mode="Markdown")
+                loop.run_until_complete(_s()); loop.close()
+            threading.Thread(target=_n, daemon=True).start()
+        except: pass
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
@@ -695,11 +671,10 @@ def create_web_app():
 def main():
     PORT = int(os.environ.get("PORT", 8080))
 
-    # Web server in daemon thread
     def run_web():
-        import asyncio
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        import asyncio as _aio
+        loop = _aio.new_event_loop()
+        _aio.set_event_loop(loop)
         runner = web.AppRunner(create_web_app())
         loop.run_until_complete(runner.setup())
         loop.run_until_complete(web.TCPSite(runner, "0.0.0.0", PORT).start())
@@ -708,40 +683,41 @@ def main():
 
     threading.Thread(target=run_web, daemon=True).start()
 
-    # Bot on main thread — use run_polling() directly (non-async)
-    app = Application.builder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(check_member, pattern="^check_member$"))
-    app.add_handler(CallbackQueryHandler(buy_config, pattern="^buy_config$"))
-    app.add_handler(CallbackQueryHandler(select_config, pattern="^config_"))
-    app.add_handler(CallbackQueryHandler(pay_config, pattern="^pay_config_"))
-    app.add_handler(CallbackQueryHandler(pay_wallet_config, pattern="^pay_wallet_config_"))
-    app.add_handler(CallbackQueryHandler(receipt_received, pattern="^receipt_(?!express_)"))
-    app.add_handler(CallbackQueryHandler(buy_express, pattern="^buy_express$"))
-    app.add_handler(CallbackQueryHandler(select_express, pattern="^express_"))
-    app.add_handler(CallbackQueryHandler(pay_express, pattern="^pay_express_"))
-    app.add_handler(CallbackQueryHandler(pay_wallet_express, pattern="^pay_wallet_express_"))
-    app.add_handler(CallbackQueryHandler(receipt_express_received, pattern="^receipt_express_"))
-    app.add_handler(CallbackQueryHandler(free_sub_menu, pattern="^free_sub$"))
-    app.add_handler(CallbackQueryHandler(claim_free_sub, pattern="^claim_free_sub$"))
-    app.add_handler(CallbackQueryHandler(wallet_menu, pattern="^wallet_menu$"))
-    app.add_handler(CallbackQueryHandler(charge_wallet, pattern="^charge_wallet$"))
-    app.add_handler(CallbackQueryHandler(charge_custom, pattern="^charge_custom$"))
-    app.add_handler(CallbackQueryHandler(charge_amount, pattern="^charge_[0-9]+$"))
-    app.add_handler(CallbackQueryHandler(charge_receipt_step, pattern="^charge_receipt_"))
-    app.add_handler(CallbackQueryHandler(wallet_history, pattern="^wallet_history$"))
-    app.add_handler(CallbackQueryHandler(user_panel, pattern="^user_panel$"))
-    app.add_handler(CallbackQueryHandler(back_main, pattern="^back_main$"))
-    app.add_handler(CallbackQueryHandler(approve_express, pattern="^approve_express_"))
-    app.add_handler(CallbackQueryHandler(approve_config, pattern="^approve_config_"))
-    app.add_handler(CallbackQueryHandler(approve_receipt, pattern="^approve_"))
-    app.add_handler(CallbackQueryHandler(reject_receipt, pattern="^reject_"))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-    logger.info("Bot started!")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    import asyncio
+    async def run_bot():
+        app = Application.builder().token(BOT_TOKEN).build()
+        app.add_handler(CommandHandler("start", start))
+        app.add_handler(CallbackQueryHandler(check_member, pattern="^check_member$"))
+        app.add_handler(CallbackQueryHandler(buy_config, pattern="^buy_config$"))
+        app.add_handler(CallbackQueryHandler(select_config, pattern="^config_"))
+        app.add_handler(CallbackQueryHandler(pay_config, pattern="^pay_config_"))
+        app.add_handler(CallbackQueryHandler(pay_wallet_config, pattern="^pay_wallet_config_"))
+        app.add_handler(CallbackQueryHandler(receipt_received, pattern="^receipt_(?!express_)"))
+        app.add_handler(CallbackQueryHandler(buy_express, pattern="^buy_express$"))
+        app.add_handler(CallbackQueryHandler(select_express, pattern="^express_"))
+        app.add_handler(CallbackQueryHandler(pay_express, pattern="^pay_express_"))
+        app.add_handler(CallbackQueryHandler(pay_wallet_express, pattern="^pay_wallet_express_"))
+        app.add_handler(CallbackQueryHandler(receipt_express_received, pattern="^receipt_express_"))
+        app.add_handler(CallbackQueryHandler(free_sub_menu, pattern="^free_sub$"))
+        app.add_handler(CallbackQueryHandler(claim_free_sub, pattern="^claim_free_sub$"))
+        app.add_handler(CallbackQueryHandler(wallet_menu, pattern="^wallet_menu$"))
+        app.add_handler(CallbackQueryHandler(charge_wallet, pattern="^charge_wallet$"))
+        app.add_handler(CallbackQueryHandler(charge_custom, pattern="^charge_custom$"))
+        app.add_handler(CallbackQueryHandler(charge_amount, pattern="^charge_[0-9]+$"))
+        app.add_handler(CallbackQueryHandler(charge_receipt_step, pattern="^charge_receipt_"))
+        app.add_handler(CallbackQueryHandler(wallet_history, pattern="^wallet_history$"))
+        app.add_handler(CallbackQueryHandler(user_panel, pattern="^user_panel$"))
+        app.add_handler(CallbackQueryHandler(back_main, pattern="^back_main$"))
+        app.add_handler(CallbackQueryHandler(approve_express, pattern="^approve_express_"))
+        app.add_handler(CallbackQueryHandler(approve_config, pattern="^approve_config_"))
+        app.add_handler(CallbackQueryHandler(approve_receipt, pattern="^approve_"))
+        app.add_handler(CallbackQueryHandler(reject_receipt, pattern="^reject_"))
+        app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+        logger.info("Bot started!")
+        await app.run_polling(allowed_updates=Update.ALL_TYPES)
+
+    asyncio.run(run_bot())
 
 if __name__ == "__main__":
     main()
-# Diaz Shop Bot
-
