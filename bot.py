@@ -557,23 +557,90 @@ async def serve_index(request):
     release = datetime(2026, 11, 19, 0, 0, 0, tzinfo=timezone(timedelta(hours=3, minutes=30)))
     now = datetime.now(timezone.utc)
     diff = max(0, (release - now).total_seconds())
-    days = int(diff // 86400)
-    hours = int((diff % 86400) // 3600)
-    mins = int((diff % 3600) // 60)
-    secs = int(diff % 60)
+    vals = [int(diff // 86400), int((diff % 86400) // 3600), int((diff % 3600) // 60), int(diff % 60)]
     html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
-    for val, label in [(days, "روز"), (hours, "ساعت"), (mins, "دقیقه"), (secs, "ثانیه")]:
-        idx = html.find(label)
-        if idx > 0:
-            before = html.rfind(">00</div>", 0, idx)
+    for i, label in enumerate(["روز", "ساعت", "دقیقه", "ثانیه"]):
+        pos = html.find(label)
+        if pos > 0:
+            before = html.rfind(">00</div>", 0, pos)
             if before > 0:
-                html = html[:before+1] + str(val).zfill(2) + html[before+3:]
+                html = html[:before + 1] + str(vals[i]).zfill(2) + html[before + 3:]
     resp = web.Response(text=html, content_type="text/html")
     resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
     resp.headers["Pragma"] = "no-cache"
     resp.headers["Expires"] = "0"
     return resp
 
+async def serve_static(request):
+    fname = request.match_info["name"]
+    fpath = STATIC_DIR / fname
+    if fpath.exists() and fpath.is_file():
+        return web.FileResponse(str(fpath))
+    return web.Response(status=404)
+
+# API handlers
+async def api_user(request):
+    uid = request.match_info["uid"]
+    return web.json_response({
+        "balance": get_balance(uid),
+        "referral_count": get_referral_count(int(uid)),
+        "free_done": has_free_sub(int(uid)),
+        "configs": load_configs().get(uid, []),
+        "history": load_wallet().get(uid, {}).get("history", [])[-10:],
+        "card_number": CARD_NUMBER, "card_name": CARD_NAME,
+        "referral_target": REFERRAL_TARGET, "bot_username": "Diazpshopbot",
+    })
+
+async def api_buy_config(request):
+    data = await request.json()
+    uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
+    plan = CONFIG_PLANS.get(plan_id)
+    if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if method == "wallet":
+        if not spend_balance(int(uid), plan["price_int"]):
+            return web.json_response({"error": "insufficient balance"})
+        p = load_pending(); p[uid] = {"waiting": True, "type": "config_wallet_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
+        _notify_admin(f"📦 **سفارش کانفیگ (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n📝 منتظر اسم کاربر...")
+        return web.json_response({"ok": True, "action": "need_name"})
+    return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
+
+async def api_buy_config_name(request):
+    data = await request.json()
+    uid = data.get("uid"); name = data.get("name", "").strip()
+    if not name: return web.json_response({"error": "name required"}, status=400)
+    p = load_pending(); state = p.get(uid)
+    if not state: return web.json_response({"error": "no pending order"})
+    plan = state.get("plan_data", {})
+    del p[uid]
+    p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
+    save_pending(p)
+    _notify_admin(f"📦 **کانفیگ جدید (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:")
+    result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
+    if result:
+        configs = load_configs()
+        if uid not in configs: configs[uid] = []
+        cfg = result.get("config", "") or result.get("subscription_url", "")
+        configs[uid].append({"type": "کانفیگ", "data": plan.get("name", ""), "link": cfg[:200]})
+        save_configs(configs)
+        return web.json_response({"ok": True, "config": cfg, "expire_at": result.get("expire_at", ""), "plan": plan.get("name", "")})
+    return web.json_response({"error": "creation failed"}, status=500)
+
+async def api_buy_express(request):
+    data = await request.json()
+    uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
+    plan = EXPRESS_PLANS.get(plan_id)
+    if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if method == "wallet":
+        if not spend_balance(int(uid), plan["price_int"]):
+            return web.json_response({"error": "insufficient balance"})
+        p = load_pending()
+        p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}
+        save_pending(p)
+        _notify_admin(f"⚡ **سفارش ExpressVPN (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
+        return web.json_response({"ok": True, "action": "wallet_paid"})
+
+
+    # ─── API: Buy GTA VI ─────────────────
     @routes.post("/api/buy_gta")
     async def api_buy_gta(request):
         data = await request.json()
@@ -664,4 +731,3 @@ if __name__ == "__main__":
     main()
 # v3 cache clear
 # v4
-# v5
