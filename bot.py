@@ -540,13 +540,6 @@ async def reject_receipt(update, context):
     await q.edit_message_caption(caption=q.message.caption + "\n\n❌ رد شد!", parse_mode="Markdown")
 
 
-def _notify_admin(text):
-    """Send notification to admin via Telegram HTTP API (thread-safe)"""
-    try:
-        import httpx as _hx
-        _hx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                 json={"chat_id": OWNER_ID, "text": text, "parse_mode": "Markdown"}, timeout=10)
-    except: pass
 
 # ─── Web Server (serves mini app + API) ──────────────────
 STATIC_DIR = Path(__file__).parent.resolve()
@@ -583,7 +576,6 @@ async def api_buy_config(request):
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
         p = load_pending(); p[uid] = {"waiting": True, "type": "config_wallet_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
-        _notify_admin(f"📦 **سفارش کانفیگ (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n📝 منتظر اسم کاربر...")
         return web.json_response({"ok": True, "action": "need_name"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
@@ -597,7 +589,6 @@ async def api_buy_config_name(request):
     del p[uid]
     p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
     save_pending(p)
-    _notify_admin(f"📦 **کانفیگ جدید (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:")
     result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
     if result:
         configs = load_configs()
@@ -617,7 +608,6 @@ async def api_buy_express(request):
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
         p = load_pending(); p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}; save_pending(p)
-        _notify_admin(f"⚡ **سفارش ExpressVPN (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
