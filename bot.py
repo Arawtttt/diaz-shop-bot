@@ -452,16 +452,8 @@ async def handle_photo(update, context):
 
 async def handle_text(update, context):
     uid = str(update.effective_user.id); p = load_pending(); state = p.get(uid)
-    if not state or not state.get("waiting"): return
-    if state["type"] == "charge_custom":
-        try: amount = int(update.message.text.strip())
-        except: await update.message.reply_text("❌ فقط عدد."); return
-        del p[uid]; save_pending(p)
-        kb = [[InlineKeyboardButton("📸 ارسال رسید", callback_data=f"charge_receipt_{amount}")]]
-        await update.message.reply_text(f"💳 واریز {amount:,} تومان\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
-        return
-    # Admin sending subscription/config link to user
-    if state.get("waiting_admin"):
+    # Admin sending subscription/config link — check FIRST
+    if state and state.get("waiting_admin"):
         admin_type = state["type"]; target_user = state["user_id"]
         link = update.message.text.strip()
         del p[uid]; save_pending(p)
@@ -476,7 +468,14 @@ async def handle_text(update, context):
                 parse_mode="Markdown")
         except: pass
         return
-
+    if not state or not state.get("waiting"): return
+    if state["type"] == "charge_custom":
+        try: amount = int(update.message.text.strip())
+        except: await update.message.reply_text("❌ فقط عدد."); return
+        del p[uid]; save_pending(p)
+        kb = [[InlineKeyboardButton("📸 ارسال رسید", callback_data=f"charge_receipt_{amount}")]]
+        await update.message.reply_text(f"💳 واریز {amount:,} تومان\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+        return
     if state["type"] in ("config_wallet_name", "config_receipt_name"):
         name = update.message.text.strip(); plan = state.get("plan_data", {})
         del p[uid]; save_pending(p)
