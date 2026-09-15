@@ -139,6 +139,22 @@
                         </div>
                     </div>
                 </div>
+                <script>
+                (function(){
+                    var R=1763527800000;
+                    function T(){
+                        var d=R-Date.now();
+                        if(d<0)return;
+                        var a=document.getElementById('gtaDays'),b=document.getElementById('gtaHours'),c=document.getElementById('gtaMins'),e=document.getElementById('gtaSecs');
+                        if(!a)return;
+                        a.textContent=String(Math.floor(d/864e5)).padStart(2,'0');
+                        b.textContent=String(Math.floor(d%864e5/36e5)).padStart(2,'0');
+                        c.textContent=String(Math.floor(d%36e5/6e4)).padStart(2,'0');
+                        e.textContent=String(Math.floor(d%6e4/1e3)).padStart(2,'0');
+                    }
+                    T();setInterval(T,1000);
+                })();
+                </script>
                 <div style="margin:16px 10px;padding:14px;background:rgba(224,64,251,0.08);border:1px solid rgba(224,64,251,0.3);border-radius:12px;">
                     <div style="text-align:center;font-size:11px;color:#bb86fc;margin-bottom:10px;">📦 Ultimate Edition — Xbox Home</div>
                     <div style="text-align:center;font-size:24px;font-weight:bold;color:#e040fb;margin-bottom:4px;">۱۲,۰۰۰,۰۰۰ تومان</div>
@@ -249,7 +265,7 @@ function enterApp() {
     initTelegram();
     if (UID) loadUser();
     else renderPlans();
-    try { startGtaTimer(); } catch(e) { console.log('GTA timer err:', e); }
+    startGtaTimer();
 }
 
 // === TOAST ===
@@ -493,29 +509,23 @@ window.addEventListener('load', function() {
     try { startGtaTimer(); } catch(e) {}
 });
 
-// ═══ GTA VI ═══
 function startGtaTimer() {
-    var gtaRelease = new Date('2026-11-19T00:00:00+03:30');
-    function tick() {
-        var now = new Date();
-        var diff = gtaRelease - now;
-        var el1 = document.getElementById('gtaDays');
-        var el2 = document.getElementById('gtaHours');
-        var el3 = document.getElementById('gtaMins');
-        var el4 = document.getElementById('gtaSecs');
-        if (!el1) return;
-        if (diff <= 0) {
-            el1.textContent = '🎉'; el2.textContent = '🎉';
-            el3.textContent = '🎉'; el4.textContent = '🎉';
-            return;
-        }
-        el1.textContent = String(Math.floor(diff / 86400000)).padStart(2, '0');
-        el2.textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
-        el3.textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-        el4.textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+    var R = 1763527800000;
+    function T() {
+        var d = R - Date.now();
+        if (d < 0) return;
+        var a = document.getElementById('gtaDays');
+        var b = document.getElementById('gtaHours');
+        var c = document.getElementById('gtaMins');
+        var e = document.getElementById('gtaSecs');
+        if (!a) return;
+        a.textContent = String(Math.floor(d/864e5)).padStart(2,'0');
+        b.textContent = String(Math.floor(d%864e5/36e5)).padStart(2,'0');
+        c.textContent = String(Math.floor(d%36e5/6e4)).padStart(2,'0');
+        e.textContent = String(Math.floor(d%6e4/1e3)).padStart(2,'0');
     }
-    tick();
-    setInterval(tick, 1000);
+    T();
+    setInterval(T, 1000);
 }
 
 function buyGta() {
