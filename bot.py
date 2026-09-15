@@ -1,3 +1,4 @@
+import re
 #!/usr/bin/env python3
 """Diaz Shop — Telegram Bot + Web Server + Mini App API (all-in-one)"""
 
