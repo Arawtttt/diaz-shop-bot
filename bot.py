@@ -562,14 +562,12 @@ async def serve_index(request):
     mins = int((diff % 3600) // 60)
     secs = int(diff % 60)
     html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
-    # Replace "00" with actual values by finding each label
-    for val, label in [(days, "\u0631\u0648\u0632"), (hours, "\u0633\u0627\u0639\u062a"), (mins, "\u062f\u0642\u06cc\u0642\u0647"), (secs, "\u062b\u0627\u0646\u06cc\u0647")]:
+    for val, label in [(days, "روز"), (hours, "ساعت"), (mins, "دقیقه"), (secs, "ثانیه")]:
         idx = html.find(label)
         if idx > 0:
-            # Find the "00</div>" before this label
             before = html.rfind(">00</div>", 0, idx)
             if before > 0:
-                html = html[:before+1] + f"{val:02d}" + html[before+3:]
+                html = html[:before+1] + str(val).zfill(2) + html[before+3:]
     resp = web.Response(text=html, content_type="text/html")
     resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
     resp.headers["Pragma"] = "no-cache"
