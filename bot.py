@@ -1,4 +1,3 @@
-import re
 #!/usr/bin/env python3
 """Diaz Shop — Telegram Bot + Web Server + Mini App API (all-in-one)"""
 
@@ -558,14 +557,19 @@ async def serve_index(request):
     release = datetime(2026, 11, 19, 0, 0, 0, tzinfo=timezone(timedelta(hours=3, minutes=30)))
     now = datetime.now(timezone.utc)
     diff = max(0, (release - now).total_seconds())
-    countdown = [int(diff // 86400), int((diff % 86400) // 3600), int((diff % 3600) // 60), int(diff % 60)]
-    labels = ["روز", "ساعت", "دقیقه", "ثانیه"]
+    days = int(diff // 86400)
+    hours = int((diff % 86400) // 3600)
+    mins = int((diff % 3600) // 60)
+    secs = int(diff % 60)
     html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
-    # Replace "00" before each Persian label with actual countdown value
-    for val, label in zip(countdown, labels):
-        # Match: >00</div> ... <div ...>LABEL</div>
-        pat = re.compile(r'(>00</div>\s*<div style="font-size:9px;color:#bb86fc;">)' + re.escape(label) + r'(</div>)')
-        html = pat.sub(r'\g<1>' + f'{val:02d}' + r'\g<2>', html, count=1)
+    # Replace "00" with actual values by finding each label
+    for val, label in [(days, "\u0631\u0648\u0632"), (hours, "\u0633\u0627\u0639\u062a"), (mins, "\u062f\u0642\u06cc\u0642\u0647"), (secs, "\u062b\u0627\u0646\u06cc\u0647")]:
+        idx = html.find(label)
+        if idx > 0:
+            # Find the "00</div>" before this label
+            before = html.rfind(">00</div>", 0, idx)
+            if before > 0:
+                html = html[:before+1] + f"{val:02d}" + html[before+3:]
     resp = web.Response(text=html, content_type="text/html")
     resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
     resp.headers["Pragma"] = "no-cache"
