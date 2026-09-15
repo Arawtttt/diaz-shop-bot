@@ -187,20 +187,14 @@ WELCOME_TEXT = (
     f" پشتیبانی: @{SUPPORT_USERNAME}"
 )
 
-async def open_shop(update, context):
-    q = update.callback_query; await q.answer()
-    uid = q.from_user.id
-    url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}"
-    kb = [[InlineKeyboardButton("🚀 باز کردن فروشگاه", web_app=WebAppInfo(url=url))]]
-    await q.edit_message_text("🛍️ فروشگاه diazplaylist", reply_markup=InlineKeyboardMarkup(kb))
-
-def main_menu_kb():
+def main_menu_kb(uid=0):
     railway_url = "worker-production-e8dd.up.railway.app"
     mini_url = railway_url if railway_url else "https://arawtttt.github.io/diaz-shop-bot/"
     if railway_url and not railway_url.startswith("http"):
         mini_url = f"https://{railway_url}"
+    shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}"
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🕷️ فروشگاه", callback_data="open_shop")],
+        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
@@ -242,7 +236,7 @@ async def start(update, context):
             await update.message.reply_text("⚠️ برای استفاده از ربات ابتدا باید در کانال عضو شوید!", reply_markup=InlineKeyboardMarkup(kb))
         return
     if update.message:
-        await update.message.reply_text(WELCOME_TEXT, reply_markup=main_menu_kb())
+        await update.message.reply_text(WELCOME_TEXT, reply_markup=main_menu_kb(uid=user.id))
 
 async def check_member(update, context):
     q = update.callback_query; await q.answer()
@@ -259,7 +253,7 @@ async def check_member(update, context):
 
 async def back_main(update, context):
     q = update.callback_query; await q.answer()
-    await q.edit_message_text(WELCOME_TEXT, reply_markup=main_menu_kb())
+    await q.edit_message_text(WELCOME_TEXT, reply_markup=main_menu_kb(uid=q.from_user.id))
 
 async def free_sub_menu(update, context):
     q = update.callback_query; await q.answer()
