@@ -489,33 +489,33 @@ window.addEventListener('load', function() {
     initTelegram();
     showSection('home');
     renderPlans();
+    try { startGtaTimer(); } catch(e) {}
 });
 
 // ═══ GTA VI ═══
-(function() {
+function startGtaTimer() {
     var gtaRelease = new Date('2026-11-19T00:00:00+03:30');
-    function updateGtaTimer() {
+    function tick() {
         var now = new Date();
         var diff = gtaRelease - now;
+        var el1 = document.getElementById('gtaDays');
+        var el2 = document.getElementById('gtaHours');
+        var el3 = document.getElementById('gtaMins');
+        var el4 = document.getElementById('gtaSecs');
+        if (!el1) return;
         if (diff <= 0) {
-            document.getElementById('gtaDays').textContent = '🎉';
-            document.getElementById('gtaHours').textContent = '🎉';
-            document.getElementById('gtaMins').textContent = '🎉';
-            document.getElementById('gtaSecs').textContent = '🎉';
+            el1.textContent = '🎉'; el2.textContent = '🎉';
+            el3.textContent = '🎉'; el4.textContent = '🎉';
             return;
         }
-        var d = Math.floor(diff / 86400000);
-        var h = Math.floor((diff % 86400000) / 3600000);
-        var m = Math.floor((diff % 3600000) / 60000);
-        var s = Math.floor((diff % 60000) / 1000);
-        document.getElementById('gtaDays').textContent = String(d).padStart(2, '0');
-        document.getElementById('gtaHours').textContent = String(h).padStart(2, '0');
-        document.getElementById('gtaMins').textContent = String(m).padStart(2, '0');
-        document.getElementById('gtaSecs').textContent = String(s).padStart(2, '0');
+        el1.textContent = String(Math.floor(diff / 86400000)).padStart(2, '0');
+        el2.textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+        el3.textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        el4.textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
     }
-    updateGtaTimer();
-    setInterval(updateGtaTimer, 1000);
-})();
+    tick();
+    setInterval(tick, 1000);
+}
 
 function buyGta() {
     if (!UID) { showToast('لطفاً از داخل تلگرام باز کنید'); return; }
