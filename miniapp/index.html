@@ -530,5 +530,21 @@ function _gtick(){
 _gtick();
 setInterval(_gtick,1000);
 </script>
+<script>
+(function(){
+var R=new Date('2026-11-19T00:00:00+03:30').getTime();
+function t(){
+var d=R-Date.now();
+if(d<0)return;
+var a=document.getElementById('gtaDays'),b=document.getElementById('gtaHours'),c=document.getElementById('gtaMins'),e=document.getElementById('gtaSecs');
+if(!a){setTimeout(t,300);return}
+a.textContent=String(Math.floor(d/864e5)).padStart(2,'0');
+b.textContent=String(Math.floor(d%864e5/36e5)).padStart(2,'0');
+c.textContent=String(Math.floor(d%36e5/6e4)).padStart(2,'0');
+e.textContent=String(Math.floor(d%6e4/1e3)).padStart(2,'0');
+}
+t();setInterval(t,1000);
+})();
+</script>
 </body>
 </html>
