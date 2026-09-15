@@ -667,7 +667,6 @@ def main():
     # Bot on main thread — use run_polling() directly (non-async)
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(open_shop, pattern="^open_shop$"))
     app.add_handler(CallbackQueryHandler(check_member, pattern="^check_member$"))
     app.add_handler(CallbackQueryHandler(buy_config, pattern="^buy_config$"))
     app.add_handler(CallbackQueryHandler(select_config, pattern="^config_"))
