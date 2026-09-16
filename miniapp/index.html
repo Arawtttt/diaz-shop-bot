@@ -284,7 +284,15 @@ function loadUser() {
     if (tg && tg.initData) headers['X-Telegram-Init-Data'] = tg.initData;
     fetch(API + '/api/user/' + UID, { headers: headers })
         .then(function(r) { return r.json(); })
-        .then(function(d) { userData = d; renderPlans(); renderUser(); })
+        .then(function(d) {
+            userData = d;
+            if (d.is_member === false) {
+                var ct = document.querySelector('.ct');
+                if (ct) ct.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px">📢</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">عضویت در کانال الزامی است</div><div style="font-size:12px;color:var(--dim);margin-bottom:20px">برای استفاده از فروشگاه ابتدا در کانال عضو شوید</div><a href="https://t.me/Diazplaylist" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;border-radius:12px;text-decoration:none;font-weight:700;">عضویت در کانال</a></div>';
+                return;
+            }
+            renderPlans(); renderUser();
+        })
         .catch(function(e) { console.error('[Diaz] API error:', e); renderPlans(); });
 }
 
