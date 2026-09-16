@@ -581,6 +581,13 @@ async def serve_static(request):
 # API handlers
 async def api_user(request):
     uid = request.match_info["uid"]
+    is_member = True
+    try:
+        from telegram import Bot as _B
+        _b = _B(token=BOT_TOKEN)
+        cm = await _b.get_chat_member(CHANNEL_ID, int(uid))
+        is_member = cm.status in ["member", "administrator", "creator"]
+    except: pass
     return web.json_response({
         "balance": get_balance(uid),
         "referral_count": get_referral_count(int(uid)),
@@ -589,6 +596,7 @@ async def api_user(request):
         "history": load_wallet().get(uid, {}).get("history", [])[-10:],
         "card_number": CARD_NUMBER, "card_name": CARD_NAME,
         "referral_target": REFERRAL_TARGET, "bot_username": "Diazpshopbot",
+        "is_member": is_member,
     })
 
 async def api_buy_config(request):
