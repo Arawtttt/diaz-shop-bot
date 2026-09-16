@@ -586,10 +586,14 @@ async def api_user(request):
     uid = request.match_info["uid"]
     is_member = True
     try:
-        from telegram import Bot as _B
-        _b = _B(token=BOT_TOKEN)
-        cm = await _b.get_chat_member(CHANNEL_ID, int(uid))
-        is_member = cm.status in ["member", "administrator", "creator"]
+        import httpx
+        async with httpx.AsyncClient() as _hc:
+            _r = await _hc.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getChatMember", params={"chat_id": CHANNEL_ID, "user_id": int(uid)}, timeout=10)
+            _d = _r.json()
+            if _d.get("ok"):
+                is_member = _d["result"]["status"] in ["member", "administrator", "creator"]
+            else:
+                is_member = True
     except: pass
     return web.json_response({
         "balance": get_balance(uid),
@@ -677,11 +681,28 @@ async def api_wallet_charge(request):
     p = load_pending(); p[uid] = {"waiting": True, "type": "charge", "amount": amount}; save_pending(p)
     return web.json_response({"ok": True, "card": CARD_NUMBER, "card_name": CARD_NAME, "amount": amount})
 
+# Debug: test channel check
+_bot_ref = None
+
+async def api_debug_channel(request):
+    uid = request.query.get("uid", "6326889425")
+    result = {"uid": uid, "channel": CHANNEL_ID, "bot_token_prefix": BOT_TOKEN[:10]}
+    try:
+        import httpx
+        async with httpx.AsyncClient() as hc:
+            r = await hc.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getChatMember",
+                           params={"chat_id": CHANNEL_ID, "user_id": int(uid)}, timeout=10)
+            result["api_response"] = r.json()
+    except Exception as e:
+        result["error"] = str(e)
+    return web.json_response(result)
+
 def create_web_app():
     app = web.Application()
     app.router.add_get("/", serve_index)
     app.router.add_get("/index.html", serve_index)
     app.router.add_get("/api/user/{uid}", api_user)
+    app.router.add_get("/api/debug_channel", api_debug_channel)
     app.router.add_post("/api/buy_config", api_buy_config)
     app.router.add_post("/api/buy_config_name", api_buy_config_name)
     app.router.add_post("/api/buy_express", api_buy_express)
