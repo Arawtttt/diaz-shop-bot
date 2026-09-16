@@ -217,7 +217,10 @@ async def start(update, context):
     try:
         member = await context.bot.get_chat_member(CHANNEL_ID, user.id)
         is_m = member.status in ["member", "administrator", "creator"]
-    except: is_m = False
+        logger.info(f"Channel check for {user.id}: status={member.status}, is_m={is_m}")
+    except Exception as e:
+        is_m = False
+        logger.error(f"Channel check failed for {user.id}: {e}")
     if not is_m:
         kb = [
             [InlineKeyboardButton("📢 عضویت در کانال", url=f"https://t.me/{CHANNEL_ID.lstrip('@')}")],
