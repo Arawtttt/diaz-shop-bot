@@ -584,7 +584,7 @@ async def serve_static(request):
 # API handlers
 async def api_user(request):
     uid = request.match_info["uid"]
-    is_member = True
+    is_member = False
     try:
         import httpx
         async with httpx.AsyncClient() as _hc:
@@ -592,8 +592,6 @@ async def api_user(request):
             _d = _r.json()
             if _d.get("ok"):
                 is_member = _d["result"]["status"] in ["member", "administrator", "creator"]
-            else:
-                is_member = True
     except: pass
     return web.json_response({
         "balance": get_balance(uid),
