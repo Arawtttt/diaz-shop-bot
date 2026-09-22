@@ -18,7 +18,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,6,22,.35),rgba(11,6,22,.75) 45%,var(--dk) 72%)}
 .splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(11,6,22,.94);backdrop-filter:blur(18px);transition:opacity .6s,transform .6s}
 .splash.hide{opacity:0;transform:scale(1.05);pointer-events:none}
-.splash img{width:140px;height:140px;border-radius:50%;object-fit:cover;border:3px solid transparent;background:var(--grad) border-box;padding:3px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;box-shadow:0 0 44px rgba(124,58,237,.45),0 0 70px rgba(226,54,54,.25)}
+.splash-ring{width:146px;height:146px;border-radius:50%;padding:3px;background:var(--grad);box-shadow:0 0 44px rgba(124,58,237,.45),0 0 70px rgba(226,54,54,.25)}
+.splash-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;border:none;padding:0;background:none;-webkit-mask:none;mask:none}
 .splash h2{font-size:24px;font-weight:900;margin-top:20px;background:linear-gradient(135deg,#fff 15%,var(--pur2) 55%,var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .splash p{font-size:13px;color:var(--dim);margin-top:6px}
 .sbtn{margin-top:28px;padding:14px 44px;border:none;border-radius:50px;background:var(--grad);color:#fff;font-family:'Vazirmatn';font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 10px 28px rgba(124,58,237,.4),0 4px 14px rgba(226,54,54,.3);transition:transform .15s,box-shadow .2s}
@@ -88,7 +89,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 <body>
     <div class="bg"></div>
     <div class="splash" id="splash">
-        <img src="spider-bg.jpg" alt="">
+        <div class="splash-ring"><img src="spider-bg.jpg" alt=""></div>
         <h2>🕷️ Diaz Shop</h2>
         <p>فروشگاه اختصاصی diazplaylist</p>
         <button class="sbtn" id="playBtn">🕷️ ورود</button>
