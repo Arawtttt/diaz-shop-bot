@@ -82,6 +82,40 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .modal-box input:focus{border-color:var(--pur2);box-shadow:0 0 0 3px rgba(124,58,237,.25)}
 .modal-box .mbtn{width:100%;padding:14px;border:none;border-radius:14px;background:var(--grad);color:#fff;font-family:'Vazirmatn';font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.35)}
 .modal-box .mcancel{margin-top:10px;font-size:12px;color:var(--dim);cursor:pointer;border:none;background:none;font-family:'Vazirmatn'}
+.hback{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:34px;height:34px;display:none;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:17px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .15s}
+.hback:active{transform:translateY(-50%) scale(.92);border-color:rgba(167,139,250,.5)}
+.hdr.sc{box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mgrid .mi{flex-direction:column;align-items:flex-start;gap:9px;margin-bottom:0;padding:14px;min-height:112px}
+.mgrid .mi .aw{position:absolute;top:12px;left:12px;font-size:15px}
+.mgrid .mi .ti{font-size:14px;font-weight:700}
+.mgrid .mi .sb{line-height:1.5}
+.banslider{position:relative;height:86px;border-radius:18px;overflow:hidden;margin-bottom:12px;border:1px solid var(--stroke)}
+.banslide{position:absolute;inset:0;opacity:0;transition:opacity .7s;display:flex;align-items:center;gap:13px;padding:0 18px;cursor:pointer;background:linear-gradient(135deg,rgba(124,58,237,.4),rgba(226,54,54,.28))}
+.banslide.act{opacity:1}
+.bsi{font-size:30px}
+.bstx b{display:block;font-size:15px;font-weight:900}
+.bstx i{display:block;font-style:normal;font-size:11.5px;color:rgba(255,255,255,.75);margin-top:3px}
+.bandots{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:3}
+.bd{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
+.bd.act{background:#fff;width:16px;border-radius:3px}
+.sumrow{display:flex;align-items:center}
+.sumcell{flex:1;text-align:center;cursor:pointer;padding:4px 0;border-radius:12px;transition:background .2s}
+.sumcell:active{background:rgba(255,255,255,.06)}
+.sumic{font-size:20px}
+.sumv{font-size:21px;font-weight:900;background:linear-gradient(135deg,var(--pur2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:2px}
+.suml{font-size:10px;color:var(--dim);margin-top:2px}
+.sumdiv{width:1px;height:46px;background:rgba(255,255,255,.12)}
+.sk{background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,.14),rgba(255,255,255,.06));background-size:200% 100%;animation:skm 1.3s linear infinite;border-radius:10px;height:14px;margin:7px 0}
+@keyframes skm{to{background-position:-200% 0}}
+.pln .pn{font-size:15px;font-weight:900;margin-bottom:8px}
+.pln .pp{font-size:18px;font-weight:900;color:var(--red);line-height:1.2}
+.pln .pp small{font-size:10px;font-weight:500;color:var(--dim)}
+.pln.best{border-color:rgba(167,139,250,.55);box-shadow:0 0 20px rgba(124,58,237,.3);padding-top:36px}
+.pln.best::after{content:'محبوب‌ترین';position:absolute;top:9px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--grad);color:#fff;white-space:nowrap;box-shadow:0 4px 12px rgba(124,58,237,.4)}
+.cardnum{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;font-weight:700;direction:ltr;flex:1;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copybtn{border:1px solid var(--stroke);background:var(--glass);color:#fff;border-radius:10px;padding:8px 12px;font-size:11.5px;font-family:'Vazirmatn';cursor:pointer;transition:all .15s;white-space:nowrap}
+.copybtn:active{transform:scale(.95);border-color:rgba(167,139,250,.5)}
 @keyframes pop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
 @keyframes fall{to{transform:translateY(108vh) rotate(760deg);opacity:0}}
 </style>
@@ -105,11 +139,22 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
         </div>
     </div>
     <div class="app" id="app" style="display:none">
-        <div class="hdr"><h1>🕷️ Diaz Shop</h1><p>فروشگاه اختصاصی diazplaylist</p></div>
+        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><h1>🕷️ Diaz Shop</h1><p>فروشگاه اختصاصی diazplaylist</p></div>
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
                 <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی diazplaylist</p></div></div>
                 <div id="svcStatus" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;margin-bottom:12px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.05);font-size:12px;color:var(--dim)">⏳ در حال بررسی وضعیت سرویس...</div>
+                <div class="gl" id="homeSummary" style="padding:14px 16px;margin-bottom:12px">
+                    <div class="sk" style="width:55%;height:16px"></div>
+                    <div class="sk" style="width:35%;height:12px"></div>
+                </div>
+                <div class="banslider" id="banslider">
+                    <div class="banslide act" onclick="showSection('ai')"><span class="bsi">✨</span><div class="bstx"><b>جمنای ۱۸ ماهه فعال شد</b><i>فقط ۴۰۰,۰۰۰ تومان — بیش از یک سال اشتراک</i></div></div>
+                    <div class="banslide" onclick="showSection('gtavi')"><span class="bsi">🔫</span><div class="bstx"><b>GTA VI پیش‌فروش</b><i>Ultimate Edition — ظرفیت هوم</i></div></div>
+                    <div class="banslide" onclick="showSection('referral')"><span class="bsi">🎁</span><div class="bstx"><b>دعوت کن، هدیه بگیر</b><i>با ۳ دعوت اشتراک رایگان ببر</i></div></div>
+                    <div class="bandots"><span class="bd act"></span><span class="bd"></span><span class="bd"></span></div>
+                </div>
+                <div class="mgrid">
                 <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('vpn')"><div class="ic">🛡️</div><div class="tx"><div class="ti">VPN</div><div class="sb">کانفیگ و اشتراک اکسپرس</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('games')"><div class="ic">🎮</div><div class="tx"><div class="ti">بازی‌ها</div><div class="sb">فروش ظرفیت بازی‌ها</div></div><div class="aw">‹</div></div>
@@ -118,24 +163,25 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
                                 <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">اشتراک رایگان</div><div class="sb">دعوت دوستان</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
+                </div>
             </div>
                 <div class="sec" id="sec-vpn">
                     <div class="st">🛡️ VPN</div>
                     <div id="sec-config"><div class="st" style="font-size:15px;margin-top:4px">📦 خرید کانفیگ</div><div style="text-align:center;padding:30px 20px;color:var(--dim)"><div style="font-size:48px;margin-bottom:16px">⏳</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">این بخش موقتاً غیرفعال است</div><div style="font-size:12px">به زودی فعال خواهد شد</div></div></div>
                     <div id="sec-express"><div class="st" style="font-size:15px;margin-top:8px">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div></div>
-                    <button class="bk" onclick="showSection('home')">← بازگشت به صفحه اصلی</button>
+                    
                 </div>
 
             <div class="sec" id="sec-music">
                 <div class="st">🎵 موزیک</div>
                 <div id="musicBrands"><div class="mi" onclick="openMusic('apple')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#FA243C"/><path fill="#fff" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></div><div class="tx"><div class="ti">Apple Music</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openMusic('spotify')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><circle cx="12" cy="12" r="12" fill="#1DB954"/><path d="M6.4 9.2c3.9-1.2 8.4-.8 11.3 1.3M7.3 12.5c3.2-1 6.8-.6 9.4 1.1M8.1 15.6c2.6-.8 5.4-.5 7.6.9" stroke="#0a0a12" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div><div class="tx"><div class="ti">Spotify</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openMusic('deezer')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#A238FF"/><g fill="#fff"><rect x="3.4" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="6.8" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="6.8" width="3.7" height="3.2" rx="0.8"/></g></svg></div><div class="tx"><div class="ti">Deezer</div><div class="sb">اشتراک یک‌ماهه — فمیلی و شخصی</div></div><div class="aw">‹</div></div></div>
-                <button class="bk" onclick="showSection('home')">← بازگشت به صفحه اصلی</button>
+                
             </div>
 
             <div class="sec" id="sec-ai">
                 <div class="st">🤖 هوش مصنوعی</div>
                 <div id="aiBrands"><div class="mi" onclick="openAI('chatgpt')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4.25" y="4.1" width="15.5" height="15.75" viewBox="0 0 256 260"><path fill="#0a0a0a" d="M239.184 106.203a64.72 64.72 0 0 0-5.576-53.103C219.452 28.459 191 15.784 163.213 21.74A65.586 65.586 0 0 0 52.096 45.22a64.72 64.72 0 0 0-43.23 31.36c-14.31 24.602-11.061 55.634 8.033 76.74a64.67 64.67 0 0 0 5.525 53.102c14.174 24.65 42.644 37.324 70.446 31.36a64.72 64.72 0 0 0 48.754 21.744c28.481.025 53.714-18.361 62.414-45.481a64.77 64.77 0 0 0 43.229-31.36c14.137-24.558 10.875-55.423-8.083-76.483m-97.56 136.338a48.4 48.4 0 0 1-31.105-11.255l1.535-.87l51.67-29.825a8.6 8.6 0 0 0 4.247-7.367v-72.85l21.845 12.636c.218.111.37.32.409.563v60.367c-.056 26.818-21.783 48.545-48.601 48.601M37.158 197.93a48.35 48.35 0 0 1-5.781-32.589l1.534.921l51.722 29.826a8.34 8.34 0 0 0 8.441 0l63.181-36.425v25.221a.87.87 0 0 1-.358.665l-52.335 30.184c-23.257 13.398-52.97 5.431-66.404-17.803M23.549 85.38a48.5 48.5 0 0 1 25.58-21.333v61.39a8.29 8.29 0 0 0 4.195 7.316l62.874 36.272l-21.845 12.636a.82.82 0 0 1-.767 0L41.353 151.53c-23.211-13.454-31.171-43.144-17.804-66.405zm179.466 41.695l-63.08-36.63L161.73 77.86a.82.82 0 0 1 .768 0l52.233 30.184a48.6 48.6 0 0 1-7.316 87.635v-61.391a8.54 8.54 0 0 0-4.4-7.213m21.742-32.69l-1.535-.922l-51.619-30.081a8.39 8.39 0 0 0-8.492 0L99.98 99.808V74.587a.72.72 0 0 1 .307-.665l52.233-30.133a48.652 48.652 0 0 1 72.236 50.391zM88.061 139.097l-21.845-12.585a.87.87 0 0 1-.41-.614V65.685a48.652 48.652 0 0 1 79.757-37.346l-1.535.87l-51.67 29.825a8.6 8.6 0 0 0-4.246 7.367zm11.868-25.58L128.067 97.3l28.188 16.218v32.434l-28.086 16.218l-28.188-16.218z"/></svg></svg></div><div class="tx"><div class="ti">ChatGPT</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openAI('grok')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#0a0a0a" stroke="rgba(255,255,255,.3)" stroke-width="0.7"/><svg x="4" y="4.65" width="16" height="14.67" viewBox="0 0 205 188"><path fill="#ffffff" d="M446.35 142.018V46.44h15.11v63.078l31.955-36.707h18.317l-28.746 31.458L512 142.019h-18.05l-23.5-32.437l-8.99-.064v32.5zm-45.818 1.607c-22.462 0-34.629-15.93-34.629-36.277c0-20.481 12.167-36.277 34.63-36.277c22.595 0 34.628 15.796 34.628 36.277c0 20.347-12.033 36.277-34.629 36.277m-18.852-36.277c0 15.796 8.557 23.693 18.852 23.693c10.43 0 18.853-7.897 18.853-23.693S410.96 83.52 400.532 83.52c-10.295 0-18.852 8.032-18.852 23.828m-57.827 34.67v-58.23l12.702-10.977h27.008v12.85h-24.6v56.357zm-57.77 1.768c-28.797 0-45.967-20.91-45.967-49.423c0-28.78 17.783-50.199 46.529-50.199c22.462 0 38.908 11.512 42.786 32.93h-17.248c-2.54-12.181-12.702-19.008-25.538-19.008c-20.724 0-29.816 17.938-29.816 36.277s9.092 36.143 29.816 36.143c19.788 0 28.48-14.323 29.147-26.237h-29.815v-13.86h45.058l-.074 7.246c0 26.929-10.974 46.131-44.878 46.131M48.759 43.42c20.982-20.99 51.664-26.632 77.695-16.705l1.767.7c5.84 2.173 10.93 5.263 14.901 8.137L121.08 45.743c-20.525-8.62-44.036-2.757-58.387 11.611c-19.407 19.413-23.328 53.077-.584 74.83L0 187.734c3.282-4.525 7.224-8.841 11.267-13.122l4.442-4.683l1.992-2.12c11.864-12.721 22.008-25.795 15.657-43.318l-.585-1.513c-11.147-27.115-4.656-58.891 15.986-79.557m119.894-16.489L195.553 0l-7.737 10.747c-16.113 22.7-23.265 36.99-16.126 67.724l-.05-.05c5.524 23.473-.383 49.502-19.457 68.598c-24.045 24.091-62.525 29.454-94.213 7.769l22.093-10.242c20.224 7.953 42.351 4.46 58.253-11.46c15.903-15.922 19.474-39.11 11.481-58.407c-1.518-3.659-6.074-4.578-9.261-2.222l-65.012 48.048l93.129-93.657z"/></svg></svg></div><div class="tx"><div class="ti">Grok</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openAI('gemini')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0%" stop-color="#4285F4"/><stop offset="55%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4" y="4" width="16" height="16" viewBox="312 0 73 73"><path fill="url(#gg)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></svg></div><div class="tx"><div class="ti">Gemini</div><div class="sb">اشتراک ۱۸ ماهه — فعال</div></div><div class="aw">‹</div></div></div>
-                <button class="bk" onclick="showSection('home')">← بازگشت به صفحه اصلی</button>
+                
             </div>
 
             <div class="sec" id="sec-games">
@@ -145,7 +191,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
                     <div class="tx"><div class="ti">GTA VI</div><div class="sb">Ultimate Edition — Xbox Home</div></div>
                     <div class="aw">‹</div>
                 </div>
-                <button class="bk" onclick="showSection('home')">← بازگشت</button>
+                
             </div>
 
             <div class="sec" id="sec-gtavi" style="background:linear-gradient(180deg,rgba(0,0,0,0.7),rgba(0,0,0,0.85) 40%,#0d0020 100%),url('gta-bg.jpg') center top/cover no-repeat;">
@@ -183,12 +229,20 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
                         <div class="aw">‹</div>
                     </div>
                 </div>
-                <button class="bk" onclick="showSection('games')" style="margin-top:14px;border-color:rgba(224,64,251,0.3);">← بازگشت به بازی‌ها</button>
+                
             </div>
 
             <div class="sec" id="sec-wallet">
                 <div class="st">💰 کیف پول</div>
                 <div class="gl" style="padding:24px;text-align:center;margin-bottom:14px"><div class="wa" id="walletBal">—</div><div class="wl">تومان موجودی فعلی</div></div>
+                <div class="gl" id="bankCard" style="padding:16px;margin-bottom:14px;display:none">
+                    <div style="font-size:11px;color:var(--dim);margin-bottom:9px">💳 کارت به کارت</div>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div class="cardnum" id="cardNum">—</div>
+                        <button class="copybtn" onclick="copyCard()">📋 کپی</button>
+                    </div>
+                    <div style="font-size:11px;color:var(--dim);margin-top:9px" id="cardName"></div>
+                </div>
                 <div class="gl" style="padding:18px;margin-bottom:14px">
                     <p style="font-size:13px;color:var(--dim);line-height:2">
                         💳 برای شارژ کیف پول:<br>
@@ -198,14 +252,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
                         ۴. پس از تایید، موجودی شارژ می‌شود
                     </p>
                 </div>
-                <button class="bk" onclick="showSection('home')">← بازگشت</button>
+                
             </div>
             <div class="sec" id="sec-referral">
                 <div class="st">🎁 اشتراک رایگان</div>
                 <div class="gl" style="padding:24px;margin-bottom:14px"><p style="text-align:center;font-size:13px;color:var(--dim);margin-bottom:4px">با دعوت ۳ نفر رایگان بگیرید!</p><div class="rc" id="refCount">—</div><div class="rs">تعداد دعوت‌شده</div></div>
                 <div class="lb2" onclick="copyLink()"><div style="font-size:11px;color:var(--dim);margin-bottom:6px">🔗 لینک دعوت</div><div style="font-size:12px;color:var(--red);word-break:break-all;font-family:monospace" id="refLink">—</div></div>
                 <div class="mi" onclick="claimFreeSub()" style="margin-top:14px"><div class="ic">🎁</div><div class="tx"><div class="ti">دریافت اشتراک رایگان</div><div class="sb">وقتی ۳ نفر دعوت کردید</div></div><div class="aw">‹</div></div>
-                <button class="bk" onclick="showSection('home')" style="margin-top:14px">← بازگشت</button>
+                
             </div>
             <div class="sec" id="sec-panel">
                 <div class="st">👤 پنل کاربری</div>
@@ -215,18 +269,16 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
                     <div class="ir"><span class="lb">آیدی</span><span class="vl" id="uId">—</span></div>
                     <div class="ir"><span class="lb">موجودی</span><span class="vl" style="color:var(--gold)" id="uBal">—</span></div>
                 </div>
-                <div id="uOrders"></div>
+                <div id="uOrders"><div class="gl" style="padding:16px;margin-bottom:14px"><div class="sk" style="width:55%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:40%"></div></div></div>
                 <div id="userConfigs"></div>
-                <button class="bk" onclick="showSection('home')">← بازگشت</button>
+                
             </div>
         </div>
         <div class="bnav">
             <button class="nv act" onclick="navTo('home')" data-n="home"><span class="ni">🏠</span><span>خانه</span></button>
-            <button class="nv" onclick="navTo('games')" data-n="games"><span class="ni">🎮</span><span>بازی</span></button>
             <button class="nv" onclick="navTo('vpn')" data-n="vpn"><span class="ni">🛡️</span><span>VPN</span></button>
             <button class="nv" onclick="navTo('music')" data-n="music"><span class="ni">🎵</span><span>موزیک</span></button>
             <button class="nv" onclick="navTo('ai')" data-n="ai"><span class="ni">🤖</span><span>AI</span></button>
-            <button class="nv" onclick="navTo('wallet')" data-n="wallet"><span class="ni">💰</span><span>کیف پول</span></button>
             <button class="nv" onclick="navTo('panel')" data-n="panel"><span class="ni">👤</span><span>پنل</span></button>
         </div>
     </div>
@@ -274,6 +326,10 @@ if (playBtn) {
         enterApp();
     });
 }
+setTimeout(function() {
+    var sp = document.getElementById('splash');
+    if (sp && sp.className.indexOf('hide') < 0) enterApp();
+}, 1600);
 
 function enterApp() {
     var splash = document.getElementById('splash');
@@ -293,18 +349,71 @@ function showToast(msg) {
 }
 
 // === NAVIGATION ===
+var _cur='home', _stack=[];
 function showSection(name) {
+    if (name !== _cur && _stack.length < 30) _stack.push(_cur);
+    _applySection(name);
+}
+function goBack() {
+    var prev = _stack.length ? _stack.pop() : 'home';
+    _applySection(prev);
+}
+function _applySection(name) {
+    _cur = name;
     var secs = document.querySelectorAll('.sec');
     for (var i = 0; i < secs.length; i++) secs[i].className = 'sec';
     var target = document.getElementById('sec-' + name);
     if (target) target.className = 'sec act';
-    var navKey = (name === 'gtavi') ? 'games' : (name === 'referral' ? 'home' : name);
+    var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home'})[name] || name;
     var navs = document.querySelectorAll('.nv');
     for (var j = 0; j < navs.length; j++) navs[j].className = 'nv';
     var nav = document.querySelector('.nv[data-n="' + navKey + '"]');
     if (nav) nav.className = 'nv act';
+    var hb = document.getElementById('hback');
+    if (hb) hb.style.display = (name === 'home') ? 'none' : 'flex';
 }
 function navTo(name) { showSection(name); }
+function startBanner(){
+    var sl=document.querySelectorAll('.banslide'), dots=document.querySelectorAll('.bandots .bd');
+    if(!sl.length) return;
+    var idx=0;
+    setInterval(function(){
+        sl[idx].classList.remove('act'); if(dots[idx])dots[idx].classList.remove('act');
+        idx=(idx+1)%sl.length;
+        sl[idx].classList.add('act'); if(dots[idx])dots[idx].classList.add('act');
+    },3800);
+}
+function animNum(el,to,suffix){
+    var from=parseInt(el.getAttribute('data-v')||'0',10)||0;
+    if(from===to){el.textContent=to.toLocaleString('fa-IR')+(suffix||'');el.setAttribute('data-v',to);return;}
+    var t0=performance.now(),dur=750;
+    function step(t){var k=Math.min(1,(t-t0)/dur);var v=Math.round(from+(to-from)*(1-Math.pow(1-k,3)));el.textContent=v.toLocaleString('fa-IR')+(suffix||'');if(k<1)requestAnimationFrame(step);else el.setAttribute('data-v',to);}
+    requestAnimationFrame(step);
+}
+function renderSummary(){
+    var el=document.getElementById('homeSummary'); if(!el||!userData) return;
+    var bal=userData.balance||0, minLeft=null;
+    var orders=userData.orders||[];
+    for(var i=0;i<orders.length;i++){
+        var o=orders[i];
+        if(o.status==='sent'&&o.days&&o.delivered_ts){
+            var left=o.days-(Date.now()/1000-o.delivered_ts)/86400;
+            if(left>0&&(minLeft===null||left<minLeft))minLeft=Math.ceil(left);
+        }
+    }
+    el.innerHTML='<div class="sumrow">'+
+        '<div class="sumcell" onclick="showSection(\'wallet\')"><div class="sumic">💰</div><div class="sumv">'+bal.toLocaleString('fa-IR')+'</div><div class="suml">تومان کیف پول</div></div>'+
+        '<div class="sumdiv"></div>'+
+        '<div class="sumcell" onclick="showSection(\'panel\')"><div class="sumic">⏳</div><div class="sumv">'+(minLeft!==null?minLeft.toLocaleString('fa-IR'):'—')+'</div><div class="suml">'+(minLeft!==null?'روز تا تمدید نزدیک‌ترین اشتراک':'اشتراک فعالی نداری')+'</div></div>'+
+    '</div>';
+}
+function fallbackCopy(v){var ta=document.createElement('textarea');ta.value=v;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('✅ شماره کارت کپی شد');}catch(e){showToast('❌ کپی نشد');}ta.remove();}
+function copyCard(){
+    var t=document.getElementById('cardNum'); if(!t) return;
+    var v=t.textContent.trim();
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(function(){showToast('✅ شماره کارت کپی شد');},function(){fallbackCopy(v);});}
+    else fallbackCopy(v);
+}
 function restoreBlock(id,go){var el=document.getElementById(id);if(el&&window._origBlocks&&window._origBlocks[id])el.innerHTML=window._origBlocks[id];showSection(go||'vpn');}
 function openMusic(brand){
   var el=document.getElementById('musicBrands'); if(!el) return;
@@ -356,7 +465,7 @@ function fetchStatus(){
 function renderOrders(){
   var el=document.getElementById('uOrders'); if(!el) return;
   var orders=(userData&&userData.orders)||[];
-  if(!orders.length){ el.innerHTML='<div class="gl" style="padding:18px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📭 هنوز سفارشی ثبت نکرده‌اید</p></div>'; return; }
+  if(!orders.length){ el.innerHTML='<div class="gl" style="padding:18px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📭 هنوز سفارشی ثبت نکرده‌اید</p><button class="bk" style="margin-top:10px;justify-content:center" onclick="showSection(\'vpn\')">🚀 اولین سفارشت رو بگیر</button></div>'; return; }
   var kindIcons={config:'📦',express:'⚡',deezer:'🎵',ai:'🤖',gta:'🎮'};
   var h='<div class="gl" style="padding:16px;margin-bottom:14px"><div class="st">📋 سفارش‌های من</div>';
   var list=orders.slice().reverse();
@@ -481,7 +590,7 @@ function renderPlans() {
             var d = document.createElement('div');
             d.className = 'pln';
             d.setAttribute('data-plan', p.id);
-            d.innerHTML = '<div class="pn">' + p.name + '</div><div class="pp">' + p.price + ' تومان</div>';
+            d.innerHTML = '<div class="pn">' + p.name + '</div><div class="pp">' + p.price + ' <small>تومان</small></div>';
             d.onclick = function() { buyConfig(this.getAttribute('data-plan')); };
             cp.appendChild(d);
         }
@@ -492,9 +601,9 @@ function renderPlans() {
         for (var j = 0; j < exPlans.length; j++) {
             var q = exPlans[j];
             var d2 = document.createElement('div');
-            d2.className = 'pln';
+            d2.className = (q.id === '1m') ? 'pln best' : 'pln';
             d2.setAttribute('data-plan', q.id);
-            d2.innerHTML = '<div class="pn">' + q.name + '</div><div class="pp">' + q.price + ' تومان</div>';
+            d2.innerHTML = '<div class="pn">' + q.name + '</div><div class="pp">' + q.price + ' <small>تومان</small></div>';
             d2.onclick = function() { buyExpress(this.getAttribute('data-plan')); };
             ep.appendChild(d2);
         }
@@ -503,11 +612,12 @@ function renderPlans() {
 
 // === RENDER USER ===
 function renderUser() {
+    renderSummary();
     renderOrders();
     if (!userData) return;
     var bal = userData.balance || 0;
     var we = document.getElementById('walletBal');
-    if (we) we.textContent = bal.toLocaleString('fa-IR');
+    if (we) animNum(we, bal, '');
     var rc = document.getElementById('refCount');
     if (rc) rc.textContent = (userData.referral_count || 0) + '/' + (userData.referral_target || 3);
     var rl = document.getElementById('refLink');
@@ -517,7 +627,17 @@ function renderUser() {
     var uidEl = document.getElementById('uId');
     if (uidEl) uidEl.textContent = user ? ('@' + (user.username || 'ندارد')) : UID;
     var ub = document.getElementById('uBal');
-    if (ub) ub.textContent = bal.toLocaleString('fa-IR') + ' تومان';
+    if (ub) animNum(ub, bal, ' تومان');
+    var bc = document.getElementById('bankCard');
+    if (bc) {
+        if (userData.card_number) {
+            bc.style.display = 'block';
+            var cn = document.getElementById('cardNum');
+            if (cn) cn.textContent = String(userData.card_number);
+            var cnm = document.getElementById('cardName');
+            if (cnm) cnm.textContent = userData.card_name || '';
+        } else { bc.style.display = 'none'; }
+    }
     // Show subscription links
     var uc = document.getElementById('userConfigs');
     if (uc && userData.configs && userData.configs.length) {
@@ -532,7 +652,7 @@ function renderUser() {
         h += '</div>';
         uc.innerHTML = h;
     } else if (uc) {
-        uc.innerHTML = '<div class="gl" style="padding:20px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📦 هنوز اشتراکی ندارید</p></div>';
+        uc.innerHTML = '<div class="gl" style="padding:20px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📦 هنوز اشتراکی ندارید</p><button class="bk" style="margin-top:10px;justify-content:center" onclick="showSection(\'vpn\')">🚀 بخش VPN</button></div>';
     }
 }
 
@@ -659,7 +779,13 @@ window.addEventListener('load', function() {
     showSection('home');
     renderPlans();
     fetchStatus();
+    startBanner();
     try { startGtaTimer(); } catch(e) {}
+    var ctEl = document.querySelector('.ct');
+    if (ctEl) ctEl.addEventListener('scroll', function() {
+        var h = document.querySelector('.hdr');
+        if (h) h.classList.toggle('sc', this.scrollTop > 4);
+    });
 });
 
 
