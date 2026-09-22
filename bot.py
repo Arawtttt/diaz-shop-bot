@@ -613,8 +613,10 @@ async def serve_index(request):
 
 async def serve_static(request):
     fname = request.match_info["name"]
-    fpath = STATIC_DIR / fname
-    if fpath.exists() and fpath.is_file():
+    if not fname or ".." in fname:
+        return web.Response(status=404)
+    fpath = (STATIC_DIR / fname).resolve()
+    if str(fpath).startswith(str(STATIC_DIR)) and fpath.is_file():
         return web.FileResponse(str(fpath))
     return web.Response(status=404)
 
@@ -800,7 +802,7 @@ def create_web_app():
     app.router.add_post("/api/buy_ai", api_buy_ai)
     app.router.add_post("/api/wallet_charge", api_wallet_charge)
     # Static files — must come AFTER specific routes
-    app.router.add_get("/{name}", serve_static)
+    app.router.add_get("/{name:.*}", serve_static)
     return app
 
 # ─── Main: Web Server (thread) + Bot (main thread) ──────
