@@ -99,7 +99,8 @@
                 <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('vpn')"><div class="ic">🛡️</div><div class="tx"><div class="ti">VPN</div><div class="sb">کانفیگ و اشتراک اکسپرس</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('games')"><div class="ic">🎮</div><div class="tx"><div class="ti">بازی‌ها</div><div class="sb">فروش ظرفیت بازی‌ها</div></div><div class="aw">‹</div></div>
-                <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
+<div class="mi" onclick="showSection('music')"><div class="ic">🎵</div><div class="tx"><div class="ti">موزیک</div><div class="sb">Apple Music، Spotify و Deezer</div></div><div class="aw">‹</div></div>
+                                <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">اشتراک رایگان</div><div class="sb">دعوت دوستان</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
             </div>
@@ -109,6 +110,12 @@
                     <div id="sec-express"><div class="st" style="font-size:15px;margin-top:8px">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div></div>
                     <button class="bk" onclick="showSection('home')">← بازگشت</button>
                 </div>
+
+            <div class="sec" id="sec-music">
+                <div class="st">🎵 موزیک</div>
+                <div id="musicBrands"><div class="mi" onclick="openMusic('apple')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#FA243C"/><path fill="#fff" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></div><div class="tx"><div class="ti">Apple Music</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openMusic('spotify')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><circle cx="12" cy="12" r="12" fill="#1DB954"/><path d="M6.4 9.2c3.9-1.2 8.4-.8 11.3 1.3M7.3 12.5c3.2-1 6.8-.6 9.4 1.1M8.1 15.6c2.6-.8 5.4-.5 7.6.9" stroke="#0a0a12" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div><div class="tx"><div class="ti">Spotify</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openMusic('deezer')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#A238FF"/><g fill="#fff"><rect x="3.4" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="6.8" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="6.8" width="3.7" height="3.2" rx="0.8"/></g></svg></div><div class="tx"><div class="ti">Deezer</div><div class="sb">اشتراک یک‌ماهه — فمیلی و شخصی</div></div><div class="aw">‹</div></div></div>
+                <button class="bk" onclick="showSection('home')">← بازگشت</button>
+            </div>
 
             <div class="sec" id="sec-games">
                 <div class="st">🎮 بازی‌ها</div>
@@ -273,7 +280,50 @@ function showSection(name) {
     if (nav) nav.className = 'navi active';
 }
 function navTo(name) { showSection(name); }
-function restoreBlock(id){var el=document.getElementById(id);if(el&&window._origBlocks&&window._origBlocks[id])el.innerHTML=window._origBlocks[id];showSection('vpn');}
+function restoreBlock(id,go){var el=document.getElementById(id);if(el&&window._origBlocks&&window._origBlocks[id])el.innerHTML=window._origBlocks[id];showSection(go||'vpn');}
+function openMusic(brand){
+  var el=document.getElementById('musicBrands'); if(!el) return;
+  if(!window._origBlocks)window._origBlocks={};
+  if(!window._origBlocks['musicBrands'])window._origBlocks['musicBrands']=el.innerHTML;
+  if(brand==='apple'||brand==='spotify'){
+    var nm=brand==='apple'?'Apple Music':'Spotify';
+    el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--dim)"><div style="font-size:48px;margin-bottom:16px">⏳</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">'+nm+' — موقتاً غیرفعال</div><div style="font-size:12px">به زودی فعال خواهد شد</div></div><button class="bk" onclick="restoreBlock(\'musicBrands\',\'music\')">← بازگشت</button>';
+    return;
+  }
+  var h='<div class="st">🎵 Deezer — اشتراک یک‌ماهه</div>';
+  h+='<div class="mi" onclick="buyDeezer(\'family\')"><div class="ic">👨‍👩‍👧</div><div class="tx"><div class="ti">فمیلی</div><div class="sb">۱۵۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+  h+='<div class="mi" onclick="buyDeezer(\'personal\')"><div class="ic">👤</div><div class="tx"><div class="ti">شخصی</div><div class="sb">۲۲۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+  h+='<button class="bk" onclick="restoreBlock(\'musicBrands\',\'music\')">← بازگشت</button>';
+  el.innerHTML=h;
+}
+function buyDeezer(planId){
+  var plans={family:{name:'فمیلی',price:'۱۵۰,۰۰۰',int:150000},personal:{name:'شخصی',price:'۲۲۰,۰۰۰',int:220000}};
+  var p=plans[planId]; if(!p) return;
+  var el=document.getElementById('musicBrands'); if(!el) return;
+  var bal=(userData&&userData.balance)||0;
+  var h='<div class="st">🎵 Deezer '+p.name+' — '+p.price+' تومان</div>';
+  if(bal>=p.int){
+    h+='<div class="mi" onclick="payDeezerWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
+  } else {
+    h+='<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
+    h+='<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
+  }
+  h+='<button class="bk" onclick="openMusic(\'deezer\')">← بازگشت</button>';
+  el.innerHTML=h;
+}
+function payDeezerWallet(planId){
+  if(!UID){showToast('لطفاً از داخل تلگرام باز کنید');return;}
+  showToast('⏳ در حال پردازش...');
+  fetch(API+'/api/buy_deezer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:UID,plan:planId,method:'wallet'})})
+  .then(function(r){return r.json();}).then(function(d){
+    if(d.error){showToast('❌ '+d.error);return;}
+    showToast('✅ سفارش ثبت شد!');
+    restoreBlock('musicBrands','music');
+    loadUser();
+    showSection('home');
+  }).catch(function(){showToast('❌ خطا');});
+}
+
 
 // === CHANNEL ===
 function openChannel() {

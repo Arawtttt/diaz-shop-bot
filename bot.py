@@ -43,6 +43,11 @@ EXPRESS_PLANS = {
     "1y": {"name": "۱ ساله", "price": "۹۵۰,۰۰۰", "price_int": 950000, "days": 365},
 }
 
+DEEZER_PLANS = {
+    "family": {"name": "فمیلی یک‌ماهه", "price": "۱۵۰,۰۰۰", "price_int": 150000},
+    "personal": {"name": "شخصی یک‌ماهه", "price": "۲۲۰,۰۰۰", "price_int": 220000},
+}
+
 REFERRAL_TARGET = 1
 
 logging.basicConfig(level=logging.INFO)
@@ -466,7 +471,7 @@ async def handle_text(update, context):
         save_configs(configs)
         await update.message.reply_text(f"✅ اشتراک/ظرفیت برای کاربر {target_user} ارسال شد!")
         try:
-            label = admin_type.replace("send_gta", "🎮 GTA VI — Ultimate Edition").replace("send_express", "⚡ ExpressVPN").replace("send_config", "📦 کانفیگ VPN")
+            label = admin_type.replace("send_gta", "🎮 GTA VI — Ultimate Edition").replace("send_express", "⚡ ExpressVPN").replace("send_config", "📦 کانفیگ VPN").replace("send_deezer", "🎵 Deezer")
             await context.bot.send_message(chat_id=target_user,
                 text=f"✅ **سفارش شما تأیید شد!**\n\n📦 **نوع:** {label}\n\n🔑 **اطلاعات:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.",
                 parse_mode="Markdown")
@@ -672,6 +677,21 @@ async def api_buy_express(request):
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
+async def api_buy_deezer(request):
+    data = await request.json()
+    uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
+    plan = DEEZER_PLANS.get(plan_id)
+    if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if method == "wallet":
+        if not spend_balance(int(uid), plan["price_int"]):
+            return web.json_response({"error": "insufficient balance"})
+        p = load_pending()
+        p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_deezer", "user_id": uid, "plan": plan["name"]}
+        save_pending(p)
+        _notify_admin(f"🎵 **سفارش Deezer (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
+        return web.json_response({"ok": True, "action": "wallet_paid"})
+    return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
+
 async def api_wallet_charge(request):
     data = await request.json()
     uid = data.get("uid"); amount = data.get("amount", 0)
@@ -704,6 +724,7 @@ def create_web_app():
     app.router.add_post("/api/buy_config", api_buy_config)
     app.router.add_post("/api/buy_config_name", api_buy_config_name)
     app.router.add_post("/api/buy_express", api_buy_express)
+    app.router.add_post("/api/buy_deezer", api_buy_deezer)
     app.router.add_post("/api/wallet_charge", api_wallet_charge)
     # Static files — must come AFTER specific routes
     app.router.add_get("/{name}", serve_static)
