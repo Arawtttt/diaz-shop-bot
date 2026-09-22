@@ -72,6 +72,26 @@ def load_pending(): return _load(PENDING_FILE)
 def save_pending(d): _save(PENDING_FILE, d)
 def load_configs(): return _load(CONFIGS_FILE)
 def save_configs(d): _save(CONFIGS_FILE, d)
+ORDERS_FILE = Path(__file__).parent / "orders.json"
+def load_orders(): return _load(ORDERS_FILE)
+def save_orders(d): _save(ORDERS_FILE, d)
+def _plan_days(kind, key):
+    if kind == "express": return EXPRESS_PLANS.get(key, {}).get("days", 30)
+    if kind == "ai": return 540
+    return 30
+def add_order(uid, kind, plan_key, plan_name, price):
+    o = load_orders(); lst = o.setdefault(str(uid), [])
+    lst.append({"id": int(time.time()), "kind": kind, "plan": plan_key, "name": plan_name, "price": price, "status": "pending", "ts": int(time.time())})
+    save_orders(o)
+def mark_order_sent(uid, link=""):
+    o = load_orders(); lst = o.get(str(uid), [])
+    for it in reversed(lst):
+        if it.get("status") == "pending":
+            it["status"] = "sent"; it["delivered_ts"] = int(time.time())
+            it["days"] = _plan_days(it.get("kind", ""), it.get("plan", ""))
+            if link: it["link"] = link[:300]
+            break
+    save_orders(o)
 def load_wallet(): return _load(WALLET_FILE)
 def save_wallet(d): _save(WALLET_FILE, d)
 def load_referrals(): return _load(REFERRALS_FILE)
@@ -473,6 +493,8 @@ async def handle_text(update, context):
         if k not in configs: configs[k] = []
         configs[k].append({"type": admin_type, "data": state.get("plan", ""), "link": link[:300]})
         save_configs(configs)
+        try: mark_order_sent(str(target_user), link)
+        except Exception: pass
         await update.message.reply_text(f"✅ اشتراک/ظرفیت برای کاربر {target_user} ارسال شد!")
         try:
             label = admin_type.replace("send_gta", "🎮 GTA VI — Ultimate Edition").replace("send_express", "⚡ ExpressVPN").replace("send_config", "📦 کانفیگ VPN").replace("send_deezer", "🎵 Deezer").replace("send_ai", "🤖 هوش مصنوعی")
@@ -502,6 +524,8 @@ async def handle_text(update, context):
         pending2 = load_pending()
         pending2[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
         save_pending(pending2)
+        try: add_order(uid, "config", state.get("plan", ""), plan.get("name", ""), plan.get("price_int", 0))
+        except Exception: pass
         await update.message.reply_text("✅ **سفارش شما ثبت شد!**\n\n⏳ به زودی اشتراک به پنل کاربری شما اضافه می‌شود.")
 
 # ─── Admin Approve/Reject ────────────────────────────────
@@ -513,6 +537,8 @@ async def approve_express(update, context):
     # Ask admin for the subscription link
     pending = load_pending()
     pending[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": user_id, "plan": plan_id}
+    try: add_order(str(user_id), "express", plan_id, plan["name"] if plan else plan_id, plan["price_int"] if plan else 0)
+    except Exception: pass
     save_pending(pending)
     await q.edit_message_caption(caption=q.message.caption + "\n\n📝 **لینک اشتراک رو بفرستید:**", parse_mode="Markdown")
 
@@ -522,6 +548,8 @@ async def approve_config(update, context):
     parts = q.data.split("_"); user_id = int(parts[2]); plan_id = parts[3]
     pending = load_pending()
     pending[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": user_id, "plan": plan_id}
+    try: add_order(str(user_id), "config", plan_id, plan["name"] if plan else plan_id, plan["price_int"] if plan else 0)
+    except Exception: pass
     save_pending(pending)
     await q.edit_message_caption(caption=q.message.caption + "\n\n📝 **لینک کانفیگ رو بفرستید:**", parse_mode="Markdown")
 
@@ -611,6 +639,7 @@ async def api_user(request):
         "card_number": CARD_NUMBER, "card_name": CARD_NAME,
         "referral_target": REFERRAL_TARGET, "bot_username": "Diazpshopbot",
         "is_member": is_member,
+        "orders": load_orders().get(str(uid), [])[-15:],
     })
 
 async def api_buy_config(request):
@@ -635,6 +664,8 @@ async def api_buy_config_name(request):
     plan = state.get("plan_data", {})
     del p[uid]
     p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
+    try: add_order(uid, "config", state.get("plan", ""), plan.get("name", ""), plan.get("price_int", 0))
+    except Exception: pass
     save_pending(p)
     _notify_admin(f"📦 **کانفیگ جدید (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:")
     result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
@@ -659,6 +690,8 @@ async def api_buy_express(request):
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}
         save_pending(p)
         _notify_admin(f"⚡ **سفارش ExpressVPN (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
+        try: add_order(uid, "express", plan_id, plan["name"], plan["price_int"])
+        except Exception: pass
         return web.json_response({"ok": True, "action": "wallet_paid"})
 
 
@@ -693,6 +726,8 @@ async def api_buy_deezer(request):
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_deezer", "user_id": uid, "plan": plan["name"]}
         save_pending(p)
         _notify_admin(f"🎵 **سفارش Deezer (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
+        try: add_order(uid, "deezer", plan_id, plan["name"], plan["price_int"])
+        except Exception: pass
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
@@ -708,6 +743,8 @@ async def api_buy_ai(request):
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_ai", "user_id": uid, "plan": plan["name"]}
         save_pending(p)
         _notify_admin(f"🤖 **سفارش هوش مصنوعی (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
+        try: add_order(uid, "ai", plan_id, plan["name"], plan["price_int"])
+        except Exception: pass
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
@@ -734,12 +771,28 @@ async def api_debug_channel(request):
         result["error"] = str(e)
     return web.json_response(result)
 
+_status_cache = {"ts": 0, "ok": False, "ms": 0}
+
+async def api_status(request):
+    if time.time() - _status_cache["ts"] > 60:
+        t0 = time.time()
+        try:
+            async with httpx.AsyncClient() as hc:
+                r = await hc.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getMe", timeout=8)
+                _status_cache["ok"] = bool(r.json().get("ok"))
+        except Exception:
+            _status_cache["ok"] = False
+        _status_cache["ms"] = int((time.time() - t0) * 1000)
+        _status_cache["ts"] = time.time()
+    return web.json_response({"ok": _status_cache["ok"], "ms": _status_cache["ms"], "ts": int(time.time())})
+
 def create_web_app():
     app = web.Application()
     app.router.add_get("/", serve_index)
     app.router.add_get("/index.html", serve_index)
     app.router.add_get("/api/user/{uid}", api_user)
     app.router.add_get("/api/debug_channel", api_debug_channel)
+    app.router.add_get("/api/status", api_status)
     app.router.add_post("/api/buy_config", api_buy_config)
     app.router.add_post("/api/buy_config_name", api_buy_config_name)
     app.router.add_post("/api/buy_express", api_buy_express)

@@ -71,7 +71,9 @@
         .modal-box input:focus{border-color:var(--red)}
         .modal-box .mbtn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;font-family:'Vazirmatn';font-size:15px;font-weight:700;cursor:pointer}
         .modal-box .mcancel{margin-top:10px;font-size:12px;color:var(--dim);cursor:pointer;border:none;background:none;font-family:'Vazirmatn'}
-    </style>
+    @keyframes pop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes fall{to{transform:translateY(108vh) rotate(760deg);opacity:0}}
+</style>
 </head>
 <body>
     <div class="bg"></div>
@@ -96,6 +98,7 @@
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
                 <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی diazplaylist</p></div></div>
+                <div id="svcStatus" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;margin-bottom:12px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.05);font-size:12px;color:var(--dim)">⏳ در حال بررسی وضعیت سرویس...</div>
                 <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('vpn')"><div class="ic">🛡️</div><div class="tx"><div class="ti">VPN</div><div class="sb">کانفیگ و اشتراک اکسپرس</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('games')"><div class="ic">🎮</div><div class="tx"><div class="ti">بازی‌ها</div><div class="sb">فروش ظرفیت بازی‌ها</div></div><div class="aw">‹</div></div>
@@ -201,6 +204,7 @@
                     <div class="ir"><span class="lb">آیدی</span><span class="vl" id="uId">—</span></div>
                     <div class="ir"><span class="lb">موجودی</span><span class="vl" style="color:var(--gold)" id="uBal">—</span></div>
                 </div>
+                <div id="uOrders"></div>
                 <div id="userConfigs"></div>
                 <button class="bk" onclick="showSection('home')">← بازگشت</button>
             </div>
@@ -327,11 +331,57 @@ function payDeezerWallet(planId){
   fetch(API+'/api/buy_deezer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:UID,plan:planId,method:'wallet'})})
   .then(function(r){return r.json();}).then(function(d){
     if(d.error){showToast('❌ '+d.error);return;}
-    showToast('✅ سفارش ثبت شد!');
-    restoreBlock('musicBrands','music');
-    loadUser();
-    showSection('home');
+    celebrate('سفارش ثبت شد!', function(){ restoreBlock('musicBrands','music'); loadUser(); showSection('home'); });
   }).catch(function(){showToast('❌ خطا');});
+}
+function fetchStatus(){
+  var el=document.getElementById('svcStatus'); if(!el) return;
+  function set(ok, txt){ el.innerHTML='<span style="width:9px;height:9px;border-radius:50%;background:'+(ok?'#4ade80':'#f87171')+';box-shadow:0 0 8px '+(ok?'#4ade80':'#f87171')+';display:inline-block"></span> '+txt; el.style.color=ok?'#4ade80':'#f87171'; }
+  fetch(API+'/api/status').then(function(r){return r.json();}).then(function(d){
+    if(d.ok) set(true,'سرویس فعال'+(d.ms?' — پاسخ '+d.ms+'ms':''));
+    else set(false,'سرویس موقتاً با مشکل مواجه است');
+  }).catch(function(){set(false,'اتصال برقرار نشد');});
+}
+function renderOrders(){
+  var el=document.getElementById('uOrders'); if(!el) return;
+  var orders=(userData&&userData.orders)||[];
+  if(!orders.length){ el.innerHTML='<div class="gl" style="padding:18px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📭 هنوز سفارشی ثبت نکرده‌اید</p></div>'; return; }
+  var kindIcons={config:'📦',express:'⚡',deezer:'🎵',ai:'🤖',gta:'🎮'};
+  var h='<div class="gl" style="padding:16px;margin-bottom:14px"><div class="st">📋 سفارش‌های من</div>';
+  var list=orders.slice().reverse();
+  for(var i=0;i<list.length;i++){
+    var o=list[i]; var sent=(o.status==='sent');
+    h+='<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)">';
+    h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:17px">'+(kindIcons[o.kind]||'📦')+'</span><span style="font-size:13.5px;font-weight:700;flex:1">'+(o.name||o.plan||'سفارش')+'</span>';
+    if(sent) h+='<span style="font-size:11px;color:#4ade80">✅ ارسال شد</span>';
+    else h+='<span style="font-size:11px;color:#fbbf24">⏳ در انتظار تأیید</span>';
+    h+='</div>';
+    if(o.price) h+='<div style="font-size:11px;color:var(--dim);margin-top:3px">'+o.price.toLocaleString('fa-IR')+' تومان</div>';
+    if(sent&&o.days&&o.delivered_ts){
+      var left=o.days-(Date.now()/1000-o.delivered_ts)/86400;
+      var pct=Math.max(0,Math.min(100,(left/o.days)*100));
+      var col=left>o.days*0.5?'#4ade80':(left>o.days*0.25?'#fbbf24':'#f87171');
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><div style="flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden"><div style="height:100%;width:'+pct.toFixed(1)+'%;border-radius:4px;background:'+col+';transition:width .6s;box-shadow:0 0 6px '+col+'"></div></div><span style="font-size:10.5px;color:'+col+';font-weight:700;white-space:nowrap">'+Math.max(0,Math.ceil(left))+' روز</span></div>';
+    }
+    if(sent&&o.link) h+='<div style="font-size:11px;color:var(--dim);margin-top:6px;word-break:break-all">🔗 '+o.link+'</div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+function celebrate(msg, cb){
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,8,16,.94);backdrop-filter:blur(8px);opacity:0;transition:opacity .3s';
+  ov.innerHTML='<div style="font-size:84px;animation:pop .55s cubic-bezier(.2,1.7,.4,1)">🎉</div><div style="font-size:20px;font-weight:900;margin-top:14px;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent">'+(msg||'سفارش ثبت شد!')+'</div><div style="font-size:13px;color:var(--dim);margin-top:8px">⏳ به زودی برای شما ارسال می‌شود</div>';
+  document.body.appendChild(ov);
+  var colors=['#e23636','#fbbf24','#4ade80','#60a5fa','#a78bfa'];
+  for(var i=0;i<44;i++){
+    var c=document.createElement('div'); var sz=6+Math.random()*7;
+    c.style.cssText='position:absolute;top:-24px;left:'+(Math.random()*100)+'vw;width:'+sz+'px;height:'+(sz*(0.6+Math.random()*0.8))+'px;background:'+colors[i%colors.length]+';border-radius:2px;animation:fall '+(1.1+Math.random()*1.1)+'s linear '+(Math.random()*0.5)+'s forwards;opacity:.95';
+    ov.appendChild(c);
+  }
+  requestAnimationFrame(function(){ov.style.opacity='1';});
+  setTimeout(function(){ov.style.opacity='0';setTimeout(function(){ov.remove();if(cb)cb();},350);},2100);
 }
 function openAI(brand){
   var el=document.getElementById('aiBrands'); if(!el) return;
@@ -368,10 +418,7 @@ function payAIWallet(planId){
   fetch(API+'/api/buy_ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:UID,plan:planId,method:'wallet'})})
   .then(function(r){return r.json();}).then(function(d){
     if(d.error){showToast('❌ '+d.error);return;}
-    showToast('✅ سفارش ثبت شد!');
-    restoreBlock('aiBrands','ai');
-    loadUser();
-    showSection('home');
+    celebrate('سفارش ثبت شد!', function(){ restoreBlock('aiBrands','ai'); loadUser(); showSection('home'); });
   }).catch(function(){showToast('❌ خطا');});
 }
 
@@ -445,6 +492,7 @@ function renderPlans() {
 
 // === RENDER USER ===
 function renderUser() {
+    renderOrders();
     if (!userData) return;
     var bal = userData.balance || 0;
     var we = document.getElementById('walletBal');
@@ -532,14 +580,12 @@ function payExpressWallet(planId) {
         body: JSON.stringify({uid: UID, plan: planId, method: 'wallet'})
     }).then(function(r) { return r.json(); }).then(function(d) {
         if (d.error) { showToast('❌ ' + d.error); return; }
-        showToast('✅ سفارش ثبت شد!');
-        loadUser();
-        showSection('home');
+        celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); });
     }).catch(function() { showToast('❌ خطا'); });
 }
 
 // === MODAL CONFIRM ===
-document.getElementById('nameConfirm').addEventListener('click', function() {
+document.getElementById('nameSubmit').addEventListener('click', function() {
     var name = document.getElementById('nameInput').value.trim();
     if (!name) { showToast('اسم رو وارد کنید'); return; }
     document.getElementById('nameModal').className = 'modal';
@@ -560,9 +606,7 @@ document.getElementById('nameConfirm').addEventListener('click', function() {
         });
     }).then(function(r) { return r ? r.json() : null; }).then(function(d) {
         if (d && d.error) { showToast('❌ ' + d.error); return; }
-        showToast('✅ سفارش ثبت شد!');
-        loadUser();
-        showSection('home');
+        celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); });
     }).catch(function() { showToast('❌ خطا'); });
 });
 
@@ -603,6 +647,7 @@ window.addEventListener('load', function() {
     initTelegram();
     showSection('home');
     renderPlans();
+    fetchStatus();
     try { startGtaTimer(); } catch(e) {}
 });
 
@@ -618,8 +663,7 @@ function buyGta() {
     }).then(function(r) { return r.json(); }).then(function(d) {
         if (d.error) { showToast('❌ ' + d.error); return; }
         if (d.ok) {
-            showToast('✅ سفارش ثبت شد! منتظر تأیید باشید.');
-            loadUser();
+            celebrate('سفارش ثبت شد!', function(){ loadUser(); });
         }
     }).catch(function(e) { showToast('خطا'); });
 }
