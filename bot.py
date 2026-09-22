@@ -227,7 +227,7 @@ async def _process_referral(context, inviter_id, invited_id):
         mark_free_given(inviter_id)
         try:
             await context.bot.send_message(chat_id=inviter_id,
-                text="🎉 <b>تبریک!</b>\n\nشما ۳ نفر رو دعوت کردید!\n\nروی دکمه زیر کلیک کنید 👇",
+                text="🎉 <b>تبریک!</b>\n\nشما یک نفر رو دعوت کردید!\n\nروی دکمه زیر کلیک کنید 👇",
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🎁 دریافت", callback_data="claim_free_sub")]]),
                 parse_mode="HTML")
         except: pass
@@ -285,7 +285,7 @@ async def free_sub_menu(update, context):
     elif count >= REFERRAL_TARGET: text = f"🎉 <b>تبریک!</b>\n\nشما {count} نفر را دعوت کرده‌اید!"
     else:
         un = context.bot.username
-        text = (f"🎁 <b>اشتراک رایگان</b>\n\nبا دعوت {REFERRAL_TARGET} نفر، اشتراک رایگان بگیرید!\n\n"
+        text = (f"🎁 <b>اشتراک رایگان</b>\n\nبا دعوت یک نفر، اشتراک رایگان بگیرید!\n\n"
                 f"📊 تعداد دعوت‌شده: <b>{count}/{REFERRAL_TARGET}</b>\n"
                 f"🔗 لینک دعوت:\n<code>https://t.me/{un}?start=ref{uid}</code>")
     kb = []

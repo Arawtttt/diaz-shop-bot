@@ -91,8 +91,15 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .mgrid .mi .ti{font-size:14px;font-weight:700}
 .mgrid .mi .sb{line-height:1.5}
 .banslider{position:relative;height:86px;border-radius:18px;overflow:hidden;margin-bottom:12px;border:1px solid var(--stroke)}
-.banslide{position:absolute;inset:0;opacity:0;transition:opacity .7s;display:flex;align-items:center;gap:13px;padding:0 18px;cursor:pointer;background:linear-gradient(135deg,rgba(124,58,237,.4),rgba(226,54,54,.28))}
-.banslide.act{opacity:1}
+.banslide{position:absolute;inset:0;opacity:0;transition:opacity .7s;display:flex;align-items:center;justify-content:space-between;gap:13px;padding:0 18px;cursor:pointer;background:linear-gradient(135deg,rgba(124,58,237,.4),rgba(226,54,54,.28));pointer-events:none;z-index:1}
+.banslide.act{opacity:1;pointer-events:auto;z-index:2}
+.bs-ai{background:linear-gradient(135deg,rgba(66,133,244,.5),rgba(155,114,243,.42))}
+.bs-gta{background:linear-gradient(180deg,rgba(11,6,22,.42),rgba(11,6,22,.88)),url('gta-bg.jpg') center 32%/cover no-repeat}
+.bs-ref{background:linear-gradient(135deg,rgba(226,54,54,.48),rgba(251,191,36,.32))}
+.bsart{display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bsart.gtaart{font-size:34px;font-weight:900;color:#e040fb;text-shadow:0 0 18px rgba(224,64,251,.75),0 2px 8px rgba(0,0,0,.6);letter-spacing:1px;transform:skewX(-6deg)}
+.bsart.refart{font-size:40px;transform:rotate(-9deg);filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
+.bstx b{font-size:15px}
 .bsi{font-size:30px}
 .bstx b{display:block;font-size:15px;font-weight:900}
 .bstx i{display:block;font-style:normal;font-size:11.5px;color:rgba(255,255,255,.75);margin-top:3px}
@@ -149,9 +156,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
                     <div class="sk" style="width:35%;height:12px"></div>
                 </div>
                 <div class="banslider" id="banslider">
-                    <div class="banslide act" onclick="showSection('ai')"><span class="bsi">✨</span><div class="bstx"><b>جمنای ۱۸ ماهه فعال شد</b><i>فقط ۴۰۰,۰۰۰ تومان — بیش از یک سال اشتراک</i></div></div>
-                    <div class="banslide" onclick="showSection('gtavi')"><span class="bsi">🔫</span><div class="bstx"><b>GTA VI پیش‌فروش</b><i>Ultimate Edition — ظرفیت هوم</i></div></div>
-                    <div class="banslide" onclick="showSection('referral')"><span class="bsi">🎁</span><div class="bstx"><b>دعوت کن، هدیه بگیر</b><i>با ۳ دعوت اشتراک رایگان ببر</i></div></div>
+                    <div class="banslide bs-ai act" onclick="showSection('ai')"><div class="bstx"><b>جمنای ۱۸ ماهه فعال شد</b><i>فقط ۴۰۰,۰۰۰ تومان — بیش از یک سال اشتراک</i></div><span class="bsart"><svg width="46" height="46" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
+                    <div class="banslide bs-gta" onclick="showSection('gtavi')"><div class="bstx"><b>GTA VI پیش‌فروش</b><i>Ultimate Edition — ظرفیت هوم</i></div><span class="bsart gtaart">VI</span></div>
+                    <div class="banslide bs-ref" onclick="showSection('referral')"><div class="bstx"><b>دعوت کن، هدیه بگیر</b><i>با یک دعوت، اشتراک رایگان ببر</i></div><span class="bsart refart">🎁</span></div>
                     <div class="bandots"><span class="bd act"></span><span class="bd"></span><span class="bd"></span></div>
                 </div>
                 <div class="mgrid">
@@ -256,9 +263,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
             </div>
             <div class="sec" id="sec-referral">
                 <div class="st">🎁 اشتراک رایگان</div>
-                <div class="gl" style="padding:24px;margin-bottom:14px"><p style="text-align:center;font-size:13px;color:var(--dim);margin-bottom:4px">با دعوت ۳ نفر رایگان بگیرید!</p><div class="rc" id="refCount">—</div><div class="rs">تعداد دعوت‌شده</div></div>
+                <div class="gl" style="padding:24px;margin-bottom:14px"><p style="text-align:center;font-size:13px;color:var(--dim);margin-bottom:4px">با دعوت یک نفر رایگان بگیرید!</p><div class="rc" id="refCount">—</div><div class="rs">تعداد دعوت‌شده</div></div>
                 <div class="lb2" onclick="copyLink()"><div style="font-size:11px;color:var(--dim);margin-bottom:6px">🔗 لینک دعوت</div><div style="font-size:12px;color:var(--red);word-break:break-all;font-family:monospace" id="refLink">—</div></div>
-                <div class="mi" onclick="claimFreeSub()" style="margin-top:14px"><div class="ic">🎁</div><div class="tx"><div class="ti">دریافت اشتراک رایگان</div><div class="sb">وقتی ۳ نفر دعوت کردید</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="claimFreeSub()" style="margin-top:14px"><div class="ic">🎁</div><div class="tx"><div class="ti">دریافت اشتراک رایگان</div><div class="sb">وقتی یک نفر رو دعوت کردی</div></div><div class="aw">‹</div></div>
                 
             </div>
             <div class="sec" id="sec-panel">
