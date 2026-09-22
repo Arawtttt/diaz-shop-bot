@@ -48,6 +48,10 @@ DEEZER_PLANS = {
     "personal": {"name": "شخصی یک‌ماهه", "price": "۲۲۰,۰۰۰", "price_int": 220000},
 }
 
+AI_PLANS = {
+    "gemini18": {"name": "جمنای ۱۸ ماهه", "price": "۴۰۰,۰۰۰", "price_int": 400000},
+}
+
 REFERRAL_TARGET = 1
 
 logging.basicConfig(level=logging.INFO)
@@ -471,7 +475,7 @@ async def handle_text(update, context):
         save_configs(configs)
         await update.message.reply_text(f"✅ اشتراک/ظرفیت برای کاربر {target_user} ارسال شد!")
         try:
-            label = admin_type.replace("send_gta", "🎮 GTA VI — Ultimate Edition").replace("send_express", "⚡ ExpressVPN").replace("send_config", "📦 کانفیگ VPN").replace("send_deezer", "🎵 Deezer")
+            label = admin_type.replace("send_gta", "🎮 GTA VI — Ultimate Edition").replace("send_express", "⚡ ExpressVPN").replace("send_config", "📦 کانفیگ VPN").replace("send_deezer", "🎵 Deezer").replace("send_ai", "🤖 هوش مصنوعی")
             await context.bot.send_message(chat_id=target_user,
                 text=f"✅ **سفارش شما تأیید شد!**\n\n📦 **نوع:** {label}\n\n🔑 **اطلاعات:**\n`{link[:500]}`\n\nاز پنل کاربری قابل مشاهده است.",
                 parse_mode="Markdown")
@@ -692,6 +696,21 @@ async def api_buy_deezer(request):
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
+async def api_buy_ai(request):
+    data = await request.json()
+    uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
+    plan = AI_PLANS.get(plan_id)
+    if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if method == "wallet":
+        if not spend_balance(int(uid), plan["price_int"]):
+            return web.json_response({"error": "insufficient balance"})
+        p = load_pending()
+        p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_ai", "user_id": uid, "plan": plan["name"]}
+        save_pending(p)
+        _notify_admin(f"🤖 **سفارش هوش مصنوعی (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
+        return web.json_response({"ok": True, "action": "wallet_paid"})
+    return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
+
 async def api_wallet_charge(request):
     data = await request.json()
     uid = data.get("uid"); amount = data.get("amount", 0)
@@ -725,6 +744,7 @@ def create_web_app():
     app.router.add_post("/api/buy_config_name", api_buy_config_name)
     app.router.add_post("/api/buy_express", api_buy_express)
     app.router.add_post("/api/buy_deezer", api_buy_deezer)
+    app.router.add_post("/api/buy_ai", api_buy_ai)
     app.router.add_post("/api/wallet_charge", api_wallet_charge)
     # Static files — must come AFTER specific routes
     app.router.add_get("/{name}", serve_static)

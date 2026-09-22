@@ -100,6 +100,7 @@
                 <div class="mi" onclick="showSection('vpn')"><div class="ic">🛡️</div><div class="tx"><div class="ti">VPN</div><div class="sb">کانفیگ و اشتراک اکسپرس</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('games')"><div class="ic">🎮</div><div class="tx"><div class="ti">بازی‌ها</div><div class="sb">فروش ظرفیت بازی‌ها</div></div><div class="aw">‹</div></div>
 <div class="mi" onclick="showSection('music')"><div class="ic">🎵</div><div class="tx"><div class="ti">موزیک</div><div class="sb">Apple Music، Spotify و Deezer</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('ai')"><div class="ic">🤖</div><div class="tx"><div class="ti">هوش مصنوعی</div><div class="sb">ChatGPT، Grok و Gemini</div></div><div class="aw">‹</div></div>
                                 <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">اشتراک رایگان</div><div class="sb">دعوت دوستان</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
@@ -108,13 +109,19 @@
                     <div class="st">🛡️ VPN</div>
                     <div id="sec-config"><div class="st" style="font-size:15px;margin-top:4px">📦 خرید کانفیگ</div><div style="text-align:center;padding:30px 20px;color:var(--dim)"><div style="font-size:48px;margin-bottom:16px">⏳</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">این بخش موقتاً غیرفعال است</div><div style="font-size:12px">به زودی فعال خواهد شد</div></div></div>
                     <div id="sec-express"><div class="st" style="font-size:15px;margin-top:8px">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div></div>
-                    <button class="bk" onclick="showSection('home')">← بازگشت</button>
+                    <button class="bk" onclick="showSection('home')">← بازگشت به صفحه اصلی</button>
                 </div>
 
             <div class="sec" id="sec-music">
                 <div class="st">🎵 موزیک</div>
                 <div id="musicBrands"><div class="mi" onclick="openMusic('apple')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#FA243C"/><path fill="#fff" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></div><div class="tx"><div class="ti">Apple Music</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openMusic('spotify')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><circle cx="12" cy="12" r="12" fill="#1DB954"/><path d="M6.4 9.2c3.9-1.2 8.4-.8 11.3 1.3M7.3 12.5c3.2-1 6.8-.6 9.4 1.1M8.1 15.6c2.6-.8 5.4-.5 7.6.9" stroke="#0a0a12" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div><div class="tx"><div class="ti">Spotify</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openMusic('deezer')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#A238FF"/><g fill="#fff"><rect x="3.4" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="6.8" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="6.8" width="3.7" height="3.2" rx="0.8"/></g></svg></div><div class="tx"><div class="ti">Deezer</div><div class="sb">اشتراک یک‌ماهه — فمیلی و شخصی</div></div><div class="aw">‹</div></div></div>
-                <button class="bk" onclick="showSection('home')">← بازگشت</button>
+                <button class="bk" onclick="showSection('home')">← بازگشت به صفحه اصلی</button>
+            </div>
+
+            <div class="sec" id="sec-ai">
+                <div class="st">🤖 هوش مصنوعی</div>
+                <div id="aiBrands"><div class="mi" onclick="openAI('chatgpt')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4.25" y="4.1" width="15.5" height="15.75" viewBox="0 0 256 260"><path fill="#0a0a0a" d="M239.184 106.203a64.72 64.72 0 0 0-5.576-53.103C219.452 28.459 191 15.784 163.213 21.74A65.586 65.586 0 0 0 52.096 45.22a64.72 64.72 0 0 0-43.23 31.36c-14.31 24.602-11.061 55.634 8.033 76.74a64.67 64.67 0 0 0 5.525 53.102c14.174 24.65 42.644 37.324 70.446 31.36a64.72 64.72 0 0 0 48.754 21.744c28.481.025 53.714-18.361 62.414-45.481a64.77 64.77 0 0 0 43.229-31.36c14.137-24.558 10.875-55.423-8.083-76.483m-97.56 136.338a48.4 48.4 0 0 1-31.105-11.255l1.535-.87l51.67-29.825a8.6 8.6 0 0 0 4.247-7.367v-72.85l21.845 12.636c.218.111.37.32.409.563v60.367c-.056 26.818-21.783 48.545-48.601 48.601M37.158 197.93a48.35 48.35 0 0 1-5.781-32.589l1.534.921l51.722 29.826a8.34 8.34 0 0 0 8.441 0l63.181-36.425v25.221a.87.87 0 0 1-.358.665l-52.335 30.184c-23.257 13.398-52.97 5.431-66.404-17.803M23.549 85.38a48.5 48.5 0 0 1 25.58-21.333v61.39a8.29 8.29 0 0 0 4.195 7.316l62.874 36.272l-21.845 12.636a.82.82 0 0 1-.767 0L41.353 151.53c-23.211-13.454-31.171-43.144-17.804-66.405zm179.466 41.695l-63.08-36.63L161.73 77.86a.82.82 0 0 1 .768 0l52.233 30.184a48.6 48.6 0 0 1-7.316 87.635v-61.391a8.54 8.54 0 0 0-4.4-7.213m21.742-32.69l-1.535-.922l-51.619-30.081a8.39 8.39 0 0 0-8.492 0L99.98 99.808V74.587a.72.72 0 0 1 .307-.665l52.233-30.133a48.652 48.652 0 0 1 72.236 50.391zM88.061 139.097l-21.845-12.585a.87.87 0 0 1-.41-.614V65.685a48.652 48.652 0 0 1 79.757-37.346l-1.535.87l-51.67 29.825a8.6 8.6 0 0 0-4.246 7.367zm11.868-25.58L128.067 97.3l28.188 16.218v32.434l-28.086 16.218l-28.188-16.218z"/></svg></svg></div><div class="tx"><div class="ti">ChatGPT</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openAI('grok')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#0a0a0a" stroke="rgba(255,255,255,.3)" stroke-width="0.7"/><svg x="4" y="4.65" width="16" height="14.67" viewBox="0 0 205 188"><path fill="#ffffff" d="M446.35 142.018V46.44h15.11v63.078l31.955-36.707h18.317l-28.746 31.458L512 142.019h-18.05l-23.5-32.437l-8.99-.064v32.5zm-45.818 1.607c-22.462 0-34.629-15.93-34.629-36.277c0-20.481 12.167-36.277 34.63-36.277c22.595 0 34.628 15.796 34.628 36.277c0 20.347-12.033 36.277-34.629 36.277m-18.852-36.277c0 15.796 8.557 23.693 18.852 23.693c10.43 0 18.853-7.897 18.853-23.693S410.96 83.52 400.532 83.52c-10.295 0-18.852 8.032-18.852 23.828m-57.827 34.67v-58.23l12.702-10.977h27.008v12.85h-24.6v56.357zm-57.77 1.768c-28.797 0-45.967-20.91-45.967-49.423c0-28.78 17.783-50.199 46.529-50.199c22.462 0 38.908 11.512 42.786 32.93h-17.248c-2.54-12.181-12.702-19.008-25.538-19.008c-20.724 0-29.816 17.938-29.816 36.277s9.092 36.143 29.816 36.143c19.788 0 28.48-14.323 29.147-26.237h-29.815v-13.86h45.058l-.074 7.246c0 26.929-10.974 46.131-44.878 46.131M48.759 43.42c20.982-20.99 51.664-26.632 77.695-16.705l1.767.7c5.84 2.173 10.93 5.263 14.901 8.137L121.08 45.743c-20.525-8.62-44.036-2.757-58.387 11.611c-19.407 19.413-23.328 53.077-.584 74.83L0 187.734c3.282-4.525 7.224-8.841 11.267-13.122l4.442-4.683l1.992-2.12c11.864-12.721 22.008-25.795 15.657-43.318l-.585-1.513c-11.147-27.115-4.656-58.891 15.986-79.557m119.894-16.489L195.553 0l-7.737 10.747c-16.113 22.7-23.265 36.99-16.126 67.724l-.05-.05c5.524 23.473-.383 49.502-19.457 68.598c-24.045 24.091-62.525 29.454-94.213 7.769l22.093-10.242c20.224 7.953 42.351 4.46 58.253-11.46c15.903-15.922 19.474-39.11 11.481-58.407c-1.518-3.659-6.074-4.578-9.261-2.222l-65.012 48.048l93.129-93.657z"/></svg></svg></div><div class="tx"><div class="ti">Grok</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openAI('gemini')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0%" stop-color="#4285F4"/><stop offset="55%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4" y="4" width="16" height="16" viewBox="312 0 73 73"><path fill="url(#gg)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></svg></div><div class="tx"><div class="ti">Gemini</div><div class="sb">اشتراک ۱۸ ماهه — فعال</div></div><div class="aw">‹</div></div></div>
+                <button class="bk" onclick="showSection('home')">← بازگشت به صفحه اصلی</button>
             </div>
 
             <div class="sec" id="sec-games">
@@ -202,6 +209,8 @@
             <button class="nv act" onclick="navTo('home')" data-n="home"><span class="ni">🏠</span><span>خانه</span></button>
             <button class="nv" onclick="navTo('games')" data-n="games"><span class="ni">🎮</span><span>بازی</span></button>
             <button class="nv" onclick="navTo('vpn')" data-n="vpn"><span class="ni">🛡️</span><span>VPN</span></button>
+            <button class="nv" onclick="navTo('music')" data-n="music"><span class="ni">🎵</span><span>موزیک</span></button>
+            <button class="nv" onclick="navTo('ai')" data-n="ai"><span class="ni">🤖</span><span>AI</span></button>
             <button class="nv" onclick="navTo('wallet')" data-n="wallet"><span class="ni">💰</span><span>کیف پول</span></button>
             <button class="nv" onclick="navTo('panel')" data-n="panel"><span class="ni">👤</span><span>پنل</span></button>
         </div>
@@ -274,10 +283,11 @@ function showSection(name) {
     for (var i = 0; i < secs.length; i++) secs[i].className = 'sec';
     var target = document.getElementById('sec-' + name);
     if (target) target.className = 'sec act';
-    var navs = document.querySelectorAll('.navi');
-    for (var j = 0; j < navs.length; j++) navs[j].className = 'navi';
-    var nav = document.querySelector('.navi[data-sec="' + name + '"]');
-    if (nav) nav.className = 'navi active';
+    var navKey = (name === 'gtavi') ? 'games' : (name === 'referral' ? 'home' : name);
+    var navs = document.querySelectorAll('.nv');
+    for (var j = 0; j < navs.length; j++) navs[j].className = 'nv';
+    var nav = document.querySelector('.nv[data-n="' + navKey + '"]');
+    if (nav) nav.className = 'nv act';
 }
 function navTo(name) { showSection(name); }
 function restoreBlock(id,go){var el=document.getElementById(id);if(el&&window._origBlocks&&window._origBlocks[id])el.innerHTML=window._origBlocks[id];showSection(go||'vpn');}
@@ -319,6 +329,47 @@ function payDeezerWallet(planId){
     if(d.error){showToast('❌ '+d.error);return;}
     showToast('✅ سفارش ثبت شد!');
     restoreBlock('musicBrands','music');
+    loadUser();
+    showSection('home');
+  }).catch(function(){showToast('❌ خطا');});
+}
+function openAI(brand){
+  var el=document.getElementById('aiBrands'); if(!el) return;
+  if(!window._origBlocks)window._origBlocks={};
+  if(!window._origBlocks['aiBrands'])window._origBlocks['aiBrands']=el.innerHTML;
+  if(brand==='chatgpt'||brand==='grok'){
+    var nm=brand==='chatgpt'?'ChatGPT':'Grok';
+    el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--dim)"><div style="font-size:48px;margin-bottom:16px">⏳</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">'+nm+' — موقتاً غیرفعال</div><div style="font-size:12px">به زودی فعال خواهد شد</div></div><button class="bk" onclick="restoreBlock(\'aiBrands\',\'ai\')">← بازگشت</button>';
+    return;
+  }
+  var h='<div class="st">🤖 Gemini — اشتراک ۱۸ ماهه</div>';
+  h+='<div class="mi" onclick="buyAI(\'gemini18\')"><div class="ic">✨</div><div class="tx"><div class="ti">جمنای ۱۸ ماهه</div><div class="sb">۴۰۰,۰۰۰ تومان — ۱۸ ماهه</div></div><div class="aw">‹</div></div>';
+  h+='<button class="bk" onclick="restoreBlock(\'aiBrands\',\'ai\')">← بازگشت</button>';
+  el.innerHTML=h;
+}
+function buyAI(planId){
+  var plans={gemini18:{name:'جمنای ۱۸ ماهه',price:'۴۰۰,۰۰۰',int:400000}};
+  var p=plans[planId]; if(!p) return;
+  var el=document.getElementById('aiBrands'); if(!el) return;
+  var bal=(userData&&userData.balance)||0;
+  var h='<div class="st">🤖 '+p.name+' — '+p.price+' تومان</div>';
+  if(bal>=p.int){
+    h+='<div class="mi" onclick="payAIWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
+  } else {
+    h+='<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
+    h+='<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
+  }
+  h+='<button class="bk" onclick="openAI(\'gemini\')">← بازگشت</button>';
+  el.innerHTML=h;
+}
+function payAIWallet(planId){
+  if(!UID){showToast('لطفاً از داخل تلگرام باز کنید');return;}
+  showToast('⏳ در حال پردازش...');
+  fetch(API+'/api/buy_ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:UID,plan:planId,method:'wallet'})})
+  .then(function(r){return r.json();}).then(function(d){
+    if(d.error){showToast('❌ '+d.error);return;}
+    showToast('✅ سفارش ثبت شد!');
+    restoreBlock('aiBrands','ai');
     loadUser();
     showSection('home');
   }).catch(function(){showToast('❌ خطا');});
