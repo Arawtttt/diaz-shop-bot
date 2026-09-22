@@ -97,14 +97,18 @@
             <div class="sec act" id="sec-home">
                 <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی diazplaylist</p></div></div>
                 <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
-                <div class="mi" onclick="showSection('config')"><div class="ic">🔐</div><div class="tx"><div class="ti">خرید کانفیگ</div><div class="sb">VPN با حجم‌های مختلف</div></div><div class="aw">‹</div></div>
-                <div class="mi" onclick="showSection('express')"><div class="ic">⚡</div><div class="tx"><div class="ti">ExpressVPN</div><div class="sb">اشتراک اکسپرس وی‌پی‌ان</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('vpn')"><div class="ic">🛡️</div><div class="tx"><div class="ti">VPN</div><div class="sb">کانفیگ و اشتراک اکسپرس</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('games')"><div class="ic">🎮</div><div class="tx"><div class="ti">بازی‌ها</div><div class="sb">فروش ظرفیت بازی‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">اشتراک رایگان</div><div class="sb">دعوت دوستان</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
             </div>
-            <div class="sec" id="sec-config"><div class="st">📦 خرید کانفیگ</div><div style="text-align:center;padding:40px 20px;color:var(--dim)"><div style="font-size:48px;margin-bottom:16px">⏳</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">این بخش موقتاً غیرفعال است</div><div style="font-size:12px">به زودی فعال خواهد شد</div></div><button class="bk" onclick="showSection('home')">← بازگشت</button></div>
+                <div class="sec" id="sec-vpn">
+                    <div class="st">🛡️ VPN</div>
+                    <div id="sec-config"><div class="st" style="font-size:15px;margin-top:4px">📦 خرید کانفیگ</div><div style="text-align:center;padding:30px 20px;color:var(--dim)"><div style="font-size:48px;margin-bottom:16px">⏳</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">این بخش موقتاً غیرفعال است</div><div style="font-size:12px">به زودی فعال خواهد شد</div></div></div>
+                    <div id="sec-express"><div class="st" style="font-size:15px;margin-top:8px">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div></div>
+                    <button class="bk" onclick="showSection('home')">← بازگشت</button>
+                </div>
 
             <div class="sec" id="sec-games">
                 <div class="st">🎮 بازی‌ها</div>
@@ -153,7 +157,7 @@
                 </div>
                 <button class="bk" onclick="showSection('games')" style="margin-top:14px;border-color:rgba(224,64,251,0.3);">← بازگشت به بازی‌ها</button>
             </div>
-            <div class="sec" id="sec-express"><div class="st">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div><button class="bk" onclick="showSection('home')">← بازگشت</button></div>
+
             <div class="sec" id="sec-wallet">
                 <div class="st">💰 کیف پول</div>
                 <div class="gl" style="padding:24px;text-align:center;margin-bottom:14px"><div class="wa" id="walletBal">—</div><div class="wl">تومان موجودی فعلی</div></div>
@@ -189,9 +193,8 @@
         </div>
         <div class="bnav">
             <button class="nv act" onclick="navTo('home')" data-n="home"><span class="ni">🏠</span><span>خانه</span></button>
-            <button class="nv" onclick="navTo('config')" data-n="config"><span class="ni">🔐</span><span>کانفیگ</span></button>
-            <button class="nv" onclick="navTo('express')" data-n="express"><span class="ni">⚡</span><span>Express</span></button>
             <button class="nv" onclick="navTo('games')" data-n="games"><span class="ni">🎮</span><span>بازی</span></button>
+            <button class="nv" onclick="navTo('vpn')" data-n="vpn"><span class="ni">🛡️</span><span>VPN</span></button>
             <button class="nv" onclick="navTo('wallet')" data-n="wallet"><span class="ni">💰</span><span>کیف پول</span></button>
             <button class="nv" onclick="navTo('panel')" data-n="panel"><span class="ni">👤</span><span>پنل</span></button>
         </div>
@@ -270,6 +273,7 @@ function showSection(name) {
     if (nav) nav.className = 'navi active';
 }
 function navTo(name) { showSection(name); }
+function restoreBlock(id){var el=document.getElementById(id);if(el&&window._origBlocks&&window._origBlocks[id])el.innerHTML=window._origBlocks[id];showSection('vpn');}
 
 // === CHANNEL ===
 function openChannel() {
@@ -386,9 +390,9 @@ function buyConfig(planId) {
         html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
         html += '<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
     }
-    html += '<button class="bk" onclick="showSection(\'config\')">← بازگشت</button>';
+    html += '<button class="bk" onclick="restoreBlock(\'sec-config\')">← بازگشت</button>';
     var el = document.getElementById('sec-config');
-    if (el) el.innerHTML = html;
+    if (el) { if(!window._origBlocks)window._origBlocks={}; if(!window._origBlocks['sec-config'])window._origBlocks['sec-config']=el.innerHTML; el.innerHTML = html; }
 }
 
 function payConfigWallet(planId) {
@@ -413,9 +417,9 @@ function buyExpress(planId) {
         html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
         html += '<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
     }
-    html += '<button class="bk" onclick="showSection(\'express\')">← بازگشت</button>';
+    html += '<button class="bk" onclick="restoreBlock(\'sec-express\')">← بازگشت</button>';
     var el = document.getElementById('sec-express');
-    if (el) el.innerHTML = html;
+    if (el) { if(!window._origBlocks)window._origBlocks={}; if(!window._origBlocks['sec-express'])window._origBlocks['sec-express']=el.innerHTML; el.innerHTML = html; }
 }
 
 function payExpressWallet(planId) {
