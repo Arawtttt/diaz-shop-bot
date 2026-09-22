@@ -135,7 +135,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
         <p>فروشگاه اختصاصی diazplaylist</p>
         <button class="sbtn" id="playBtn">🕷️ ورود</button>
     </div>
-    <audio id="bgm" loop preload="auto"><source src="sunflower.mp3" type="audio/mpeg"></audio>
+    <audio id="bgm" preload="auto"></audio>
     <div id="toast" class="toast"></div>
     <div class="modal" id="nameModal">
         <div class="modal-box">
@@ -325,11 +325,32 @@ if (document.readyState === 'loading') {
 // === SPLASH ===
 var bgm = document.getElementById('bgm');
 if (bgm) bgm.volume = 0.5;
+var BGM_TRACKS = ['track1.mp3', 'track2.mp3', 'track3.mp3'];
+var _bgmIdx = -1;
+function playBgmRandom(force) {
+    if (!bgm || !BGM_TRACKS.length) return;
+    if (!force && bgm.src && !bgm.paused) return;
+    var i;
+    if (BGM_TRACKS.length < 2) { i = 0; }
+    else { do { i = Math.floor(Math.random() * BGM_TRACKS.length); } while (i === _bgmIdx); }
+    _bgmIdx = i;
+    bgm.src = BGM_TRACKS[i];
+    bgm.play().catch(function(){});
+}
+if (bgm) bgm.addEventListener('ended', function() { playBgmRandom(true); });
+function _bgmGesture() {
+    playBgmRandom();
+    document.removeEventListener('touchstart', _bgmGesture);
+    document.removeEventListener('click', _bgmGesture);
+}
+document.addEventListener('touchstart', _bgmGesture, {passive: true});
+document.addEventListener('click', _bgmGesture);
 
 var playBtn = document.getElementById('playBtn');
 if (playBtn) {
     playBtn.addEventListener('click', function() {
-        if (bgm) { bgm.volume = 0.5; bgm.play().catch(function(){}); }
+        if (bgm) bgm.volume = 0.5;
+        playBgmRandom();
         enterApp();
     });
 }
