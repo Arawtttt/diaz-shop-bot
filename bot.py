@@ -99,7 +99,7 @@ async def context_broad_config(uid, info, plan, name):
     text = (f"✅ **کانفیگ شما آماده شد!** 🎉\n\n"
             f"📦 پلن: **{plan.get('name', '')}**\n📝 اسم: `{name}`\n\n"
             f"🔗 **لینک ساب:**\n`{info['sub']}`\n\n"
-            f"👤 **صفحه حجم:**\n`{info['page']}`")
+            f"حجم و انقضا رو از دکمه 📊 **وضعیت اشتراک** توی منو ببین.")
     payload = json.dumps({"chat_id": int(uid), "text": text, "parse_mode": "Markdown"}, ensure_ascii=False)
     req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",
                                  data=payload.encode(), headers={"Content-Type": "application/json"})
@@ -271,6 +271,7 @@ def main_menu_kb(uid=0):
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
+        [InlineKeyboardButton("📊 وضعیت اشتراک", callback_data="sub_status")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
     ])
@@ -328,6 +329,48 @@ async def check_member(update, context):
     if pr: await _process_referral(context, pr, q.from_user.id)
     await q.message.delete()
     await q.message.reply_text(WELCOME_TEXT, reply_markup=main_menu_kb(uid=q.from_user.id))
+
+async def sub_status(update, context):
+    """نمایش زنده حجم/انقضای اشتراک مشتری داخل ربات (بدون لینک صفحه)"""
+    q = update.callback_query
+    await q.answer()
+    uid = str(q.from_user.id)
+    cfgs = load_configs().get(uid, []) or load_configs().get(int(uid), [])
+    links = []
+    for c in cfgs:
+        lk = c.get("link") or ""
+        if "/sub/u/" in lk:
+            links.append((c.get("data") or "اشتراک", lk.split("?")[0].rstrip("/").split("/")[-1]))
+    if not links:
+        await q.edit_message_text(
+            "📭 هنوز اشتراکی ثبت نکردی.\n\nاز فروشگاه کانفیگ بگیر، بعد همین‌جا حجم و انقضاش رو ببین.",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]]))
+        return
+    base = f"{BPB_ORIGIN}/{BPB_SECURE_PATH}"
+    out = ["📊 **وضعیت اشتراک شما**"]
+    async with httpx.AsyncClient(timeout=20) as hc:
+        for title, token in links[-3:]:
+            try:
+                r = await hc.get(f"{base}/user/{token}")
+                if r.status_code != 200:
+                    out.append(f"\n🔹 {title}\n⚠️ خطا در دریافت وضعیت ({r.status_code})")
+                    continue
+                import re as _re
+                html = r.text
+                bm = _re.search(r'class="badge">(.*?)</span>', html)
+                badge = bm.group(1) if bm else "—"
+                rows = _re.findall(r'<div class="row"><span>(.*?)</span><b>(.*?)</b></div>', html)
+                out.append(f"\n🔹 **{title}** — {badge}")
+                for k, v in rows:
+                    out.append(f"• {k}: {v}")
+            except Exception as e:
+                out.append(f"\n🔹 {title}\n⚠️ {e}")
+    kb = [[InlineKeyboardButton("🔄 بروزرسانی", callback_data="sub_status")],
+          [InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]
+    try:
+        await q.edit_message_text("\n".join(out), reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    except Exception:
+        await q.edit_message_text("⚠️ خطا، دوباره بزن.", reply_markup=InlineKeyboardMarkup(kb))
 
 async def back_main(update, context):
     q = update.callback_query; await q.answer()
@@ -598,9 +641,10 @@ async def handle_text(update, context):
                 f"📦 پلن: **{plan.get('name', '')}** — {plan.get('duration', '')}\n"
                 f"📝 اسم: `{name}`\n\n"
                 f"🔗 **لینک ساب:**\n`{info['sub']}`\n\n"
-                f"👤 **صفحه حجم و وضعیت:**\n`{info['page']}`\n\n"
-                f"کانفیگ‌ها با اسم **Diaz-{name}-۱/۲/۳** توی اپ میفتن — کافیه لینک ساب رو توی v2rayNG یا Hiddify کپی کنی.")
-        kb = [[InlineKeyboardButton("👤 پنل کاربری", callback_data="user_panel")],
+                f"کانفیگ‌ها با اسم **Diaz-{name}-۱/۲/۳** توی اپ میفتن — کافیه لینک ساب رو توی v2rayNG یا Hiddify کپی کنی.\n"
+                f"حجم و انقضا رو از دکمه 📊 **وضعیت اشتراک** توی منو ببین.")
+        kb = [[InlineKeyboardButton("📊 وضعیت اشتراک", callback_data="sub_status")],
+              [InlineKeyboardButton("👤 پنل کاربری", callback_data="user_panel")],
               [InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]
         await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
         if info.get("configs"):
@@ -970,6 +1014,7 @@ def main():
     app.add_handler(CallbackQueryHandler(charge_receipt_step, pattern="^charge_receipt_"))
     app.add_handler(CallbackQueryHandler(wallet_history, pattern="^wallet_history$"))
     app.add_handler(CallbackQueryHandler(user_panel, pattern="^user_panel$"))
+    app.add_handler(CallbackQueryHandler(sub_status, pattern="^sub_status$"))
     app.add_handler(CallbackQueryHandler(back_main, pattern="^back_main$"))
     app.add_handler(CallbackQueryHandler(approve_express, pattern="^approve_express_"))
     app.add_handler(CallbackQueryHandler(approve_config, pattern="^approve_config_"))
