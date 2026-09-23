@@ -432,6 +432,7 @@ function _applySection(name) {
     if (nav) nav.className = 'nv act';
     var hb = document.getElementById('hback');
     if (hb) hb.style.display = (name === 'home') ? 'none' : 'flex';
+    if (name === 'panel' && typeof loadSubStatus === 'function') loadSubStatus();
 }
 function navTo(name) { showSection(name); }
 function startBanner(){
