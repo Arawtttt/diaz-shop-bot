@@ -99,7 +99,7 @@ async def context_broad_config(uid, info, plan, name):
     text = (f"✅ **کانفیگ شما آماده شد!** 🎉\n\n"
             f"📦 پلن: **{plan.get('name', '')}**\n📝 اسم: `{name}`\n\n"
             f"🔗 **لینک ساب:**\n`{info['sub']}`\n\n"
-            f"حجم و انقشارو از **پنل کاربری** مینی‌اپ ببین 👤")
+            f"وضعیت سرویس رو از مینی‌اپ می‌تونی ببینی 👤")
     payload = json.dumps({"chat_id": int(uid), "text": text, "parse_mode": "Markdown"}, ensure_ascii=False)
     req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",
                                  data=payload.encode(), headers={"Content-Type": "application/json"})
@@ -641,7 +641,7 @@ async def handle_text(update, context):
                 f"📝 اسم: `{name}`\n\n"
                 f"🔗 **لینک ساب:**\n`{info['sub']}`\n\n"
                 f"کانفیگ‌ها با اسم **Diaz-{name}-۱/۲/۳** توی اپ میفتن — کافیه لینک ساب رو توی v2rayNG یا Hiddify کپی کنی.\n"
-                f"حجم و انقشارو از **پنل کاربری** مینی‌اپ ببین 👤")
+                f"وضعیت سرویس رو از مینی‌اپ می‌تونی ببینی 👤")
         kb = [[InlineKeyboardButton("👤 پنل کاربری", callback_data="user_panel")],
               [InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]
         await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
