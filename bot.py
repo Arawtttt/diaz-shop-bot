@@ -29,6 +29,44 @@ ACCOUNTS_FILE = "express_accounts.json"
 SPIDER_URL = os.environ.get("SPIDER_URL", "https://spiderpanel-production-2268.up.railway.app")
 SPIDER_PASSWORD = os.environ.get("SPIDER_PASSWORD", "admin")
 
+# ─── BPB Panel — آنی‌سازی کانفیگ ──────────────────────────
+BPB_ORIGIN = os.environ.get("BPB_ORIGIN", "").rstrip("/")
+BPB_SECURE_PATH = os.environ.get("BPB_SECURE_PATH", "").strip("/")
+BPB_EMAIL = os.environ.get("BPB_EMAIL", "")
+BPB_PASSWORD = os.environ.get("BPB_PASSWORD", "")
+
+def bpb_ready():
+    return bool(BPB_ORIGIN and BPB_SECURE_PATH and BPB_EMAIL and BPB_PASSWORD)
+
+async def bpb_create_user(name: str, limit_gb: int, days: int) -> dict:
+    """ساخت کاربر روی پنل BPB + برگرداندن لینک ساب و صفحه وضعیت"""
+    if not bpb_ready():
+        raise RuntimeError("BPB env not set")
+    import base64 as _b64
+    base = f"{BPB_ORIGIN}/{BPB_SECURE_PATH}"
+    async with httpx.AsyncClient(timeout=40) as c:
+        r = await c.post(f"{base}/login/authenticate",
+                         json={"username": BPB_EMAIL.lower(), "password": BPB_PASSWORD})
+        try:
+            if not r.json().get("success"):
+                raise RuntimeError(f"panel login failed: {r.text[:120]}")
+        except ValueError:
+            raise RuntimeError(f"panel login non-json: {r.status_code}")
+        r = await c.post(f"{base}/panel/user/save",
+                         json={"name": name, "totalGB": int(limit_gb), "days": int(days), "enabled": True})
+        if not r.json().get("success"):
+            raise RuntimeError(f"panel save failed: {r.text[:120]}")
+        r = await c.get(f"{base}/panel/users")
+        users = r.json()["body"]["users"]
+        u = next(x for x in reversed(users) if x.get("name") == name)
+        sub_link = f"{base}/sub/u/{u['subToken']}"
+        page_link = f"{base}/user/{u['uuid']}"
+        try:
+            raw = _b64.b64decode((await c.get(sub_link)).text).decode()
+        except Exception:
+            raw = ""
+        return {"sub": sub_link, "page": page_link, "configs": raw.strip()}
+
 CONFIG_PLANS = {
     "10gb": {"name": "۱۰ گیگ", "price": "۱۲,۰۰۰", "data": "10GB", "duration": "۱ ماه", "price_int": 12000, "limit_gb": 10, "days": 30},
     "20gb": {"name": "۲۰ گیگ", "price": "۳۰,۰۰۰", "data": "20GB", "duration": "۱ ماه", "price_int": 30000, "limit_gb": 20, "days": 30},
@@ -53,6 +91,23 @@ AI_PLANS = {
 }
 
 REFERRAL_TARGET = 1
+
+async def context_broad_config(uid, info, plan, name):
+    """ارسال پیام کانفیگ به کاربر از مسیر مینی‌اپ (بدون دسترسی به bot object)"""
+    import urllib.request, urllib.parse
+    token = BOT_TOKEN
+    text = (f"✅ **کانفیگ شما آماده شد!** 🎉\n\n"
+            f"📦 پلن: **{plan.get('name', '')}**\n📝 اسم: `{name}`\n\n"
+            f"🔗 **لینک ساب:**\n`{info['sub']}`\n\n"
+            f"👤 **صفحه حجم:**\n`{info['page']}`")
+    payload = json.dumps({"chat_id": int(uid), "text": text, "parse_mode": "Markdown"}, ensure_ascii=False)
+    req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",
+                                 data=payload.encode(), headers={"Content-Type": "application/json"})
+    try:
+        urllib.request.urlopen(req, timeout=20).read()
+    except Exception as e:
+        logger.error(f"broad config msg failed: {e}")
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -215,6 +270,7 @@ def main_menu_kb(uid=0):
     import time as _ts; _t = int(_ts.time()); shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}&t={_t}"
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
+        [InlineKeyboardButton("📦 کانفیگ", callback_data="buy_config")],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
@@ -512,21 +568,55 @@ async def handle_text(update, context):
         await update.message.reply_text(f"💳 واریز {amount:,} تومان\n\n🏦 `{CARD_NUMBER}`\n👤 {CARD_NAME}\n\n📸 رسید بفرستید.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
         return
     if state["type"] in ("config_wallet_name", "config_receipt_name"):
-        name = update.message.text.strip(); plan = state.get("plan_data", {})
+        name = update.message.text.strip()[:60]; plan = state.get("plan_data", {})
         del p[uid]; save_pending(p)
-        # Notify admin to create config
-        try:
-            await context.bot.send_message(chat_id=OWNER_ID,
-                text=f"📝 **کانفیگ جدید!**\n\n👤 {update.effective_user.first_name}\n🆔 {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\nلطفاً لینک کانفیگ رو بفرستید.",
-                parse_mode="Markdown")
-        except: pass
-        # Set pending for admin to send config
-        pending2 = load_pending()
-        pending2[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
-        save_pending(pending2)
         try: add_order(uid, "config", state.get("plan", ""), plan.get("name", ""), plan.get("price_int", 0))
         except Exception: pass
-        await update.message.reply_text("✅ **سفارش شما ثبت شد!**\n\n⏳ به زودی اشتراک به پنل کاربری شما اضافه می‌شود.")
+        info = None
+        try:
+            info = await bpb_create_user(name, int(plan.get("limit_gb", 1)), int(plan.get("days", 30)))
+        except Exception as e:
+            logger.error(f"auto config failed: {e}")
+        if not info:
+            # fallback: ادمین دستی لینک رو میفرسته (روی قبلی)
+            try:
+                await context.bot.send_message(chat_id=OWNER_ID,
+                    text=f"📝 **کانفیگ دستی!** (اتوماسیون در دسترس نیست)\n\n👤 {update.effective_user.first_name}\n🆔 {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\nلطفاً لینک کانفیگ رو بفرستید.",
+                    parse_mode="Markdown")
+            except: pass
+            pending2 = load_pending()
+            pending2[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
+            save_pending(pending2)
+            await update.message.reply_text("✅ **سفارش شما ثبت شد!**\n\n⏳ به زودی اشتراک به پنل کاربری شما اضافه می‌شود.", parse_mode="Markdown")
+            return
+        configs = load_configs()
+        if uid not in configs: configs[uid] = []
+        configs[uid].append({"type": "کانفیگ", "data": f"{plan.get('name', '')} — {name}", "link": info["sub"][:300]})
+        save_configs(configs)
+        text = (f"✅ **کانفیگ شما آماده شد!** 🎉\n\n"
+                f"📦 پلن: **{plan.get('name', '')}** — {plan.get('duration', '')}\n"
+                f"📝 اسم: `{name}`\n\n"
+                f"🔗 **لینک ساب:**\n`{info['sub']}`\n\n"
+                f"👤 **صفحه حجم و وضعیت:**\n`{info['page']}`\n\n"
+                f"کانفیگ‌ها با اسم **Diaz-{name}-۱/۲/۳** توی اپ میفتن — کافیه لینک ساب رو توی v2rayNG یا Hiddify کپی کنی.")
+        kb = [[InlineKeyboardButton("👤 پنل کاربری", callback_data="user_panel")],
+              [InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]
+        await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+        if info.get("configs"):
+            try:
+                import io as _io
+                await context.bot.send_document(chat_id=int(uid),
+                    document=_io.BytesIO(info["configs"].encode()),
+                    filename=f"Diaz-{name}.txt",
+                    caption="📄 کانفیگ‌ها برای ایمپورت دستی")
+            except Exception as e:
+                logger.error(f"send config file failed: {e}")
+        try:
+            await context.bot.send_message(chat_id=OWNER_ID,
+                text=f"📦 **کانفیگ خودکار صادر شد ✅**\n\n👤 {update.effective_user.first_name}\n🆔 {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n💰 {plan.get('price', '')} تومان",
+                parse_mode="Markdown")
+        except: pass
+        return
 
 # ─── Admin Approve/Reject ────────────────────────────────
 
@@ -546,12 +636,17 @@ async def approve_express(update, context):
 async def approve_config(update, context):
     q = update.callback_query; await q.answer()
     parts = q.data.split("_"); user_id = int(parts[2]); plan_id = parts[3]
-    pending = load_pending()
-    pending[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": user_id, "plan": plan_id}
-    try: add_order(str(user_id), "config", plan_id, plan["name"] if plan else plan_id, plan["price_int"] if plan else 0)
-    except Exception: pass
-    save_pending(pending)
-    await q.edit_message_caption(caption=q.message.caption + "\n\n📝 **لینک کانفیگ رو بفرستید:**", parse_mode="Markdown")
+    plan = CONFIG_PLANS.get(plan_id)
+    # پرداخت تایید شد → اسم رو از مشتری میگیریم → تحویل خودکار توی handle_text
+    p = load_pending()
+    p[str(user_id)] = {"waiting": True, "type": "config_receipt_name", "plan": plan_id, "plan_data": plan or {}}
+    save_pending(p)
+    try:
+        await context.bot.send_message(chat_id=user_id,
+            text="✅ **پرداخت تایید شد!**\n\n📝 **اسمی که میخوای روی کانفیگ بیاد رو بفرست:**",
+            parse_mode="Markdown")
+    except: pass
+    await q.edit_message_caption(caption=q.message.caption + "\n\n✅ تایید شد — کانفیگ خودکار صادر می‌شود.", parse_mode="Markdown")
 
 async def approve_receipt(update, context):
     q = update.callback_query; await q.answer()
@@ -664,20 +759,31 @@ async def api_buy_config_name(request):
     p = load_pending(); state = p.get(uid)
     if not state: return web.json_response({"error": "no pending order"})
     plan = state.get("plan_data", {})
-    del p[uid]
-    p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
+    del p[uid]; save_pending(p)
     try: add_order(uid, "config", state.get("plan", ""), plan.get("name", ""), plan.get("price_int", 0))
     except Exception: pass
-    save_pending(p)
-    _notify_admin(f"📦 **کانفیگ جدید (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:")
-    result = await spider.create_user(name, plan.get("limit_gb", 0), plan.get("days", 30))
-    if result:
+    info = None
+    try:
+        info = await bpb_create_user(name[:60], int(plan.get("limit_gb", 1)), int(plan.get("days", 30)))
+    except Exception as e:
+        logger.error(f"miniapp auto config failed: {e}")
+    if info:
         configs = load_configs()
         if uid not in configs: configs[uid] = []
-        cfg = result.get("config", "") or result.get("subscription_url", "")
-        configs[uid].append({"type": "کانفیگ", "data": plan.get("name", ""), "link": cfg[:200]})
+        configs[uid].append({"type": "کانفیگ", "data": f"{plan.get('name', '')} — {name}", "link": info["sub"][:300]})
         save_configs(configs)
-        return web.json_response({"ok": True, "config": cfg, "expire_at": result.get("expire_at", ""), "plan": plan.get("name", "")})
+        try:
+            await context_broad_config(uid, info, plan, name)
+        except Exception:
+            pass
+        _notify_admin(f"📦 **کانفیگ خودکار صادر شد (مینی\u200cاپ) ✅**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}")
+        return web.json_response({"ok": True, "config": info["sub"], "page": info["page"],
+                                  "expire_at": "", "plan": plan.get("name", "")})
+    # fallback: ادمین دستی
+    p2 = load_pending()
+    p2[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_config", "user_id": uid, "plan": plan.get("name", "")}
+    save_pending(p2)
+    _notify_admin(f"📦 **کانفیگ دستی (اتوماسیون در دسترس نیست)**\n\n👤 کاربر: {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\n🔗 لینک کانفیگ رو بفرستید:")
     return web.json_response({"error": "creation failed"}, status=500)
 
 async def api_buy_express(request):
