@@ -270,7 +270,6 @@ def main_menu_kb(uid=0):
     import time as _ts; _t = int(_ts.time()); shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}&t={_t}"
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
-        [InlineKeyboardButton("📦 کانفیگ", callback_data="buy_config")],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
