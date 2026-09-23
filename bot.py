@@ -592,6 +592,8 @@ async def handle_text(update, context):
         if uid not in configs: configs[uid] = []
         configs[uid].append({"type": "کانفیگ", "data": f"{plan.get('name', '')} — {name}", "link": info["sub"][:300]})
         save_configs(configs)
+        try: mark_order_sent(uid, info["sub"])
+        except Exception: pass
         text = (f"✅ **کانفیگ شما آماده شد!** 🎉\n\n"
                 f"📦 پلن: **{plan.get('name', '')}** — {plan.get('duration', '')}\n"
                 f"📝 اسم: `{name}`\n\n"
@@ -771,6 +773,8 @@ async def api_buy_config_name(request):
         if uid not in configs: configs[uid] = []
         configs[uid].append({"type": "کانفیگ", "data": f"{plan.get('name', '')} — {name}", "link": info["sub"][:300]})
         save_configs(configs)
+        try: mark_order_sent(uid, info["sub"])
+        except Exception: pass
         try:
             await context_broad_config(uid, info, plan, name)
         except Exception:
