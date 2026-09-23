@@ -717,6 +717,24 @@ async def serve_static(request):
     return web.Response(status=404)
 
 # API handlers
+def _orders_with_heal(uid):
+    """سفارش‌های کانفیگ قدیمی که اتوماسیون نداشت رو تحویل‌شده حساب کن"""
+    try:
+        o = load_orders(); lst = o.get(str(uid), [])
+        cl = load_configs().get(uid) or load_configs().get(str(uid)) or []
+        healed = False
+        for it in reversed(lst):
+            if it.get("kind") == "config" and it.get("status") == "pending" and cl:
+                it["status"] = "sent"
+                it["delivered_ts"] = it.get("ts", int(time.time()))
+                it["days"] = _plan_days("config", it.get("plan", ""))
+                it["link"] = (cl[-1].get("link", "") or "")[:300]
+                healed = True
+        if healed: save_orders(o)
+        return lst[-15:]
+    except Exception:
+        return load_orders().get(str(uid), [])[-15:]
+
 async def api_user(request):
     uid = request.match_info["uid"]
     is_member = False
@@ -737,7 +755,7 @@ async def api_user(request):
         "card_number": CARD_NUMBER, "card_name": CARD_NAME,
         "referral_target": REFERRAL_TARGET, "bot_username": "Diazpshopbot",
         "is_member": is_member,
-        "orders": load_orders().get(str(uid), [])[-15:],
+        "orders": _orders_with_heal(uid),
     })
 
 async def api_buy_config(request):
