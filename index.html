@@ -181,27 +181,10 @@ body.light .thm{color:#1a102a}
 <body>
     <div class="bg"></div>
     <div class="splash" id="splash">
-        <div class="splash-ring"><svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#7c3aed"/>
-      <stop offset="100%" stop-color="#e23636"/>
-    </linearGradient>
-  </defs>
-  <circle cx="70" cy="70" r="66" fill="none" stroke="url(#sg)" stroke-width="2" opacity=".45">
-    <animateTransform attributeName="transform" type="rotate" from="0 70 70" to="360 70 70" dur="12s" repeatCount="indefinite"/>
-  </circle>
-  <circle cx="70" cy="70" r="54" fill="none" stroke="url(#sg)" stroke-width="1" opacity=".3">
-    <animateTransform attributeName="transform" type="rotate" from="360 70 70" to="0 70 70" dur="18s" repeatCount="indefinite"/>
-  </circle>
-  <text x="70" y="82" text-anchor="middle" font-size="34" font-weight="900" fill="url(#sg)" font-family="Vazirmatn,sans-serif">D</text>
-  <circle cx="70" cy="70" r="18" fill="none" stroke="url(#sg)" stroke-width="1.5" stroke-dasharray="8 6" opacity=".6">
-    <animateTransform attributeName="transform" type="rotate" from="0 70 70" to="360 70 70" dur="6s" repeatCount="indefinite"/>
-  </circle>
-</svg></div>
+        <div class="splash-ring"><img src="spider-bg.jpg" alt="Diaz Shop"></div>
         <h2>Diaz Shop</h2>
         <p>فروشگاه اختصاصی diazplaylist</p>
-        <button class="sbtn" id="playBtn">✨ ورود</button>
+        <button class="sbtn" id="playBtn">ورود</button>
     </div>
     <audio id="bgm" preload="auto"></audio>
     <div id="toast" class="toast"></div>
@@ -439,10 +422,7 @@ if (playBtn) {
         enterApp();
     });
 }
-setTimeout(function() {
-    var sp = document.getElementById('splash');
-    if (sp && sp.className.indexOf('hide') < 0) enterApp();
-}, 1600);
+
 
 function enterApp() {
     var splash = document.getElementById('splash');
