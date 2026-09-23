@@ -114,6 +114,38 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .suml{font-size:10px;color:var(--dim);margin-top:2px}
 .sumdiv{width:1px;height:46px;background:rgba(255,255,255,.12)}
 .sk{background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,.14),rgba(255,255,255,.06));background-size:200% 100%;animation:skm 1.3s linear infinite;border-radius:10px;height:14px;margin:7px 0}
+/* === وضعیت اشتراک: کارت انیمیشنی === */
+.stc{position:relative;padding:18px;margin-bottom:14px;overflow:hidden;animation:stcRise .55s cubic-bezier(.22,1,.36,1) both}
+.stc::after{content:'';position:absolute;top:-60%;left:-80%;width:60%;height:220%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent);transform:rotate(12deg);animation:stcShine 2.6s ease-in-out .7s infinite;pointer-events:none}
+@keyframes stcRise{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes stcShine{0%{left:-80%}55%,100%{left:130%}}
+@keyframes stcPulse{0%,100%{box-shadow:0 0 0 0 currentColor;opacity:1}70%{box-shadow:0 0 0 7px transparent;opacity:.85}}
+.stcHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.stcHead .t{font-weight:800;font-size:14px;display:flex;align-items:center;gap:7px}
+.stcBadge{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px;animation:stcPop .5s cubic-bezier(.34,1.56,.64,1) .35s both;white-space:nowrap}
+@keyframes stcPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.stcWrap{display:flex;align-items:center;gap:18px}
+.stcRing{position:relative;flex:0 0 auto;width:104px;height:104px}
+.stcRing svg{transform:rotate(-90deg);display:block}
+.stcRing .trk{stroke:rgba(255,255,255,.09)}
+.stcRing .prg{stroke-linecap:round;stroke-dasharray:326.7;stroke-dashoffset:326.7;transition:stroke-dashoffset 1.4s cubic-bezier(.22,1,.36,1) .3s,stroke .4s}
+.stcRing .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.stcRing .pv{font-size:22px;font-weight:900;line-height:1;animation:stcPop .5s cubic-bezier(.34,1.56,.64,1) .55s both}
+.stcRing .pl{font-size:9.5px;color:var(--dim);letter-spacing:.5px}
+.stcRows{flex:1;min-width:0}
+.stcRows .ir{animation:stcRise .5s cubic-bezier(.22,1,.36,1) both}
+.stcRows .ir:nth-child(1){animation-delay:.35s}
+.stcRows .ir:nth-child(2){animation-delay:.45s}
+.stcRows .ir:nth-child(3){animation-delay:.55s}
+.stcRows .ir:nth-child(4){animation-delay:.65s}
+.stcBtn{margin-top:16px;width:100%;justify-content:center;animation:stcRise .5s cubic-bezier(.22,1,.36,1) .75s both}
+.stcBtn:active svg,.stcBtn:active{filter:brightness(1.2)}
+.stcBtn.spinning .ico{display:inline-block;animation:stcSpin .8s linear infinite}
+@keyframes stcSpin{to{transform:rotate(360deg)}}
+.stcEmpty{text-align:center;padding:10px 0 4px;animation:stcRise .5s cubic-bezier(.22,1,.36,1) both}
+.stcEmpty .big{font-size:34px;margin-bottom:6px;display:inline-block;animation:stcFloat 2.4s ease-in-out infinite}
+@keyframes stcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.stcSk{padding:18px;margin-bottom:14px}
 @keyframes skm{to{background-position:-200% 0}}
 .pln .pn{font-size:15px;font-weight:900;margin-bottom:8px}
 .pln .pp{font-size:18px;font-weight:900;color:var(--red);line-height:1.2}
@@ -276,6 +308,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
                     <div class="ir"><span class="lb">آیدی</span><span class="vl" id="uId">—</span></div>
                     <div class="ir"><span class="lb">موجودی</span><span class="vl" style="color:var(--gold)" id="uBal">—</span></div>
                 </div>
+                <div id="subStatus"><div class="gl stcSk"><div class="sk" style="width:45%"></div><div class="sk" style="width:100%;height:60px;border-radius:18px"></div><div class="sk" style="width:70%"></div></div></div>
                 <div id="uOrders"><div class="gl" style="padding:16px;margin-bottom:14px"><div class="sk" style="width:55%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:40%"></div></div></div>
                 <div id="userConfigs"></div>
                 
@@ -638,10 +671,68 @@ function renderPlans() {
     }
 }
 
+// === SUB STATUS (کارت انیمیشنی وضعیت اشتراک) ===
+function stcColor(b){
+    if(/تمام|blocked|غیرفعال/.test(b)) return '#f43f5e';
+    if(/منقضی/.test(b)) return '#f59e0b';
+    if(/فعال/.test(b)) return '#22c55e';
+    return '#a78bfa';
+}
+function loadSubStatus(spin){
+    var el = document.getElementById('subStatus');
+    if(!el) return;
+    if(spin){ var rb=el.querySelector('.stcBtn'); if(rb) rb.classList.add('spinning'); }
+    var uid = UID;
+    fetch(API+'/api/sub_status', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid:uid})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+        var items = d.items||[];
+        if(!items.length){
+            el.innerHTML = '<div class="gl stc"><div class="stcHead"><div class="t">📊 وضعیت اشتراک</div></div>'+
+                '<div class="stcEmpty"><span class="big">🛰️</span><div style="font-size:13px;color:var(--dim)">هنوز اشتراکی نداری</div>'+
+                '<button class="bk stcBtn" style="max-width:220px;margin:12px auto 0" onclick="navTo(\'vpn\')">🛡️ خرید کانفیگ</button></div></div>';
+            return;
+        }
+        var h='';
+        for(var i=0;i<items.length;i++){
+            var it=items[i], col=stcColor(it.badge||''), pct=(it.pct===null||it.pct===undefined)?0:it.pct;
+            var off = 326.7*(1-Math.min(100,Math.max(0,pct))/100);
+            h+='<div class="gl stc'+(items.length>1?' stcMulti':'')+'">';
+            h+='<div class="stcHead"><div class="t">📊 '+(it.title||'اشتراک')+'</div>'+
+               '<span class="stcBadge" style="color:'+col+';background:'+col+'1f;border:1px solid '+col+'55">'+(it.badge||'—')+'</span></div>';
+            h+='<div class="stcWrap"><div class="stcRing">'+
+               '<svg width="104" height="104" viewBox="0 0 104 104">'+
+               '<circle class="trk" cx="52" cy="52" r="52" fill="none" stroke-width="9"/>'+
+               '<circle class="prg" cx="52" cy="52" r="52" fill="none" stroke-width="9" stroke="'+col+'" data-off="'+off+'"/>'+
+               '</svg><div class="mid"><span class="pv" style="color:'+col+'">'+(it.pct===null||it.pct===undefined?'—':Math.round(pct))+'</span><span class="pl">درصد مصرف</span></div></div>';
+            h+='<div class="stcRows">';
+            for(var j=0;j<(it.rows||[]).length && j<4;j++){
+                h+='<div class="ir"><span class="lb">'+it.rows[j][0]+'</span><span class="vl">'+it.rows[j][1]+'</span></div>';
+            }
+            h+='</div></div>';
+            h+='<button class="bk stcBtn" onclick="loadSubStatus(true)"><span class="ico">⟳</span> بروزرسانی</button>';
+            h+='</div>';
+        }
+        el.innerHTML=h;
+        // trigger ring fill animation after paint
+        requestAnimationFrame(function(){
+            requestAnimationFrame(function(){
+                var prgs=el.querySelectorAll('.stcRing .prg');
+                for(var k=0;k<prgs.length;k++){
+                    prgs[k].style.strokeDashoffset = prgs[k].getAttribute('data-off');
+                }
+            });
+        });
+    })
+    .catch(function(){
+        el.innerHTML='<div class="gl stc"><div class="stcHead"><div class="t">📊 وضعیت اشتراک</div></div><div class="stcEmpty"><span class="big">📡</span><div style="font-size:13px;color:var(--dim)">ارتباط برقرار نشد</div></div><button class="bk stcBtn" onclick="loadSubStatus()">تلاش دوباره</button></div>';
+    });
+}
 // === RENDER USER ===
 function renderUser() {
     renderSummary();
     renderOrders();
+    loadSubStatus();
     if (!userData) return;
     var bal = userData.balance || 0;
     var we = document.getElementById('walletBal');

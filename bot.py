@@ -99,7 +99,7 @@ async def context_broad_config(uid, info, plan, name):
     text = (f"✅ **کانفیگ شما آماده شد!** 🎉\n\n"
             f"📦 پلن: **{plan.get('name', '')}**\n📝 اسم: `{name}`\n\n"
             f"🔗 **لینک ساب:**\n`{info['sub']}`\n\n"
-            f"حجم و انقضا رو از دکمه 📊 **وضعیت اشتراک** توی منو ببین.")
+            f"حجم و انقشارو از **پنل کاربری** مینی‌اپ ببین 👤")
     payload = json.dumps({"chat_id": int(uid), "text": text, "parse_mode": "Markdown"}, ensure_ascii=False)
     req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",
                                  data=payload.encode(), headers={"Content-Type": "application/json"})
@@ -271,7 +271,6 @@ def main_menu_kb(uid=0):
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
-        [InlineKeyboardButton("📊 وضعیت اشتراک", callback_data="sub_status")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
     ])
@@ -642,9 +641,8 @@ async def handle_text(update, context):
                 f"📝 اسم: `{name}`\n\n"
                 f"🔗 **لینک ساب:**\n`{info['sub']}`\n\n"
                 f"کانفیگ‌ها با اسم **Diaz-{name}-۱/۲/۳** توی اپ میفتن — کافیه لینک ساب رو توی v2rayNG یا Hiddify کپی کنی.\n"
-                f"حجم و انقضا رو از دکمه 📊 **وضعیت اشتراک** توی منو ببین.")
-        kb = [[InlineKeyboardButton("📊 وضعیت اشتراک", callback_data="sub_status")],
-              [InlineKeyboardButton("👤 پنل کاربری", callback_data="user_panel")],
+                f"حجم و انقشارو از **پنل کاربری** مینی‌اپ ببین 👤")
+        kb = [[InlineKeyboardButton("👤 پنل کاربری", callback_data="user_panel")],
               [InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]
         await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
         if info.get("configs"):
@@ -801,6 +799,39 @@ async def api_user(request):
         "is_member": is_member,
         "orders": _orders_with_heal(uid),
     })
+
+async def api_sub_status(request):
+    """وضعیت زنده اشتراک‌ها (صفحه پنل) برای کارت انیمیشنی مینی‌اپ"""
+    import re as _re
+    data = await request.json()
+    uid = str(data.get("uid", ""))
+    cfgs = load_configs().get(uid, [])
+    links = []
+    for c in cfgs:
+        lk = c.get("link") or ""
+        if "/sub/u/" in lk:
+            links.append((c.get("data") or "اشتراک", lk.split("?")[0].rstrip("/").split("/")[-1]))
+    items = []
+    if links and bpb_ready():
+        base = f"{BPB_ORIGIN}/{BPB_SECURE_PATH}"
+        async with httpx.AsyncClient(timeout=20) as hc:
+            for title, token in links[-3:]:
+                try:
+                    r = await hc.get(f"{base}/user/{token}")
+                    if r.status_code != 200:
+                        items.append({"title": title, "badge": f"⚠️ خطا ({r.status_code})", "rows": [], "pct": None})
+                        continue
+                    html = r.text
+                    bm = _re.search(r'class="badge">(.*?)</span>', html)
+                    rows = _re.findall(r'<div class="row"><span>(.*?)</span><b>(.*?)</b></div>', html)
+                    pm = _re.search(r'class="bar"><i style="width:([\d.]+)%"', html)
+                    items.append({"title": title,
+                                  "badge": bm.group(1) if bm else "—",
+                                  "rows": [list(x) for x in rows],
+                                  "pct": float(pm.group(1)) if pm else None})
+                except Exception:
+                    items.append({"title": title, "badge": "⚠️ خطا", "rows": [], "pct": None})
+    return web.json_response({"items": items})
 
 async def api_buy_config(request):
     data = await request.json()
@@ -966,6 +997,7 @@ def create_web_app():
     app.router.add_get("/api/user/{uid}", api_user)
     app.router.add_get("/api/debug_channel", api_debug_channel)
     app.router.add_get("/api/status", api_status)
+    app.router.add_post("/api/sub_status", api_sub_status)
     app.router.add_post("/api/buy_config", api_buy_config)
     app.router.add_post("/api/buy_config_name", api_buy_config_name)
     app.router.add_post("/api/buy_express", api_buy_express)
