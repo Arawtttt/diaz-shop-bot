@@ -22,8 +22,14 @@ body{font-family:'Vazirmatn',sans-serif;background:var(--dk);color:#fff}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(600px 340px at 85% -6%,rgba(124,58,237,.28),transparent 65%),radial-gradient(560px 380px at 0% 100%,rgba(226,54,54,.16),transparent 60%),radial-gradient(400px 300px at 50% 45%,rgba(124,58,237,.07),transparent 70%)}
 .bg{position:fixed;inset:0;z-index:0;background:url('spider-bg.jpg') center top/cover no-repeat;opacity:.26}
 .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,6,22,.35),rgba(11,6,22,.75) 45%,var(--dk) 72%)}
-.splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(11,6,22,.94);backdrop-filter:blur(18px);transition:opacity .6s,transform .6s}
+.splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(11,6,22,.94);transition:opacity .6s,transform .6s}
+.splash canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 .splash.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+.spLogo{width:146px;height:146px;border-radius:50%;padding:3px;background:var(--grad);box-shadow:0 0 44px rgba(124,58,237,.55),0 0 80px rgba(226,54,54,.3);position:relative;z-index:2;transition:all .5s cubic-bezier(.22,1,.36,1)}
+.spLogo.crack{transform:scale(1.25);opacity:0;box-shadow:0 0 80px rgba(124,58,237,.7),0 0 120px rgba(226,54,54,.5)}
+.spLogo img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.spTitle{font-size:24px;font-weight:900;margin-top:20px;position:relative;z-index:2;background:linear-gradient(135deg,#fff 15%,var(--pur2) 55%,var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;transition:all .5s}
+.spSub{font-size:13px;color:var(--dim);margin-top:6px;position:relative;z-index:2;transition:all .5s}
 .splash-ring{width:146px;height:146px;border-radius:50%;padding:3px;background:var(--grad);box-shadow:0 0 44px rgba(124,58,237,.45),0 0 70px rgba(226,54,54,.25)}
 .splash-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;border:none;padding:0;background:none;-webkit-mask:none;mask:none}
 .splash h2{font-size:24px;font-weight:900;margin-top:20px;background:linear-gradient(135deg,#fff 15%,var(--pur2) 55%,var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -181,10 +187,11 @@ body.light .thm{color:#1a102a}
 <body>
     <div class="bg"></div>
     <div class="splash" id="splash">
-        <div class="splash-ring"><img src="spider-bg.jpg" alt="Diaz Shop"></div>
-        <h2>Diaz Shop</h2>
-        <p>فروشگاه اختصاصی diazplaylist</p>
-        <button class="sbtn" id="playBtn">ورود</button>
+        <canvas id="spCanvas"></canvas>
+        <div class="spLogo" id="spLogo"><img src="spider-bg.jpg" alt="Diaz Shop"></div>
+        <h2 class="spTitle" id="spTitle">Diaz Shop</h2>
+        <p class="spSub" id="spSub">فروشگاه اختصاصی diazplaylist</p>
+        <button class="sbtn" id="playBtn" style="position:relative;z-index:5">ورود</button>
     </div>
     <audio id="bgm" preload="auto"></audio>
     <div id="toast" class="toast"></div>
@@ -417,13 +424,89 @@ document.addEventListener('click', _bgmGesture);
 var playBtn = document.getElementById('playBtn');
 if (playBtn) {
     playBtn.addEventListener('click', function() {
-        if (bgm) bgm.volume = 0.5;
-        playBgmRandom();
-        enterApp();
+        if (bgm) { bgm.volume = 0.5; playBgmRandom(); }
+        playBtn.style.display='none';
+        cinematicEnter();
     });
 }
 
 
+var _spCtx=null,_spW=0,_spH=0,_spP=[],_spAni=0;
+function _spResize(){
+    var c=document.getElementById('spCanvas');if(!c)return;
+    c.width=window.innerWidth;c.height=window.innerHeight;
+    _spW=c.width;_spH=c.height;
+}
+function _spPart(){
+    for(var i=0;i<44;i++){
+        _spP.push({
+            x:_spW/2+(Math.random()-0.5)*_spW*0.6,y:_spH/2+(Math.random()-0.5)*_spH*0.6,
+            vx:(Math.random()-0.5)*14,vy:(Math.random()-0.5)*14-6,
+            sz:2+Math.random()*4,life:1,decay:0.008+Math.random()*0.014,
+            hue:Math.random()<0.6?280+Math.random()*60:340+Math.random()*40
+        });
+    }
+}
+function _spDraw(){
+    if(!_spCtx){var c=document.getElementById('spCanvas');if(!c)return;_spCtx=c.getContext('2d');_spResize();}
+    _spCtx.clearRect(0,0,_spW,_spH);
+    for(var i=_spP.length-1;i>=0;i--){
+        var p=_spP[i];
+        p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life-=p.decay;
+        if(p.life<=0||p.x<0||p.x>_spW||p.y>_spH){_spP.splice(i,1);continue;}
+        _spCtx.beginPath();
+        _spCtx.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);
+        _spCtx.fillStyle='hsla('+p.hue+',100%,60%,'+p.life*0.9+')';
+        _spCtx.fill();
+        // glow
+        _spCtx.shadowBlur=18;_spCtx.shadowColor='hsla('+p.hue+',100%,60%,'+p.life*0.6+')';
+        _spCtx.fill();_spCtx.shadowBlur=0;
+    }
+    if(_spP.length)_spAni=requestAnimationFrame(_spDraw);
+}
+function cinematicEnter(){
+    var logo=document.getElementById('spLogo');
+    var title=document.getElementById('spTitle');
+    var sub=document.getElementById('spSub');
+    if(logo)logo.className='spLogo crack';
+    if(title)title.style.transform='translateY(-20px) scale(1.15)';
+    if(sub)sub.style.opacity='0';
+    var c=document.getElementById('spCanvas');
+    _spPart();
+    if(c){
+        _spResize();
+        var ctx=c.getContext('2d');
+        var wave=[{d:0},{d:180},{d:360}];
+        var t0=(window.performance&&performance.now)?performance.now():Date.now();
+        function frame(now){
+            var t=now-t0;
+            ctx.clearRect(0,0,_spW,_spH);
+            for(var i=_spP.length-1;i>=0;i--){
+                var p=_spP[i];
+                p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life-=p.decay;
+                if(p.life<=0||p.x<0||p.x>_spW||p.y<0||p.y>_spH){_spP.splice(i,1);continue;}
+                ctx.beginPath();ctx.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);
+                ctx.fillStyle='hsla('+p.hue+',100%,60%,'+p.life*0.9+')';
+                ctx.shadowBlur=18;ctx.shadowColor='hsla('+p.hue+',100%,60%,'+p.life*0.6+')';
+                ctx.fill();ctx.shadowBlur=0;
+            }
+            for(var r=0;r<wave.length;r++){
+                var age=t-wave[r].d;
+                if(age<0)continue;
+                var rad=40+age*0.32, alpha=0.7-age*0.0011;
+                if(alpha<=0.01)continue;
+                ctx.beginPath();ctx.arc(_spW/2,_spH/2,rad,0,Math.PI*2);
+                ctx.strokeStyle='rgba(124,58,237,'+alpha+')';
+                ctx.lineWidth=2.5;
+                ctx.shadowBlur=30;ctx.shadowColor='rgba(124,58,237,0.5)';
+                ctx.stroke();ctx.shadowBlur=0;
+            }
+            if(t<1150)requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    }
+    setTimeout(function(){ _spP=[]; enterApp(); },1000);
+}
 function enterApp() {
     var splash = document.getElementById('splash');
     if (splash) splash.className = 'splash hide';
@@ -432,7 +515,6 @@ function enterApp() {
     initTelegram();
     if (UID) loadUser();
     else renderPlans();
-
 }
 
 // === TOAST ===
@@ -585,17 +667,75 @@ function renderOrders(){
 }
 function celebrate(msg, cb){
   var ov=document.createElement('div');
+  ov.id='celebOverlay';
   ov.style.cssText='position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,8,16,.94);backdrop-filter:blur(8px);opacity:0;transition:opacity .3s';
-  ov.innerHTML='<div style="font-size:84px;animation:pop .55s cubic-bezier(.2,1.7,.4,1)">🎉</div><div style="font-size:20px;font-weight:900;margin-top:14px;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent">'+(msg||'سفارش ثبت شد!')+'</div><div style="font-size:13px;color:var(--dim);margin-top:8px">⏳ به زودی برای شما ارسال می‌شود</div>';
+  var msgText=msg||'سفارش ثبت شد!';
+  ov.innerHTML='<canvas id="webCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas><div style="font-size:84px;animation:pop .55s cubic-bezier(.2,1.7,.4,1);position:relative;z-index:1">🕷️</div><div style="font-size:20px;font-weight:900;margin-top:14px;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;z-index:1">'+msgText+'</div><div style="font-size:13px;color:var(--dim);margin-top:8px;position:relative;z-index:1">⏳ به زودی برای شما ارسال می‌شود</div>';
   document.body.appendChild(ov);
-  var colors=['#e23636','#fbbf24','#4ade80','#60a5fa','#a78bfa'];
+  // Spider-web canvas
+  var wc=document.getElementById('webCanvas');
+  if(wc){
+    wc.width=window.innerWidth;wc.height=window.innerHeight;
+    var wctx=wc.getContext('2d');
+    var w=wc.width,h=wc.height;
+    var cx=w/2,cy=h/2;
+    // Web strands
+    var strands=[];
+    var angles=[0,45,90,135,180,225,270,315];
+    for(var a=0;a<angles.length;a++){
+      var rad=angles[a]*Math.PI/180;
+      var endX=cx+Math.cos(rad)*w*0.6;
+      var endY=cy+Math.sin(rad)*h*0.6;
+      strands.push({x1:cx,y1:cy,x2:endX,y2:endY,progress:0});
+    }
+    // Connector rings
+    var rings=[];
+    for(var r=0;r<5;r++) rings.push({rad:40+r*38,progress:0});
+    function drawWeb(){
+      wctx.clearRect(0,0,w,h);
+      wctx.strokeStyle='rgba(124,58,237,0.6)';
+      wctx.lineWidth=1.5;
+      wctx.shadowBlur=15;wctx.shadowColor='rgba(167,139,250,0.5)';
+      // Draw strands
+      var done=true;
+      for(var a=0;a<strands.length;a++){
+        var s=strands[a];
+        s.progress=Math.min(1,s.progress+0.035);
+        if(s.progress<1)done=false;
+        var px=s.x1+(s.x2-s.x1)*s.progress;
+        var py=s.y1+(s.y2-s.y1)*s.progress;
+        wctx.beginPath();wctx.moveTo(s.x1,s.y1);
+        // slight curve
+        var cpx=(s.x1+s.x2)/2+(Math.random()-0.5)*20;
+        var cpy=(s.y1+s.y2)/2+(Math.random()-0.5)*20;
+        wctx.quadraticCurveTo(cpx,cpy,px,py);
+        wctx.stroke();
+      }
+      // Draw connector rings
+      for(var r=0;r<rings.length;r++){
+        var ri=rings[r];
+        ri.progress=Math.min(1,ri.progress+0.04);
+        if(ri.progress<1)done=false;
+        var rrad=ri.rad*ri.progress;
+        wctx.beginPath();wctx.arc(cx,cy,rrad,0,Math.PI*2);
+        wctx.strokeStyle='rgba(226,54,54,'+(0.4*(1-r/10))+')';
+        wctx.lineWidth=0.8;wctx.stroke();
+        wctx.shadowBlur=12;wctx.shadowColor='rgba(226,54,54,0.4)';
+        wctx.stroke();wctx.shadowBlur=15;wctx.shadowColor='rgba(167,139,250,0.5)';
+      }
+      if(!done)requestAnimationFrame(drawWeb);
+    }
+    drawWeb();
+  }
+  // Confetti + glow particles
+  var colors=['#e23636','#fbbf24','#7c3aed','#a78bfa','#4ade80'];
   for(var i=0;i<44;i++){
-    var c=document.createElement('div'); var sz=6+Math.random()*7;
-    c.style.cssText='position:absolute;top:-24px;left:'+(Math.random()*100)+'vw;width:'+sz+'px;height:'+(sz*(0.6+Math.random()*0.8))+'px;background:'+colors[i%colors.length]+';border-radius:2px;animation:fall '+(1.1+Math.random()*1.1)+'s linear '+(Math.random()*0.5)+'s forwards;opacity:.95';
+    var c=document.createElement('div'); var sz=5+Math.random()*8;
+    c.style.cssText='position:absolute;top:-24px;left:'+(Math.random()*100)+'vw;width:'+sz+'px;height:'+(sz*(0.5+Math.random()))+'px;background:'+colors[i%colors.length]+';border-radius:2px;animation:fall '+(1.3+Math.random()*1.2)+'s linear '+(Math.random()*0.5)+'s forwards;opacity:.95;z-index:1';
     ov.appendChild(c);
   }
   requestAnimationFrame(function(){ov.style.opacity='1';});
-  setTimeout(function(){ov.style.opacity='0';setTimeout(function(){ov.remove();if(cb)cb();},350);},2100);
+  setTimeout(function(){ov.style.opacity='0';setTimeout(function(){ov.remove();if(cb)cb();},350);},2800);
 }
 function openAI(brand){
   var el=document.getElementById('aiBrands'); if(!el) return;
