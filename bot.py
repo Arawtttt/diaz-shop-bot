@@ -87,7 +87,7 @@ DEEZER_PLANS = {
 }
 
 AI_PLANS = {
-    "gemini18": {"name": "جمنای ۱۸ ماهه", "price": "۴۰۰,۰۰۰", "price_int": 400000},
+    "gemini18": {"name": "جمنای یک‌ماهه", "price": "۵۰۰,۰۰۰", "price_int": 500000},
 }
 
 REFERRAL_TARGET = 1
