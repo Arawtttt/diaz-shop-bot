@@ -11,6 +11,12 @@
     <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--red:#e23636;--rd:#b91c1c;--pur:#7c3aed;--pur2:#a78bfa;--grad:linear-gradient(135deg,#7c3aed,#e23636);--dk:#0b0616;--gold:#fbbf24;--dim:rgba(255,255,255,.55);--glass:rgba(255,255,255,.055);--stroke:rgba(255,255,255,.11)}
+body.light{--red:#c62828;--rd:#8e0000;--pur:#5e35b1;--pur2:#7c4dff;--grad:linear-gradient(135deg,#5e35b1,#c62828);--dk:#f0eff4;--gold:#b45309;--dim:rgba(0,0,0,.65);--glass:rgba(255,255,255,.75);--stroke:rgba(0,0,0,.18);color:#1a102a}
+body.light .gl{background:linear-gradient(150deg,rgba(255,255,255,.88),rgba(255,255,255,.55));box-shadow:0 8px 24px rgba(0,0,0,.08)}
+body.light .hdr,body.light .bnav{background:rgba(240,239,244,.88);border-color:rgba(0,0,0,.08)}
+body.light .nv{color:var(--dim)}
+body.light .nv.act{color:#fff}
+body.light .mi,.light .pln{background:linear-gradient(150deg,rgba(255,255,255,.88),rgba(255,255,255,.55));box-shadow:0 4px 14px rgba(0,0,0,.06)}
 html,body{height:100%;overflow:hidden}
 body{font-family:'Vazirmatn',sans-serif;background:var(--dk);color:#fff}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(600px 340px at 85% -6%,rgba(124,58,237,.28),transparent 65%),radial-gradient(560px 380px at 0% 100%,rgba(226,54,54,.16),transparent 60%),radial-gradient(400px 300px at 50% 45%,rgba(124,58,237,.07),transparent 70%)}
@@ -72,6 +78,15 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .lb2{background:rgba(0,0,0,.4);border:1px solid var(--stroke);border-radius:14px;padding:14px;text-align:center;cursor:pointer}
 .wa{font-size:36px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--gold),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:8px 0}
 .wl{text-align:center;font-size:12px;color:var(--dim);margin-bottom:16px}
+.stp{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px 12px}
+.stpDot{width:28px;height:28px;border-radius:50%;border:2px solid var(--stroke);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--dim);background:var(--glass);transition:all .4s;position:relative}
+.stpDot.act{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 0 16px rgba(124,58,237,.5);transform:scale(1.1)}
+.stpDot.done{background:rgba(74,222,128,.2);border-color:#4ade80;color:#4ade80}
+.stplb{position:absolute;bottom:-16px;font-size:9px;white-space:nowrap;color:var(--dim);font-weight:500}
+.stpDot.act .stplb{color:#fff;font-weight:700}
+.stpDot.done .stplb{color:#4ade80}
+.stpLn{flex:1;max-width:54px;height:2px;background:var(--stroke);transition:background .4s}
+.stpLn.done{background:#4ade80}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(15,9,26,.92);backdrop-filter:blur(16px);border:1px solid rgba(167,139,250,.35);box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 20px rgba(124,58,237,.2);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-family:'Vazirmatn';z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 .modal{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}
@@ -82,6 +97,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .modal-box input:focus{border-color:var(--pur2);box-shadow:0 0 0 3px rgba(124,58,237,.25)}
 .modal-box .mbtn{width:100%;padding:14px;border:none;border-radius:14px;background:var(--grad);color:#fff;font-family:'Vazirmatn';font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.35)}
 .modal-box .mcancel{margin-top:10px;font-size:12px;color:var(--dim);cursor:pointer;border:none;background:none;font-family:'Vazirmatn'}
+.thm{position:absolute;top:50%;left:14px;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:16px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .2s}
+.thm:active{transform:translateY(-50%) scale(.92)}
+body.light .thm{color:#1a102a}
 .hback{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:34px;height:34px;display:none;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:17px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .15s}
 .hback:active{transform:translateY(-50%) scale(.92);border-color:rgba(167,139,250,.5)}
 .hdr.sc{box-shadow:0 10px 30px rgba(0,0,0,.5)}
@@ -146,6 +164,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .stcEmpty .big{font-size:34px;margin-bottom:6px;display:inline-block;animation:stcFloat 2.4s ease-in-out infinite}
 @keyframes stcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .stcSk{padding:18px;margin-bottom:14px}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}.reveal.in{opacity:1;transform:none}
 @keyframes skm{to{background-position:-200% 0}}
 .pln .pn{font-size:15px;font-weight:900;margin-bottom:8px}
 .pln .pp{font-size:18px;font-weight:900;color:var(--red);line-height:1.2}
@@ -162,14 +181,36 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 <body>
     <div class="bg"></div>
     <div class="splash" id="splash">
-        <div class="splash-ring"><img src="spider-bg.jpg" alt=""></div>
-        <h2>🕷️ Diaz Shop</h2>
+        <div class="splash-ring"><svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#e23636"/>
+    </linearGradient>
+  </defs>
+  <circle cx="70" cy="70" r="66" fill="none" stroke="url(#sg)" stroke-width="2" opacity=".45">
+    <animateTransform attributeName="transform" type="rotate" from="0 70 70" to="360 70 70" dur="12s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="70" cy="70" r="54" fill="none" stroke="url(#sg)" stroke-width="1" opacity=".3">
+    <animateTransform attributeName="transform" type="rotate" from="360 70 70" to="0 70 70" dur="18s" repeatCount="indefinite"/>
+  </circle>
+  <text x="70" y="82" text-anchor="middle" font-size="34" font-weight="900" fill="url(#sg)" font-family="Vazirmatn,sans-serif">D</text>
+  <circle cx="70" cy="70" r="18" fill="none" stroke="url(#sg)" stroke-width="1.5" stroke-dasharray="8 6" opacity=".6">
+    <animateTransform attributeName="transform" type="rotate" from="0 70 70" to="360 70 70" dur="6s" repeatCount="indefinite"/>
+  </circle>
+</svg></div>
+        <h2>Diaz Shop</h2>
         <p>فروشگاه اختصاصی diazplaylist</p>
-        <button class="sbtn" id="playBtn">🕷️ ورود</button>
+        <button class="sbtn" id="playBtn">✨ ورود</button>
     </div>
     <audio id="bgm" preload="auto"></audio>
     <div id="toast" class="toast"></div>
-    <div class="modal" id="nameModal">
+    <div class="stp" id="buySteps" style="display:none">
+  <div class="stpDot act" data-step="1">۱<span class="stplb">طرح</span></div><div class="stpLn"></div>
+  <div class="stpDot" data-step="2">۲<span class="stplb">نام</span></div><div class="stpLn"></div>
+  <div class="stpDot" data-step="3">۳<span class="stplb">تحویل</span></div>
+</div>
+<div class="modal" id="nameModal">
         <div class="modal-box">
             <h3>📝 اسم رو وارد کنید</h3>
             <input type="text" id="nameInput" placeholder="مثال: amir_vpn">
@@ -178,7 +219,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
         </div>
     </div>
     <div class="app" id="app" style="display:none">
-        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><h1>🕷️ Diaz Shop</h1><p>فروشگاه اختصاصی diazplaylist</p></div>
+        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><h1>🕷️ Diaz Shop</h1><p>فروشگاه اختصاصی diazplaylist</p></div>
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
                 <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی diazplaylist</p></div></div>
@@ -303,10 +344,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
             <div class="sec" id="sec-panel">
                 <div class="st">👤 پنل کاربری</div>
                 <div class="gl" style="padding:20px;margin-bottom:14px">
-                    <div class="ir"><span class="lb">نام</span><span class="vl" id="uName">—</span></div>
-                <div class="ir"><span class="lb">UID</span><span class="vl" id="uDebug" style="font-size:10px;color:var(--red)">بررسی...</span></div>
-                    <div class="ir"><span class="lb">آیدی</span><span class="vl" id="uId">—</span></div>
-                    <div class="ir"><span class="lb">موجودی</span><span class="vl" style="color:var(--gold)" id="uBal">—</span></div>
+                    <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)">
+                        <div id="uAvatar" style="width:54px;height:54px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 4px 18px rgba(124,58,237,.45)">—</div>
+                        <div style="flex:1;min-width:0"><div id="uName" style="font-size:17px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div><div id="uId" style="font-size:12px;color:var(--dim);margin-top:2px">—</div></div>
+                    </div>
+                    <div class="ir"><span class="lb">📆 عضویت</span><span class="vl" id="uJoined">—</span></div>
+                    <div class="ir"><span class="lb">🛒 کل خریدها</span><span class="vl" id="uPurchases">—</span></div>
+                    <div class="ir"><span class="lb">💰 موجودی</span><span class="vl" style="color:var(--gold);font-size:16px" id="uBal">—</span></div>
+                    <div class="ir"><span class="lb">🆔 شناسه کاربر</span><span class="vl" id="uDebug" style="font-size:11px;color:var(--dim);font-family:monospace;direction:ltr">بررسی...</span></div>
                 </div>
                 <div id="subStatus"><div class="gl stcSk"><div class="sk" style="width:45%"></div><div class="sk" style="width:100%;height:60px;border-radius:18px"></div><div class="sk" style="width:70%"></div></div></div>
                 <div id="uOrders"><div class="gl" style="padding:16px;margin-bottom:14px"><div class="sk" style="width:55%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:40%"></div></div></div>
@@ -335,6 +380,13 @@ var BOT = 'Diazpshopbot';
 var API = window.location.origin.indexOf('railway') >= 0 ? window.location.origin : 'https://worker-production-e8dd.up.railway.app';
 var userData = null;
 
+function toggleTheme(){
+    var b=document.body;
+    var btn=document.getElementById('thmBtn');
+    var isLight=b.classList.toggle('light');
+    if(btn)btn.textContent=isLight?'☀️':'🌙';
+    try{localStorage.setItem('dzTheme',isLight?'light':'dark');}catch(e){}
+}
 function initTelegram() {
     tg = window.Telegram && window.Telegram.WebApp;
     if (tg) {
@@ -743,9 +795,26 @@ function renderUser() {
     var rl = document.getElementById('refLink');
     if (rl) rl.textContent = 'https://t.me/' + BOT + '?start=ref' + UID;
     var un = document.getElementById('uName');
-    if (un) un.textContent = (user && user.first_name) ? user.first_name : (userData.bot_username || '—');
+    if (un) {
+        var nm = (user && user.first_name) ? user.first_name : (userData.bot_username || '—');
+        un.textContent = nm;
+        var av = document.getElementById('uAvatar');
+        if (av) av.textContent = (nm && nm.length && nm !== '—') ? nm.charAt(0).toUpperCase() : '👤';
+    }
     var uidEl = document.getElementById('uId');
     if (uidEl) uidEl.textContent = user ? ('@' + (user.username || 'ندارد')) : UID;
+    var orders = (userData.orders || []);
+    var joinEl = document.getElementById('uJoined');
+    if (joinEl) {
+        if (orders.length) {
+            var first = orders[Math.min(orders.length - 1, orders.length - 1)];
+            var ts = first.delivered_ts || first.ts || Math.floor(Date.now() / 1000);
+            var d = new Date(ts * 1000);
+            joinEl.textContent = d.toLocaleDateString('fa-IR', {year:'numeric', month:'long', day:'numeric'});
+        } else { joinEl.textContent = 'کاربر جدید'; }
+    }
+    var purEl = document.getElementById('uPurchases');
+    if (purEl) purEl.textContent = (orders.length || 0).toLocaleString('fa-IR') + ' سفارش';
     var ub = document.getElementById('uBal');
     if (ub) animNum(ub, bal, ' تومان');
     var bc = document.getElementById('bankCard');
@@ -795,6 +864,15 @@ function buyConfig(planId) {
     if (el) { if(!window._origBlocks)window._origBlocks={}; if(!window._origBlocks['sec-config'])window._origBlocks['sec-config']=el.innerHTML; el.innerHTML = html; }
 }
 
+function stpSet(n){
+    var dots=document.querySelectorAll('.stpDot'),lns=document.querySelectorAll('.stpLn'),el=document.getElementById('buySteps');
+    if(el)el.style.display='flex';
+    for(var i=0;i<dots.length;i++){
+        if(i+1<n){dots[i].className='stpDot done';if(lns[i])lns[i].className='stpLn done';}
+        else if(i+1===n){dots[i].className='stpDot act';if(lns[i])lns[i].className='stpLn';}
+        else{dots[i].className='stpDot';if(lns[i])lns[i].className='stpLn';}
+    }
+}
 function payConfigWallet(planId) {
     if (!UID) { showToast('لطفاً از داخل تلگرام باز کنید'); return; }
     document.getElementById('nameModal').className = 'modal show';
@@ -841,6 +919,7 @@ document.getElementById('nameSubmit').addEventListener('click', function() {
     if (!name) { showToast('اسم رو وارد کنید'); return; }
     document.getElementById('nameModal').className = 'modal';
     showToast('⏳ در حال ساخت...');
+    stpSet(2);
     var planId = window._buyPlanId;
     var buyType = window._buyType;
     var apiPath = buyType === 'config' ? '/api/buy_config' : '/api/buy_config';
@@ -857,7 +936,7 @@ document.getElementById('nameSubmit').addEventListener('click', function() {
         });
     }).then(function(r) { return r ? r.json() : null; }).then(function(d) {
         if (d && d.error) { showToast('❌ ' + d.error); return; }
-        celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); });
+        stpSet(3); setTimeout(function(){var bs=document.getElementById('buySteps');if(bs)bs.style.display='none';},2500); celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); });
     }).catch(function() { showToast('❌ خطا'); });
 });
 
@@ -895,12 +974,20 @@ function claimFreeSub() {
 
 // === BOOT ===
 window.addEventListener('load', function() {
+    try{if(localStorage.getItem('dzTheme')==='light'){document.body.classList.add('light');var _t=document.getElementById('thmBtn');if(_t)_t.textContent='☀️';}}catch(e){}
     initTelegram();
     showSection('home');
     renderPlans();
     fetchStatus();
     startBanner();
     try { startGtaTimer(); } catch(e) {}
+    (function(){
+        var els=document.querySelectorAll('.gl, .pln, .mi');
+        for(var i=0;i<els.length;i++) els[i].classList.add('reveal');
+        if(!window.IntersectionObserver) return;
+        var obs=new IntersectionObserver(function(es){for(var j=0;j<es.length;j++){if(es[j].isIntersecting){es[j].target.classList.add('in');obs.unobserve(es[j].target);}}},{threshold:.08});
+        for(var k=0;k<els.length;k++) obs.observe(els[k]);
+    })();
     var ctEl = document.querySelector('.ct');
     if (ctEl) ctEl.addEventListener('scroll', function() {
         var h = document.querySelector('.hdr');
