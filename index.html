@@ -1000,9 +1000,18 @@ function admUser(uid){
             h += '<div style="font-size:11.5px;padding:6px 0;word-break:break-all;direction:ltr;text-align:left;color:var(--dim)">' + (cs[j].link || cs[j].data || '') + '</div>';
         h += '</div>';
         h += '<div class="gl" style="padding:16px;margin-bottom:12px" id="admSubs"><div class="st" style="margin-bottom:8px">🔌 کنترل اشتراک‌ها</div><div class="sk" style="width:60%"></div></div>';
-        h += '<button class="bk" onclick="admShow(\'users\')">← لیست کاربران</button>';
+        h += '<div style="display:flex;gap:8px"><button class="bk" style="flex:1" onclick="admShow(\'users\')">← لیست کاربران</button>'
+          + '<button class="bk" style="background:rgba(248,113,113,.18)" onclick="admDelUser(\'' + uid + '\')">🗑 حذف کاربر</button></div>';
         var b = admBox(); if(b) b.innerHTML = h;
         admSubs(uid);
+    }).catch(function(){});
+}
+function admDelUser(uid){
+    if(!confirm('کاربر ' + uid + ' کامل حذف بشه؟ (موجودی، سفارش‌ها، اشتراک‌ها)')) return;
+    admFetch('/api/admin/user_delete', {method:'POST', body:JSON.stringify({uid:String(uid)})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ حذف شد'); admShow('users');
     }).catch(function(){});
 }
 function admWallet(uid, sign){

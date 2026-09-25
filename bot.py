@@ -1456,6 +1456,7 @@ def create_web_app():
     app.router.add_get("/api/admin/requests", admin_requests)
     app.router.add_post("/api/admin/request", admin_request_action)
     app.router.add_post("/api/admin/order", admin_order_action)
+    app.router.add_post("/api/admin/user_delete", admin_user_delete)
     # Static files — must come AFTER specific routes
     app.router.add_get("/{name:.*}", serve_static)
     return app
@@ -1851,6 +1852,23 @@ async def admin_order_action(request):
                       + (f"\n\n💰 {price:,} تومان به کیف پول بازگشت." if price > 0 else ""))
         return web.json_response({"ok": True, "status": "rejected", "refunded": price})
     return web.json_response({"error": "عملیات نامعتبر"}, status=400)
+
+async def admin_user_delete(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    uid = str(data.get("uid", "")).strip()
+    if not uid:
+        return web.json_response({"error": "uid لازم"}, status=400)
+    w = load_wallet(); w.get("users", {}).pop(uid, None); save_wallet(w)
+    cf = load_configs(); cf.pop(uid, None); save_configs(cf)
+    od = load_orders(); od.pop(uid, None); save_orders(od)
+    rf = load_referrals(); rf.pop(uid, None); save_referrals(rf)
+    pn = load_pending()
+    dropped = [k for k, v in pn.items() if isinstance(v, dict) and str(v.get("user_id") or k) == uid]
+    for k in dropped: pn.pop(k, None)
+    if dropped: save_pending(pn)
+    return web.json_response({"ok": True, "note": f"کاربر {uid} حذف شد"})
 
 # ─── Main: Web Server (thread) + Bot (main thread) ──────
 def main():
