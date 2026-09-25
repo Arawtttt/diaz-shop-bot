@@ -1,0 +1,11 @@
+# state — persisted in Cloudflare KV (kv_boot in bot.py), never in git
+wallet.json
+user_configs.json
+orders.json
+referrals.json
+pending_state.json
+express_accounts.json
+discounts.json
+
+__pycache__/
+*.pyc
