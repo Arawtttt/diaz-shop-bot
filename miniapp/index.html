@@ -632,7 +632,7 @@ function openMusic(brand){
   el.innerHTML=h;
 }
 function buySpotify(planId){
-    if(!PA('spotify', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
+    if(!PA('spotify', planId)){ showToast(PMSG('spotify', planId)); return; }
   var plans={spotify1m:{name:'Spotify اختصاصی یک‌ماهه',price:P('spotify','spotify1m','۱,۵۰۰,۰۰۰'),int:PO('spotify','spotify1m',1500000)}};
   var p=plans[planId]; if(!p) return;
   window._SC=function(){ buySpotify(planId); };
@@ -660,7 +660,7 @@ function paySpotifyWallet(planId){
   }).catch(function(){showToast('❌ خطا');});
 }
 function buyDeezer(planId){
-    if(!PA('deezer', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
+    if(!PA('deezer', planId)){ showToast(PMSG('deezer', planId)); return; }
   var plans={family:{name:'فمیلی',price:P('deezer','family','۱۵۰,۰۰۰'),int:PO('deezer','family',150000)},personal:{name:'شخصی',price:P('deezer','personal','۲۲۰,۰۰۰'),int:PO('deezer','personal',220000)}};
   var p=plans[planId]; if(!p) return;
   window._SC=function(){ buyDeezer(planId); };
@@ -819,7 +819,7 @@ function openAI(brand){
   el.innerHTML=h;
 }
 function buyAI(planId){
-    if(!PA('ai', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
+    if(!PA('ai', planId)){ showToast(PMSG('ai', planId)); return; }
   var plans={gemini18:{name:'جمنای یک‌ماهه',price:P('ai','gemini18','۵۰۰,۰۰۰'),int:PO('ai','gemini18',500000),brand:'gemini'},claudepro:{name:'Claude Pro یک‌ماهه',price:P('ai','claudepro','۶,۵۰۰,۰۰۰'),int:PO('ai','claudepro',6500000),brand:'claude'},gpt_go:{name:'ChatGPT Go یک‌ماهه',price:P('ai','gpt_go','۲,۵۵۰,۰۰۰'),int:PO('ai','gpt_go',2550000),brand:'chatgpt'},gpt_plus:{name:'ChatGPT پلاس آماده یک‌ماهه',price:P('ai','gpt_plus','۴,۷۰۰,۰۰۰'),int:PO('ai','gpt_plus',4700000),brand:'chatgpt'}};
   var p=plans[planId]; if(!p) return;
   window._SC=function(){ buyAI(planId); };
@@ -899,10 +899,12 @@ function discPayload(){ return BUY.code ? {code: BUY.code} : {}; }
 // === PLAN OVERRIDES (قیمت/فعال از سمت سرور — توسط پنل ادمین) ===
 var PLAN_OV = {};
 function _ov(kind, id){ return (PLAN_OV[kind] && PLAN_OV[kind][id]) || null; }
-function PA(kind, id){ var o = _ov(kind, id); return !(o && o.active === false); }
+function PA(kind, id){ var o = _ov(kind, id); return !(o && (o.active === false || o.out === true)); }
+function PMSG(kind, id){ var o = _ov(kind, id); return (o && o.out) ? 'این پلن اتمام موجودیه' : 'این پلن موقتاً غیرفعال است'; }
 function P(kind, id, def){
     var o = _ov(kind, id); if(!o) return def;
     if(o.active === false) return '⛔ غیرفعال';
+    if(o.out === true) return '📦 اتمام موجودی';
     return o.price || def;
 }
 function PO(kind, id, def){
@@ -1222,9 +1224,10 @@ function admPlans(){
                 var p = list[i];
                 h += '<div style="display:flex;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
                   + '<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700' + (p.active ? '' : ';color:var(--dim)') + '">' + p.name + '</div>'
-                  + '<div style="font-size:10.5px;color:var(--dim)">' + Number(p.price_int).toLocaleString('fa-IR') + ' تومان' + (p.active ? '' : ' • غیرفعال') + '</div></div>'
+                  + '<div style="font-size:10.5px;color:var(--dim)">' + Number(p.price_int).toLocaleString('fa-IR') + ' تومان' + (p.active ? '' : ' • غیرفعال') + (p.out ? ' • اتمام موجودی' : '') + '</div></div>'
                   + '<input id="pf_' + kind + '_' + p.key + '" type="number" inputmode="numeric" placeholder="' + p.price_int + '" style="width:94px;' + inp + '">'
                   + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="ذخیره قیمت" onclick="admSavePlan(\'' + kind + '\',\'' + p.key + '\')">💾</button>'
+                  + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="اتمام موجودی" onclick="admOutPlan(\'' + kind + '\',\'' + p.key + '\',' + (p.out ? 'false' : 'true') + ')">' + (p.out ? '✅' : '📦') + '</button>'
                   + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="فعال/غیرفعال" onclick="admTogglePlan(\'' + kind + '\',\'' + p.key + '\',' + (p.active ? 'false' : 'true') + ')">' + (p.active ? '⛔' : '✅') + '</button></div>';
             }
         }
@@ -1244,6 +1247,13 @@ function admSavePlan(kind, key){
     .then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
         showToast('✅ قیمت ذخیره شد'); admPlans(); _planOvRefresh();
+    }).catch(function(){});
+}
+function admOutPlan(kind, key, val){
+    admFetch('/api/admin/plan', {method:'POST', body:JSON.stringify({kind:kind, key:key, out:val})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast(val ? '📦 محصول اتمام موجودی خورد' : '✅ موجودی برگشت'); admPlans(); _planOvRefresh();
     }).catch(function(){});
 }
 function admTogglePlan(kind, key, active){
@@ -1547,7 +1557,7 @@ function renderUser() {
 
 // === BUY CONFIG ===
 function buyConfig(planId) {
-    if(!PA('config', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
+    if(!PA('config', planId)){ showToast(PMSG('config', planId)); return; }
     var names = {'10gb':'۱۰ گیگ','20gb':'۲۰ گیگ','50gb':'۵۰ گیگ','80gb':'۸۰ گیگ'};
     var prices = {'10gb':P('config','10gb','۱۲,۰۰۰'),'20gb':P('config','20gb','۳۰,۰۰۰'),'50gb':P('config','50gb','۷۰,۰۰۰'),'80gb':P('config','80gb','۱۱۰,۰۰۰')};
     var planPrice = {'10gb':PO('config','10gb',12000),'20gb':PO('config','20gb',30000),'50gb':PO('config','50gb',70000),'80gb':PO('config','80gb',110000)};
@@ -1587,7 +1597,7 @@ function payConfigWallet(planId) {
 
 // === BUY EXPRESS ===
 function buyExpress(planId) {
-    if(!PA('express', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
+    if(!PA('express', planId)){ showToast(PMSG('express', planId)); return; }
     var names = {'1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','1y':'۱ ساله'};
     var prices = {'1m':P('express','1m','۲۲۰,۰۰۰'),'3m':P('express','3m','۳۳۰,۰۰۰'),'6m':P('express','6m','۴۹۰,۰۰۰'),'1y':P('express','1y','۹۵۰,۰۰۰')};
     var planPrice = {'1m':PO('express','1m',220000),'3m':PO('express','3m',330000),'6m':PO('express','6m',490000),'1y':PO('express','1y',950000)};
@@ -1717,6 +1727,7 @@ function gtaSheetInit(){
 }
 function buyGta() {
     if (!UID) { showToast('لطفاً از داخل تلگرام باز کنید'); return; }
+    if(!PA('special','gta')){ showToast(PMSG('special','gta')); return; }
     showToast('🛒 در حال ثبت سفارش...');
     fetch(API + '/api/buy_gta', {
         method: 'POST',

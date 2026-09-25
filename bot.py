@@ -1006,8 +1006,9 @@ async def api_buy_config(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = CONFIG_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
-    if plan.get("active") is False:
-        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
+    _blk = _plan_block(plan)
+    if _blk:
+        return web.json_response({"error": _blk}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1059,8 +1060,9 @@ async def api_buy_express(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = EXPRESS_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
-    if plan.get("active") is False:
-        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
+    _blk = _plan_block(plan)
+    if _blk:
+        return web.json_response({"error": _blk}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1084,8 +1086,9 @@ async def api_buy_gta(request):
     if not uid: return web.json_response({"error": "uid required"})
     uid = str(uid)
     plan = dict(SPECIAL_PLANS["gta"])
-    if plan.get("active") is False:
-        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
+    _blk = _plan_block(plan)
+    if _blk:
+        return web.json_response({"error": _blk}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, "wallet")
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if not spend_balance(int(uid), plan["price_int"]):
@@ -1103,8 +1106,9 @@ async def api_buy_deezer(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = DEEZER_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
-    if plan.get("active") is False:
-        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
+    _blk = _plan_block(plan)
+    if _blk:
+        return web.json_response({"error": _blk}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1124,8 +1128,9 @@ async def api_buy_spotify(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = SPOTIFY_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
-    if plan.get("active") is False:
-        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
+    _blk = _plan_block(plan)
+    if _blk:
+        return web.json_response({"error": _blk}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1145,8 +1150,9 @@ async def api_buy_ai(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = AI_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
-    if plan.get("active") is False:
-        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
+    _blk = _plan_block(plan)
+    if _blk:
+        return web.json_response({"error": _blk}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1538,6 +1544,16 @@ TYPE_LABELS = {
     "config": "📦 رسید کانفیگ", "express": "📸 رسید ExpressVPN",
 }
 
+def _plan_block(plan):
+    """اگه پلن الان قابل خرید نباشه، متن دلیل برمی‌گردونه، وگرنه None."""
+    if not isinstance(plan, dict):
+        return None
+    if plan.get("active") is False:
+        return "این پلن موقتاً غیرفعال است"
+    if plan.get("out"):
+        return "این پلن اتمام موجودیه"
+    return None
+
 def apply_plan_overrides():
     ov = load_plan_overrides()
     n = 0
@@ -1551,6 +1567,7 @@ def apply_plan_overrides():
                 t["price_int"] = pi
                 t["price"] = _fa(pi)
             t["active"] = bool(o.get("active", True))
+            t["out"] = bool(o.get("out"))
             n += 1
     logger.info(f"plan overrides applied: {n}")
 
@@ -1559,14 +1576,15 @@ def _plan_state(kind, key):
     if not isinstance(t, dict):
         return None
     return {"key": key, "name": t.get("name", key), "price": t.get("price", ""),
-            "price_int": t.get("price_int", 0), "active": t.get("active", True)}
+            "price_int": t.get("price_int", 0), "active": t.get("active", True),
+            "out": bool(t.get("out"))}
 
 async def api_plans(request):
     """عمومی — مینی‌اپ قیمت/فعال بودن پلن‌ها رو از همین‌جا می‌گیره"""
     out = {}
     for kind, table in PLAN_KINDS.items():
         out[kind] = {k: {"price": v.get("price", ""), "price_int": v.get("price_int", 0),
-                         "active": v.get("active", True)}
+                         "active": v.get("active", True), "out": bool(v.get("out"))}
                      for k, v in table.items()}
     return web.json_response(out)
 
@@ -1588,6 +1606,8 @@ async def admin_plan_save(request):
     cur = dict(slot.get(key) or {})
     if "active" in data:
         cur["active"] = bool(data.get("active"))
+    if "out" in data:
+        cur["out"] = bool(data.get("out"))
     if data.get("price_int") is not None:
         try:
             p = int(data.get("price_int"))
