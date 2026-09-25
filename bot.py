@@ -1435,9 +1435,28 @@ async def admin_users(request):
     return web.json_response({"users": users})
 
 async def admin_expiry_scan(request):
-    """اجرای دستی اسکن انقضا + گزارش سفارش‌های نزدیک به انقضا"""
+    """اجرای دستی اسکن انقضا + گزارش سفارش‌های نزدیک به انقضا.
+    با {"preview_uid": "..."} یه پیش‌نمایش از متن یادآوری براش میفرسته (برای تست)."""
     err = _denied(request)
     if err: return err
+    try: data = await request.json()
+    except Exception: data = {}
+    pv = str((data or {}).get("preview_uid", "") or "")
+    if pv.isdigit():
+        txt = ("🧪 **پیش‌نمایش یادآوری انقضا**\n\n"
+               "⏳ **اشتراک داره تموم میشه!**\n\n"
+               "📦 نمونه اشتراک\n"
+               "⏰ حدود **۱۲ ساعت** دیگه انقضا\n\n"
+               "از 👤 پنل کاربری مینی‌اپ تمدیدش کن تا قطع نشه.")
+        try:
+            import httpx as _hx
+            _r = _hx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                          json={"chat_id": int(pv), "text": txt, "parse_mode": "Markdown"}, timeout=15)
+            _j = _r.json()
+            return web.json_response({"ok": True, "delivered": bool(_j.get("ok")),
+                                      "detail": _j.get("description", "sent")})
+        except Exception as _e:
+            return web.json_response({"ok": False, "error": str(_e)}, status=502)
     now = int(time.time()); near = []
     o = load_orders()
     for uid, lst in o.items():
