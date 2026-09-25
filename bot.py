@@ -137,7 +137,8 @@ _KV_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko)
 
 def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
-            ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE]
+            ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
+            PLAN_OVERRIDES_FILE, RECEIPTS_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -703,6 +704,13 @@ async def handle_photo(update, context):
     if ptype == "charge":
         amount = state.get("amount", 0); del p[uid]; save_pending(p)
         caption = f"💰 **رسید شارژ**\n\n👤 {user.first_name} (@{user.username or 'ندارد'})\n🆔 {uid}\n💰 {amount:,} تومان"
+        try:
+            _rs = load_receipts()
+            _rs[f"{int(time.time())}_{uid}"] = {"uid": uid, "ptype": ptype, "amount": amount,
+                                                "plan": "", "price": 0, "ts": int(time.time()), "status": "waiting"}
+            save_receipts(_rs)
+        except Exception as e:
+            logger.warning(f"receipt save failed: {e}")
         kb = [[InlineKeyboardButton("✅ تایید", callback_data=f"approve_charge_{user.id}_{amount}"),
                InlineKeyboardButton("❌ رد", callback_data=f"reject_{user.id}")]]
         try: await context.bot.send_photo(chat_id=OWNER_ID, photo=update.message.photo[-1].file_id, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
@@ -714,6 +722,13 @@ async def handle_photo(update, context):
     if not plan: return
     del p[uid]; save_pending(p)
     caption = f"📸 **رسید**\n\n👤 {user.first_name} (@{user.username or 'ندارد'})\n🆔 {uid}\n📦 {plan['name']}\n💰 {plan['price']} تومان"
+    try:
+        _rs = load_receipts()
+        _rs[f"{int(time.time())}_{uid}"] = {"uid": uid, "ptype": ptype, "amount": 0, "plan": plan_id,
+                                            "price": plan.get("price_int", 0), "ts": int(time.time()), "status": "waiting"}
+        save_receipts(_rs)
+    except Exception as e:
+        logger.warning(f"receipt save failed: {e}")
     kb = [[InlineKeyboardButton("✅ تایید", callback_data=f"approve_{ptype}_{user.id}_{plan_id}"),
            InlineKeyboardButton("❌ رد", callback_data=f"reject_{user.id}")]]
     try: await context.bot.send_photo(chat_id=OWNER_ID, photo=update.message.photo[-1].file_id, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
@@ -835,6 +850,8 @@ async def approve_config(update, context):
 async def approve_receipt(update, context):
     q = update.callback_query; await q.answer()
     parts = q.data.split("_"); ptype = parts[1]; user_id = int(parts[2])
+    try: _receipts_resolve(user_id, ptype)
+    except Exception: pass
     if ptype == "charge":
         amount = int(parts[3]); add_balance(user_id, amount)
         kb = [[InlineKeyboardButton("🏠 صفحه اصلی", callback_data="back_main")]]
@@ -852,6 +869,8 @@ async def approve_receipt(update, context):
 async def reject_receipt(update, context):
     q = update.callback_query; await q.answer()
     user_id = int(q.data.split("_")[1])
+    try: _receipts_resolve(user_id)
+    except Exception: pass
     await context.bot.send_message(chat_id=user_id, text="❌ رسید تایید نشد.\nبا پشتیبانی تماس بگیرید.")
     await q.edit_message_caption(caption=q.message.caption + "\n\n❌ رد شد!", parse_mode="Markdown")
 
@@ -979,6 +998,8 @@ async def api_buy_config(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = CONFIG_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if plan.get("active") is False:
+        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1030,6 +1051,8 @@ async def api_buy_express(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = EXPRESS_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if plan.get("active") is False:
+        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1068,6 +1091,8 @@ async def api_buy_deezer(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = DEEZER_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if plan.get("active") is False:
+        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1087,6 +1112,8 @@ async def api_buy_spotify(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = SPOTIFY_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if plan.get("active") is False:
+        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1106,6 +1133,8 @@ async def api_buy_ai(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = AI_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    if plan.get("active") is False:
+        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1418,9 +1447,404 @@ def create_web_app():
     app.router.add_post("/api/admin/discount", admin_discount_save)
     app.router.add_post("/api/admin/discount_toggle", admin_discount_toggle)
     app.router.add_post("/api/admin/discount_delete", admin_discount_delete)
+    app.router.add_get("/api/plans", api_plans)
+    app.router.add_get("/api/admin/plans", admin_plans)
+    app.router.add_post("/api/admin/plan", admin_plan_save)
+    app.router.add_get("/api/admin/subs", admin_subs)
+    app.router.add_post("/api/admin/sub", admin_sub_action)
+    app.router.add_get("/api/admin/requests", admin_requests)
+    app.router.add_post("/api/admin/request", admin_request_action)
+    app.router.add_post("/api/admin/order", admin_order_action)
     # Static files — must come AFTER specific routes
     app.router.add_get("/{name:.*}", serve_static)
     return app
+
+# ─── Admin panel: plan overrides / subscriptions / requests ────────────
+PLAN_OVERRIDES_FILE = "plan_overrides.json"
+RECEIPTS_FILE = "receipts.json"
+
+def load_plan_overrides(): return _load(PLAN_OVERRIDES_FILE)
+def save_plan_overrides(d): _save(PLAN_OVERRIDES_FILE, d)
+def load_receipts(): return _load(RECEIPTS_FILE)
+def save_receipts(d): _save(RECEIPTS_FILE, d)
+
+PLAN_KINDS = {"config": CONFIG_PLANS, "express": EXPRESS_PLANS, "deezer": DEEZER_PLANS,
+              "ai": AI_PLANS, "spotify": SPOTIFY_PLANS}
+
+TYPE_LABELS = {
+    "send_config": "📦 کانفیگ VPN", "send_express": "⚡ ExpressVPN",
+    "send_deezer": "🎵 Deezer", "send_spotify": "🎧 Spotify",
+    "send_ai": "🤖 هوش مصنوعی", "send_gta": "🎮 GTA VI",
+    "charge": "💰 رسید شارژ کیف پول", "charge_custom": "💳 درخواست شارژ",
+    "charge_receipt": "💳 رسید شارژ", "config_wallet_name": "📝 اسم کانفیگ",
+    "config_receipt_name": "📝 اسم کانفیگ (پس از پرداخت)",
+    "config": "📦 رسید کانفیگ", "express": "📸 رسید ExpressVPN",
+}
+
+def apply_plan_overrides():
+    ov = load_plan_overrides()
+    n = 0
+    for kind, table in PLAN_KINDS.items():
+        for key, o in (ov.get(kind) or {}).items():
+            t = table.get(key)
+            if not isinstance(t, dict):
+                continue
+            pi = o.get("price_int")
+            if isinstance(pi, int) and pi > 0:
+                t["price_int"] = pi
+                t["price"] = _fa(pi)
+            t["active"] = bool(o.get("active", True))
+            n += 1
+    logger.info(f"plan overrides applied: {n}")
+
+def _plan_state(kind, key):
+    t = PLAN_KINDS.get(kind, {}).get(key)
+    if not isinstance(t, dict):
+        return None
+    return {"key": key, "name": t.get("name", key), "price": t.get("price", ""),
+            "price_int": t.get("price_int", 0), "active": t.get("active", True)}
+
+async def api_plans(request):
+    """عمومی — مینی‌اپ قیمت/فعال بودن پلن‌ها رو از همین‌جا می‌گیره"""
+    out = {}
+    for kind, table in PLAN_KINDS.items():
+        out[kind] = {k: {"price": v.get("price", ""), "price_int": v.get("price_int", 0),
+                         "active": v.get("active", True)}
+                     for k, v in table.items()}
+    return web.json_response(out)
+
+async def admin_plans(request):
+    err = _denied(request)
+    if err: return err
+    out = {kind: [_plan_state(kind, k) for k in table] for kind, table in PLAN_KINDS.items()}
+    return web.json_response({"plans": out})
+
+async def admin_plan_save(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    kind = str(data.get("kind", "")); key = str(data.get("key", ""))
+    if kind not in PLAN_KINDS or key not in PLAN_KINDS[kind]:
+        return web.json_response({"error": "پلن پیدا نشد"}, status=404)
+    ov = load_plan_overrides()
+    slot = ov.setdefault(kind, {})
+    cur = dict(slot.get(key) or {})
+    if "active" in data:
+        cur["active"] = bool(data.get("active"))
+    if data.get("price_int") is not None:
+        try:
+            p = int(data.get("price_int"))
+        except Exception:
+            return web.json_response({"error": "قیمت نامعتبر"}, status=400)
+        if p < 0:
+            return web.json_response({"error": "قیمت نامعتبر"}, status=400)
+        cur["price_int"] = p
+    slot[key] = cur
+    save_plan_overrides(ov)
+    apply_plan_overrides()
+    return web.json_response({"ok": True, "plan": _plan_state(kind, key)})
+
+# ─── Subscriptions control (via BPB panel) ─────────────────────────────
+def _panel_ready():
+    return bool(BPB_ORIGIN and BPB_SECURE_PATH and BPB_EMAIL and BPB_PASSWORD)
+
+async def _panel_login(c, base):
+    r = await c.post(f"{base}/login/authenticate",
+                     json={"username": BPB_EMAIL.lower(), "password": BPB_PASSWORD})
+    try:
+        ok = r.json().get("success")
+    except ValueError:
+        ok = False
+    if not ok:
+        raise RuntimeError(f"panel login failed ({r.status_code})")
+
+def _sub_field(link):
+    lk = link or ""
+    if "/sub/u/" in lk:
+        return "subToken", lk.split("?")[0].rstrip("/").split("/")[-1]
+    if "/user/" in lk:
+        return "uuid", lk.split("?")[0].rstrip("/").split("/")[-1]
+    return None, None
+
+def _panel_status(u):
+    now = time.time()
+    if not u.get("enabled", True): return "disabled"
+    if u.get("expireAt", 0) > 0 and now > u["expireAt"]: return "expired"
+    gb = u.get("totalGB", 0)
+    if gb > 0 and u.get("usedBytes", 0) >= gb * 1024**3: return "quota"
+    return "active"
+
+def _remaining_days(u):
+    ea = u.get("expireAt", 0)
+    if ea <= 0: return 0
+    return max(0, int((ea - time.time()) // 86400))
+
+async def admin_subs(request):
+    err = _denied(request)
+    if err: return err
+    uid = str(request.query.get("uid", ""))
+    if not uid:
+        return web.json_response({"error": "uid لازم"}, status=400)
+    if not _panel_ready():
+        return web.json_response({"error": "پنل تنظیم نشده"}, status=503)
+    cfgs = load_configs().get(uid, [])
+    base = f"{BPB_ORIGIN}/{BPB_SECURE_PATH}"
+    out = []
+    async with httpx.AsyncClient(timeout=40) as c:
+        await _panel_login(c, base)
+        r = await c.get(f"{base}/panel/users")
+        try:
+            users = (r.json().get("body") or {}).get("users") or []
+        except ValueError:
+            users = []
+        for i, cf in enumerate(cfgs):
+            field, val = _sub_field(cf.get("link", ""))
+            u = next((x for x in users if field and x.get(field) == val), None)
+            out.append({
+                "idx": i, "label": cf.get("data") or cf.get("type") or "اشتراک",
+                "type": cf.get("type") or "", "link": (cf.get("link") or "")[:300],
+                "found": bool(u),
+                "status": _panel_status(u) if u else "notfound",
+                "enabled": bool(u.get("enabled", True)) if u else None,
+                "expireAt": u.get("expireAt", 0) if u else 0,
+                "days_left": _remaining_days(u) if u else 0,
+                "totalGB": u.get("totalGB", 0) if u else 0,
+                "usedBytes": u.get("usedBytes", 0) if u else 0,
+                "name": u.get("name", "") if u else "",
+                "token": val or "",
+            })
+    return web.json_response({"items": out})
+
+async def admin_sub_action(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    token = str(data.get("token", ""))
+    action = str(data.get("action", ""))
+    days = int(data.get("days") or 0)
+    gb = data.get("gb")
+    if not token:
+        return web.json_response({"error": "token لازم"}, status=400)
+    if not _panel_ready():
+        return web.json_response({"error": "پنل تنظیم نشده"}, status=503)
+    base = f"{BPB_ORIGIN}/{BPB_SECURE_PATH}"
+    async with httpx.AsyncClient(timeout=40) as c:
+        await _panel_login(c, base)
+        r = await c.get(f"{base}/panel/users")
+        try:
+            users = (r.json().get("body") or {}).get("users") or []
+        except ValueError:
+            users = []
+        u = next((x for x in users if x.get("subToken") == token or x.get("uuid") == token), None)
+        if not u:
+            return web.json_response({"error": "کاربر پنل پیدا نشد"}, status=404)
+        rem = _remaining_days(u)
+        payload = {"id": u["id"], "name": u.get("name", "user"),
+                   "totalGB": int(u.get("totalGB", 0) or 0), "days": rem,
+                   "enabled": bool(u.get("enabled", True))}
+        note = ""
+        if action == "disable":
+            payload["enabled"] = False; note = "اشتراک غیرفعال شد"
+        elif action == "enable":
+            payload["enabled"] = True
+            if rem <= 0:
+                payload["days"] = days if days > 0 else 30
+            note = "اشتراک فعال شد"
+        elif action == "extend":
+            add = days if days > 0 else 30
+            payload["enabled"] = True
+            payload["days"] = (rem if rem > 0 else 0) + add
+            note = f"{add} روز تمدید شد"
+        elif action == "quota":
+            try:
+                payload["totalGB"] = max(0, int(gb))
+            except Exception:
+                return web.json_response({"error": "حجم نامعتبر"}, status=400)
+            note = f"حجم = {payload['totalGB']} گیگ"
+        elif action == "reset":
+            payload["resetUsage"] = True
+            payload["totalGB"] = payload["totalGB"]
+            note = "مصرف صفر شد"
+        else:
+            return web.json_response({"error": "عملیات نامعتبر"}, status=400)
+        r = await c.post(f"{base}/panel/user/save", json=payload)
+        try:
+            ok = r.json().get("success")
+        except ValueError:
+            ok = False
+        if not ok:
+            return web.json_response({"error": f"پنل خطا داد ({r.status_code})"}, status=502)
+        u2 = next((x for x in users if x.get("id") == u["id"]), None)
+        return web.json_response({"ok": True, "note": note,
+                                  "status": _panel_status(dict(u, **{"enabled": payload["enabled"],
+                                                                     "expireAt": (int(time.time()) + payload["days"] * 86400) if payload["days"] > 0 else 0,
+                                                                     "totalGB": payload["totalGB"]}))})
+
+# ─── Requests queue (pending + receipts) + orders actions ──────────────
+def _pending_items():
+    items = []
+    p = load_pending()
+    for key, st in p.items():
+        if not isinstance(st, dict):
+            continue
+        typ = str(st.get("type") or "")
+        kind = "deliver" if st.get("waiting_admin") else ("user" if st.get("waiting") else "other")
+        items.append({"key": str(key), "kind": kind, "type": typ,
+                      "label": TYPE_LABELS.get(typ, typ),
+                      "user_id": str(st.get("user_id") or key),
+                      "plan": st.get("plan") or "", "ts": st.get("ts") or 0})
+    for rid, rc in load_receipts().items():
+        if not isinstance(rc, dict) or rc.get("status") != "waiting":
+            continue
+        typ = str(rc.get("ptype") or "")
+        items.append({"key": f"receipt:{rid}", "kind": "receipt", "type": typ,
+                      "label": TYPE_LABELS.get(typ, "📸 رسید"), "user_id": str(rc.get("uid", "")),
+                      "plan": rc.get("plan") or "", "amount": rc.get("amount", 0),
+                      "price": rc.get("price", 0), "ts": rc.get("ts", 0)})
+    items.sort(key=lambda x: -x.get("ts", 0))
+    return items
+
+def _tg_send(uid, text):
+    try:
+        httpx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                   json={"chat_id": int(uid), "text": text, "parse_mode": "Markdown"}, timeout=15)
+    except Exception:
+        try:
+            httpx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                       json={"chat_id": int(uid), "text": text}, timeout=15)
+        except Exception:
+            pass
+
+def _receipts_resolve(uid, ptype=None):
+    rs = load_receipts(); n = 0
+    for rid, rc in rs.items():
+        if isinstance(rc, dict) and rc.get("status") == "waiting" and str(rc.get("uid")) == str(uid)            and (ptype is None or ptype in str(rc.get("ptype") or "")):
+            rc["status"] = "done"; rc["done_ts"] = int(time.time()); n += 1
+    if n:
+        save_receipts(rs)
+    return n
+
+def _receipt_approve(rc):
+    uid = str(rc.get("uid", "")); ptype = str(rc.get("ptype") or "")
+    amount = int(rc.get("amount") or 0); plan_id = str(rc.get("plan") or "")
+    if ptype == "charge":
+        add_balance(int(uid), amount)
+        _tg_send(uid, f"✅ کیف پول {amount:,} تومان شارژ شد!")
+        return f"شارژ {amount:,} تومان اعمال شد"
+    if "config" in ptype:
+        p = load_pending()
+        p[str(uid)] = {"waiting": True, "type": "config_receipt_name", "plan": plan_id,
+                       "plan_data": CONFIG_PLANS.get(plan_id, {})}
+        save_pending(p)
+        _tg_send(uid, "✅ **پرداخت تایید شد!**\n\n📝 اسمی که میخوای روی کانفیگ بیاد رو بفرست:")
+        return "پرداخت تایید شد — منتظر اسم کاربر"
+    p = load_pending()
+    p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}
+    save_pending(p)
+    _tg_send(uid, "✅ **پرداخت تایید شد!** به‌زودی لینک اشتراک ارسال می‌شود.")
+    _tg_send(OWNER_ID, f"📝 **لینک ExpressVPN رو بفرست**\n\n👤 {uid}")
+    return "پرداخت تایید شد — لینک رو بفرست"
+
+async def admin_requests(request):
+    err = _denied(request)
+    if err: return err
+    items = _pending_items()
+    for it in items:
+        if it["kind"] == "deliver" or it["kind"] == "receipt":
+            it["actionable"] = True
+    return web.json_response({"items": items})
+
+async def admin_request_action(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    key = str(data.get("key", "")); action = str(data.get("action", ""))
+    if not key:
+        return web.json_response({"error": "key لازم"}, status=400)
+
+    if key.startswith("receipt:"):
+        rid = key.split(":", 1)[1]
+        rs = load_receipts(); rc = rs.get(rid)
+        if not isinstance(rc, dict) or rc.get("status") != "waiting":
+            return web.json_response({"error": "رسید پیدا نشد یا حل شده"}, status=404)
+        if action == "reject":
+            rc["status"] = "rejected"; rc["done_ts"] = int(time.time())
+            save_receipts(rs)
+            _tg_send(str(rc.get("uid", "")), "❌ رسید تایید نشد.\nبا پشتیبانی تماس بگیرید.")
+            return web.json_response({"ok": True, "note": "رسید رد شد"})
+        if action == "approve":
+            note = _receipt_approve(rc)
+            rc["status"] = "done"; rc["done_ts"] = int(time.time())
+            save_receipts(rs)
+            return web.json_response({"ok": True, "note": note})
+        return web.json_response({"error": "عملیات نامعتبر"}, status=400)
+
+    p = load_pending(); st = p.get(key)
+    if not isinstance(st, dict):
+        return web.json_response({"error": "درخواست پیدا نشد"}, status=404)
+    target = str(st.get("user_id") or key); typ = str(st.get("type") or "")
+
+    if action == "deliver":
+        link = str(data.get("link", "")).strip()[:300]
+        if not st.get("waiting_admin"):
+            return web.json_response({"error": "این درخواست منتظر لینک نیست"}, status=400)
+        if not link:
+            return web.json_response({"error": "لینک لازم"}, status=400)
+        del p[key]; save_pending(p)
+        configs = load_configs(); configs.setdefault(target, [])
+        configs[target].append({"type": typ, "data": st.get("plan", ""), "link": link})
+        save_configs(configs)
+        try: mark_order_sent(target, link)
+        except Exception: pass
+        label = TYPE_LABELS.get(typ, typ)
+        _tg_send(target, f"✅ **سفارش شما تأیید شد!**\n\n📦 **نوع:** {label}\n\n🔑 **اطلاعات:**\n`{link}`\n\nاز پنل کاربری قابل مشاهده است.")
+        return web.json_response({"ok": True, "note": f"برای {target} ارسال شد"})
+
+    if action == "reject":
+        del p[key]; save_pending(p)
+        _tg_send(target, "❌ **سفارش شما لغو شد.**\nبا پشتیبانی تماس بگیرید.")
+        return web.json_response({"ok": True, "note": "درخواست رد شد"})
+
+    if action == "cancel":
+        del p[key]; save_pending(p)
+        return web.json_response({"ok": True, "note": "درخواست حذف شد"})
+
+    return web.json_response({"error": "عملیات نامعتبر"}, status=400)
+
+async def admin_order_action(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    uid = str(data.get("uid", ""))
+    try:
+        oid = int(data.get("id"))
+    except Exception:
+        return web.json_response({"error": "id نامعتبر"}, status=400)
+    action = str(data.get("action", ""))
+    o = load_orders(); lst = o.get(uid) or []
+    it = next((x for x in lst if int(x.get("id", -1)) == oid), None)
+    if not it:
+        return web.json_response({"error": "سفارش پیدا نشد"}, status=404)
+    if action == "deliver":
+        link = str(data.get("link", "")).strip()[:300]
+        it["status"] = "sent"; it["delivered_ts"] = int(time.time())
+        it["days"] = _plan_days(it.get("kind", ""), it.get("plan", ""))
+        if link: it["link"] = link
+        save_orders(o)
+        msg = f"✅ **سفارش شما تحویل شد:** {it.get('name') or it.get('plan')}"
+        if link: msg += f"\n\n`{link}`"
+        _tg_send(uid, msg)
+        return web.json_response({"ok": True, "status": "sent"})
+    if action == "reject":
+        price = int(it.get("price") or 0)
+        it["status"] = "rejected"; it["rejected_ts"] = int(time.time())
+        save_orders(o)
+        if price > 0:
+            add_balance(int(uid), price)
+        _tg_send(uid, f"❌ **سفارش شما لغو شد:** {it.get('name') or it.get('plan')}"
+                      + (f"\n\n💰 {price:,} تومان به کیف پول بازگشت." if price > 0 else ""))
+        return web.json_response({"ok": True, "status": "rejected", "refunded": price})
+    return web.json_response({"error": "عملیات نامعتبر"}, status=400)
 
 # ─── Main: Web Server (thread) + Bot (main thread) ──────
 def main():
@@ -1429,6 +1853,10 @@ def main():
         kv_boot()
     except Exception as e:
         logger.warning(f"KV boot error: {e}")
+    try:
+        apply_plan_overrides()
+    except Exception as e:
+        logger.warning(f"plan overrides error: {e}")
 
     def run_web():
         import asyncio as _aio

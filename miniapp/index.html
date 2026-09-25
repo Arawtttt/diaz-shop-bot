@@ -618,19 +618,20 @@ function openMusic(brand){
   }
   if(brand==='spotify'){
     var h='<div class="st">🎧 Spotify Premium — اشتراک یک‌ماهه</div>';
-    h+='<div class="mi" onclick="buySpotify(\'spotify1m\')"><div class="ic">🎧</div><div class="tx"><div class="ti">اختصاصی • نامحدود</div><div class="sb">۱,۵۰۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buySpotify(\'spotify1m\')"><div class="ic">🎧</div><div class="tx"><div class="ti">اختصاصی • نامحدود</div><div class="sb">' + P('spotify','spotify1m','۱,۵۰۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
     h+='<button class="bk" onclick="restoreBlock(\'musicBrands\',\'music\')">← بازگشت</button>';
     el.innerHTML=h;
     return;
   }
   var h='<div class="st">🎵 Deezer — اشتراک یک‌ماهه</div>';
-  h+='<div class="mi" onclick="buyDeezer(\'family\')"><div class="ic">👨‍👩‍👧</div><div class="tx"><div class="ti">فمیلی</div><div class="sb">۱۵۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
-  h+='<div class="mi" onclick="buyDeezer(\'personal\')"><div class="ic">👤</div><div class="tx"><div class="ti">شخصی</div><div class="sb">۲۲۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+  h+='<div class="mi" onclick="buyDeezer(\'family\')"><div class="ic">👨‍👩‍👧</div><div class="tx"><div class="ti">فمیلی</div><div class="sb">' + P('deezer','family','۱۵۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+  h+='<div class="mi" onclick="buyDeezer(\'personal\')"><div class="ic">👤</div><div class="tx"><div class="ti">شخصی</div><div class="sb">' + P('deezer','personal','۲۲۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
   h+='<button class="bk" onclick="restoreBlock(\'musicBrands\',\'music\')">← بازگشت</button>';
   el.innerHTML=h;
 }
 function buySpotify(planId){
-  var plans={spotify1m:{name:'Spotify اختصاصی یک‌ماهه',price:'۱,۵۰۰,۰۰۰',int:1500000}};
+    if(!PA('spotify', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
+  var plans={spotify1m:{name:'Spotify اختصاصی یک‌ماهه',price:P('spotify','spotify1m','۱,۵۰۰,۰۰۰'),int:PO('spotify','spotify1m',1500000)}};
   var p=plans[planId]; if(!p) return;
   var el=document.getElementById('musicBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
@@ -654,7 +655,8 @@ function paySpotifyWallet(planId){
   }).catch(function(){showToast('❌ خطا');});
 }
 function buyDeezer(planId){
-  var plans={family:{name:'فمیلی',price:'۱۵۰,۰۰۰',int:150000},personal:{name:'شخصی',price:'۲۲۰,۰۰۰',int:220000}};
+    if(!PA('deezer', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
+  var plans={family:{name:'فمیلی',price:P('deezer','family','۱۵۰,۰۰۰'),int:PO('deezer','family',150000)},personal:{name:'شخصی',price:P('deezer','personal','۲۲۰,۰۰۰'),int:PO('deezer','personal',220000)}};
   var p=plans[planId]; if(!p) return;
   var el=document.getElementById('musicBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
@@ -795,20 +797,21 @@ function openAI(brand){
   var h='';
   if(brand==='chatgpt'){
     h='<div class="st">🤖 ChatGPT — اشتراک یک‌ماهه</div>';
-    h+='<div class="mi" onclick="buyAI(\'gpt_go\')"><div class="ic">🟢</div><div class="tx"><div class="ti">Go یک‌ماهه</div><div class="sb">۲,۵۵۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
-    h+='<div class="mi" onclick="buyAI(\'gpt_plus\')"><div class="ic">✦</div><div class="tx"><div class="ti">پلاس آماده یک‌ماهه</div><div class="sb">۴,۷۰۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buyAI(\'gpt_go\')"><div class="ic">🟢</div><div class="tx"><div class="ti">Go یک‌ماهه</div><div class="sb">' + P('ai','gpt_go','۲,۵۵۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buyAI(\'gpt_plus\')"><div class="ic">✦</div><div class="tx"><div class="ti">پلاس آماده یک‌ماهه</div><div class="sb">' + P('ai','gpt_plus','۴,۷۰۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
   } else if(brand==='claude'){
     h='<div class="st">🤖 Claude — اشتراک یک‌ماهه</div>';
-    h+='<div class="mi" onclick="buyAI(\'claudepro\')"><div class="ic">✳️</div><div class="tx"><div class="ti">Claude Pro یک‌ماهه</div><div class="sb">۶,۵۰۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buyAI(\'claudepro\')"><div class="ic">✳️</div><div class="tx"><div class="ti">Claude Pro یک‌ماهه</div><div class="sb">' + P('ai','claudepro','۶,۵۰۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
   } else {
     h='<div class="st">🤖 Gemini — اشتراک یک‌ماهه</div>';
-    h+='<div class="mi" onclick="buyAI(\'gemini18\')"><div class="ic">✨</div><div class="tx"><div class="ti">جمنای یک‌ماهه</div><div class="sb">۵۰۰,۰۰۰ تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buyAI(\'gemini18\')"><div class="ic">✨</div><div class="tx"><div class="ti">جمنای یک‌ماهه</div><div class="sb">' + P('ai','gemini18','۵۰۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
   }
   h+='<button class="bk" onclick="restoreBlock(\'aiBrands\',\'ai\')">← بازگشت</button>';
   el.innerHTML=h;
 }
 function buyAI(planId){
-  var plans={gemini18:{name:'جمنای یک‌ماهه',price:'۵۰۰,۰۰۰',int:500000,brand:'gemini'},claudepro:{name:'Claude Pro یک‌ماهه',price:'۶,۵۰۰,۰۰۰',int:6500000,brand:'claude'},gpt_go:{name:'ChatGPT Go یک‌ماهه',price:'۲,۵۵۰,۰۰۰',int:2550000,brand:'chatgpt'},gpt_plus:{name:'ChatGPT پلاس آماده یک‌ماهه',price:'۴,۷۰۰,۰۰۰',int:4700000,brand:'chatgpt'}};
+    if(!PA('ai', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
+  var plans={gemini18:{name:'جمنای یک‌ماهه',price:P('ai','gemini18','۵۰۰,۰۰۰'),int:PO('ai','gemini18',500000),brand:'gemini'},claudepro:{name:'Claude Pro یک‌ماهه',price:P('ai','claudepro','۶,۵۰۰,۰۰۰'),int:PO('ai','claudepro',6500000),brand:'claude'},gpt_go:{name:'ChatGPT Go یک‌ماهه',price:P('ai','gpt_go','۲,۵۵۰,۰۰۰'),int:PO('ai','gpt_go',2550000),brand:'chatgpt'},gpt_plus:{name:'ChatGPT پلاس آماده یک‌ماهه',price:P('ai','gpt_plus','۴,۷۰۰,۰۰۰'),int:PO('ai','gpt_plus',4700000),brand:'chatgpt'}};
   var p=plans[planId]; if(!p) return;
   var el=document.getElementById('aiBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
@@ -833,10 +836,46 @@ function payAIWallet(planId){
 }
 
 
+// === PLAN OVERRIDES (قیمت/فعال از سمت سرور — توسط پنل ادمین) ===
+var PLAN_OV = {};
+function _ov(kind, id){ return (PLAN_OV[kind] && PLAN_OV[kind][id]) || null; }
+function PA(kind, id){ var o = _ov(kind, id); return !(o && o.active === false); }
+function P(kind, id, def){
+    var o = _ov(kind, id); if(!o) return def;
+    if(o.active === false) return '⛔ غیرفعال';
+    return o.price || def;
+}
+function PO(kind, id, def){
+    var o = _ov(kind, id); if(!o) return def;
+    if(o.active === false) return -1;
+    return (typeof o.price_int === 'number' && o.price_int > 0) ? o.price_int : def;
+}
+function applyStaticPrices(){
+    try{
+        var b = document.querySelector('.banslide.bs-ai i');
+        if(b) b.textContent = 'فقط ' + P('ai','gemini18','۵۰۰,۰۰۰') + ' تومان — اشتراک یک‌ماهه';
+    }catch(e){}
+}
+function loadPlanOverrides(){
+    try{
+        var c = sessionStorage.getItem('planOv');
+        if(c){ PLAN_OV = JSON.parse(c); applyStaticPrices(); if(typeof renderPlans === 'function') renderPlans(); }
+    }catch(e){}
+    fetch(API + '/api/plans').then(function(r){ return r.json(); }).then(function(d){
+        if(d && !d.error){
+            PLAN_OV = d;
+            try{ sessionStorage.setItem('planOv', JSON.stringify(d)); }catch(e){}
+            applyStaticPrices();
+            if(typeof renderPlans === 'function') renderPlans();
+        }
+    }).catch(function(){});
+}
+loadPlanOverrides();
+
 // === ADMIN PANEL (پنل مدیریت) ===
 var ADM_TOK = (function(){ try { return sessionStorage.getItem('admTok') || ''; } catch(e) { return ''; } })();
 var ADM_TAB = 'stats';
-var ADM_TABS = [['stats','📊 آمار'],['users','👥 کاربران'],['orders','📦 سفارش‌ها'],['discounts','🎟️ تخفیف'],['broadcast','📢 پیام']];
+var ADM_TABS = [['stats','📊 آمار'],['requests','📥 درخواست‌ها'],['users','👥 کاربران'],['orders','📦 سفارش‌ها'],['plans','📦 پلن‌ها'],['discounts','🎟️ تخفیف'],['broadcast','📢 پیام']];
 function admBox(){ return document.getElementById('admBody'); }
 function admH(){ return {'Content-Type':'application/json','X-Admin-Token':ADM_TOK}; }
 function admFetch(path, opts){
@@ -895,8 +934,10 @@ function admLoad(){
     var b = admBox(); if(!b) return;
     b.innerHTML = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="sk" style="width:70%"></div><div class="sk" style="width:45%"></div></div>';
     if(ADM_TAB==='stats') admStats();
+    else if(ADM_TAB==='requests') admRequests();
     else if(ADM_TAB==='users') admUsers();
     else if(ADM_TAB==='orders') admOrders();
+    else if(ADM_TAB==='plans') admPlans();
     else if(ADM_TAB==='discounts') admDiscounts();
     else if(ADM_TAB==='broadcast') admBroadcastUI();
 }
@@ -958,8 +999,10 @@ function admUser(uid){
         for(var j=0;j<cs.length;j++)
             h += '<div style="font-size:11.5px;padding:6px 0;word-break:break-all;direction:ltr;text-align:left;color:var(--dim)">' + (cs[j].link || cs[j].data || '') + '</div>';
         h += '</div>';
+        h += '<div class="gl" style="padding:16px;margin-bottom:12px" id="admSubs"><div class="st" style="margin-bottom:8px">🔌 کنترل اشتراک‌ها</div><div class="sk" style="width:60%"></div></div>';
         h += '<button class="bk" onclick="admShow(\'users\')">← لیست کاربران</button>';
         var b = admBox(); if(b) b.innerHTML = h;
+        admSubs(uid);
     }).catch(function(){});
 }
 function admWallet(uid, sign){
@@ -985,7 +1028,12 @@ function admOrders(){
               + '<div style="display:flex;gap:6px;align-items:center"><span style="flex:1;font-weight:700">' + (o.name || o.plan || 'سفارش') + '</span>'
               + '<span style="color:' + (sent ? '#4ade80' : '#fbbf24') + ';font-size:11px">' + (sent ? '✅' : '⏳') + '</span></div>'
               + '<div style="color:var(--dim);font-size:11px;margin-top:3px">👤 ' + o.uid + ' • ' + Number(o.price||0).toLocaleString('fa-IR') + ' تومان • '
-              + dt.toLocaleDateString('fa-IR') + '</div></div>';
+              + dt.toLocaleDateString('fa-IR') + '</div>'
+              + (sent ? '' : '<div style="display:flex;gap:6px;margin-top:7px">'
+                  + '<button class="bk" style="padding:6px 9px;font-size:11px;cursor:pointer" onclick="admOrder(\'' + o.uid + '\',' + o.id + ',\'deliver\')">📤 تحویل</button>'
+                  + '<button class="bk" style="padding:6px 9px;font-size:11px;cursor:pointer" onclick="admOrder(\'' + o.uid + '\',' + o.id + ',\'reject\')">❌ رد + بازگشت وجه</button>'
+                  + '</div>')
+              + '</div>';
         }
         h += '</div>';
         var b = admBox(); if(b) b.innerHTML = h;
@@ -1044,6 +1092,159 @@ function admDeleteDiscount(code){
     admFetch('/api/admin/discount_delete', {method:'POST', body:JSON.stringify({code:code})})
     .then(function(){ showToast('✅ حذف شد'); admDiscounts(); }).catch(function(){});
 }
+function admRequests(){
+    admFetch('/api/admin/requests').then(function(d){
+        var items = d.items || [];
+        var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">📥 درخواست‌ها (' + items.length + ')</div>';
+        if(!items.length) h += '<div style="color:var(--dim);font-size:13px">درخواستی در صف نیست 👌</div>';
+        for(var i=0;i<items.length;i++){
+            var it = items[i];
+            var kindTxt = it.kind === 'receipt' ? '📸 رسید' : (it.kind === 'deliver' ? '⏳ منتظر لینک' : '👤 در انتظار کاربر');
+            h += '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px">'
+              + '<div style="display:flex;gap:6px;align-items:center"><span style="flex:1;font-weight:700">' + it.label + '</span>'
+              + '<span style="font-size:11px;color:var(--dim)">' + kindTxt + '</span></div>'
+              + '<div style="color:var(--dim);font-size:11px;margin-top:3px">👤 ' + it.user_id
+              + (it.plan ? ' • ' + it.plan : '') + (it.amount ? ' • ' + Number(it.amount).toLocaleString('fa-IR') + ' تومان' : '') + '</div>';
+            if(it.kind === 'deliver'){
+                h += '<div style="display:flex;gap:6px;margin-top:8px">'
+                  + '<input id="rq_link_' + i + '" placeholder="لینک اشتراک" style="flex:1;min-width:0;box-sizing:border-box;padding:9px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;direction:ltr">'
+                  + '<button class="bk" style="padding:8px 10px;font-size:11px;cursor:pointer" onclick="admReq(\'' + it.key + '\',\'deliver\',\'rq_link_' + i + '\')">📤</button>'
+                  + '<button class="bk" style="padding:8px 10px;font-size:11px;cursor:pointer" onclick="admReq(\'' + it.key + '\',\'reject\')">❌</button></div>';
+            } else if(it.kind === 'receipt'){
+                h += '<div style="display:flex;gap:6px;margin-top:8px">'
+                  + '<button class="bk" style="flex:1;padding:8px;cursor:pointer;background:rgba(74,222,128,.18)" onclick="admReq(\'' + it.key + '\',\'approve\')">✅ تایید</button>'
+                  + '<button class="bk" style="flex:1;padding:8px;cursor:pointer" onclick="admReq(\'' + it.key + '\',\'reject\')">❌ رد</button></div>';
+            } else {
+                h += '<div style="margin-top:8px"><button class="bk" style="padding:7px 10px;font-size:11px;cursor:pointer" onclick="admReq(\'' + it.key + '\',\'cancel\')">🗑 حذف درخواست</button></div>';
+            }
+            h += '</div>';
+        }
+        h += '</div>';
+        var b = admBox(); if(b) b.innerHTML = h;
+    }).catch(function(){});
+}
+function admReq(key, action, inputId){
+    var link = '';
+    if(inputId){
+        var el = document.getElementById(inputId);
+        link = el ? el.value.trim() : '';
+        if(!link){ showToast('لینک رو وارد کنید'); return; }
+    }
+    if((action === 'reject' || action === 'cancel') && !confirm('مطمئنی؟')) return;
+    showToast('⏳ ...');
+    admFetch('/api/admin/request', {method:'POST', body:JSON.stringify({key:key, action:action, link:link})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ ' + (d.note || 'انجام شد'));
+        admRequests();
+    }).catch(function(){});
+}
+function admPlans(){
+    admFetch('/api/admin/plans').then(function(d){
+        var plans = d.plans || {};
+        var kindNames = {config:'📦 کانفیگ VPN', express:'⚡ ExpressVPN', deezer:'🎵 Deezer', ai:'🤖 هوش مصنوعی', spotify:'🎧 Spotify'};
+        var inp = 'box-sizing:border-box;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px';
+        var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">📦 مدیریت پلن‌ها</div>';
+        h += '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">قیمت = تومان. بعد از ذخیره، مبلغ خرید از همون لحظه عوض می‌شود.</div>';
+        for(var kind in plans){
+            h += '<div style="font-size:12px;color:var(--gold);margin:14px 0 4px;font-weight:700">' + (kindNames[kind] || kind) + '</div>';
+            var list = plans[kind] || [];
+            for(var i=0;i<list.length;i++){
+                var p = list[i];
+                h += '<div style="display:flex;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+                  + '<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700' + (p.active ? '' : ';color:var(--dim)') + '">' + p.name + '</div>'
+                  + '<div style="font-size:10.5px;color:var(--dim)">' + Number(p.price_int).toLocaleString('fa-IR') + ' تومان' + (p.active ? '' : ' • غیرفعال') + '</div></div>'
+                  + '<input id="pf_' + kind + '_' + p.key + '" type="number" inputmode="numeric" placeholder="' + p.price_int + '" style="width:94px;' + inp + '">'
+                  + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="ذخیره قیمت" onclick="admSavePlan(\'' + kind + '\',\'' + p.key + '\')">💾</button>'
+                  + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="فعال/غیرفعال" onclick="admTogglePlan(\'' + kind + '\',\'' + p.key + '\',' + (p.active ? 'false' : 'true') + ')">' + (p.active ? '⛔' : '✅') + '</button></div>';
+            }
+        }
+        h += '</div>';
+        var b = admBox(); if(b) b.innerHTML = h;
+    }).catch(function(){});
+}
+function _planOvRefresh(){
+    try{ sessionStorage.removeItem('planOv'); }catch(e){}
+    if(typeof loadPlanOverrides === 'function') loadPlanOverrides();
+}
+function admSavePlan(kind, key){
+    var el = document.getElementById('pf_' + kind + '_' + key);
+    var v = el ? parseInt(el.value, 10) : NaN;
+    if(!v || isNaN(v) || v < 0){ showToast('قیمت جدید رو وارد کنید'); return; }
+    admFetch('/api/admin/plan', {method:'POST', body:JSON.stringify({kind:kind, key:key, price_int:v})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ قیمت ذخیره شد'); admPlans(); _planOvRefresh();
+    }).catch(function(){});
+}
+function admTogglePlan(kind, key, active){
+    admFetch('/api/admin/plan', {method:'POST', body:JSON.stringify({kind:kind, key:key, active:active})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast(active ? '✅ پلن فعال شد' : '⛔ پلن غیرفعال شد'); admPlans(); _planOvRefresh();
+    }).catch(function(){});
+}
+function admSubs(uid){
+    var box = document.getElementById('admSubs');
+    admFetch('/api/admin/subs?uid=' + uid).then(function(d){
+        if(!box) return;
+        if(d.error){ box.innerHTML = '<div class="st" style="margin-bottom:8px">🔌 کنترل اشتراک‌ها</div><div style="color:var(--dim);font-size:12px">⚠️ ' + d.error + '</div>'; return; }
+        var items = d.items || [];
+        var inp = 'box-sizing:border-box;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px';
+        var h = '<div class="st" style="margin-bottom:8px">🔌 کنترل اشتراک‌ها</div>';
+        if(!items.length) h += '<div style="color:var(--dim);font-size:12px">اشتراکی ثبت نشده</div>';
+        var stColor = {active:'#4ade80', disabled:'#f87171', expired:'#fbbf24', quota:'#fbbf24', notfound:'var(--dim)'};
+        var stName = {active:'✅ فعال', disabled:'⛔ غیرفعال', expired:'⌛ منقضی', quota:'📦 حجم تمام', notfound:'❓ در پنل نیست'};
+        for(var i=0;i<items.length;i++){
+            var s = items[i];
+            h += '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px">'
+              + '<div style="display:flex;gap:6px;align-items:center"><span style="flex:1;font-weight:700">' + s.label + '</span>'
+              + '<span style="font-size:11px;color:' + (stColor[s.status] || 'var(--dim)') + '">' + (stName[s.status] || s.status) + '</span></div>'
+              + '<div style="color:var(--dim);font-size:11px;margin-top:2px">'
+              + (s.totalGB ? s.totalGB + 'GB مصرف ' + Number(s.usedBytes).toLocaleString('fa-IR') + ' • ' : '')
+              + (s.expireAt ? (s.days_left > 0 ? s.days_left + ' روز مانده' : 'منقضی') : 'بدون انقضا')
+              + (s.found ? '' : ' • این لینک توی پنل پیدا نشد') + '</div>';
+            if(s.found){
+                h += '<div style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;align-items:center">'
+                  + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" onclick="admSub(\'' + uid + '\',\'' + s.token + '\',\'' + (s.enabled ? 'disable' : 'enable') + '\')">' + (s.enabled ? '⛔ خاموش' : '⚡ روشن') + '</button>'
+                  + '<input id="sbd_' + i + '" type="number" inputmode="numeric" placeholder="روز" style="width:64px;' + inp + '">'
+                  + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" onclick="admSub(\'' + uid + '\',\'' + s.token + '\',\'extend\',\'sbd_' + i + '\')">➕ تمدید</button>'
+                  + '<input id="sbg_' + i + '" type="number" inputmode="numeric" placeholder="GB" style="width:64px;' + inp + '">'
+                  + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" onclick="admSub(\'' + uid + '\',\'' + s.token + '\',\'quota\',\'sbg_' + i + '\')">📦 حجم</button></div>';
+            }
+            h += '</div>';
+        }
+        box.innerHTML = h;
+    }).catch(function(){});
+}
+function admSub(uid, token, action, inputId){
+    var body = {uid:uid, token:token, action:action};
+    if(inputId){
+        var el = document.getElementById(inputId);
+        var v = el ? parseInt(el.value, 10) : NaN;
+        if(!v || isNaN(v) || v < 0){ showToast('مقدار رو وارد کنید'); return; }
+        if(action === 'extend') body.days = v; else body.gb = v;
+    }
+    admFetch('/api/admin/sub', {method:'POST', body:JSON.stringify(body)})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ ' + (d.note || 'انجام شد'));
+        admUser(uid);
+    }).catch(function(){});
+}
+function admOrder(uid, id, action){
+    var link = '';
+    if(action === 'deliver'){
+        link = prompt('لینک اشتراک (می‌تونی خالی بذاری):');
+        if(link === null) return;
+    } else if(!confirm('سفارش رد بشه و مبلغ به کیف پول کاربر برگرده؟')) return;
+    admFetch('/api/admin/order', {method:'POST', body:JSON.stringify({uid:String(uid), id:id, action:action, link:link})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast(action === 'reject' ? '✅ لغو شد' : '✅ تحویل داده شد');
+        admOrders();
+    }).catch(function(){});
+}
 function admBroadcastUI(){
     var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">📢 ارسال پیام همگانی</div>';
     h += '<textarea id="bcText" rows="6" placeholder="متن پیام برای کاربران..." style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;resize:vertical"></textarea>';
@@ -1098,16 +1299,16 @@ function loadUser() {
 // === RENDER PLANS ===
 function renderPlans() {
     var cfgPlans = [
-        {id:'10gb',name:'۱۰ گیگ',price:'۱۲,۰۰۰'},
-        {id:'20gb',name:'۲۰ گیگ',price:'۳۰,۰۰۰'},
-        {id:'50gb',name:'۵۰ گیگ',price:'۷۰,۰۰۰'},
-        {id:'80gb',name:'۸۰ گیگ',price:'۱۱۰,۰۰۰'}
+        {id:'10gb',name:'۱۰ گیگ',price:P('config','10gb','۱۲,۰۰۰')},
+        {id:'20gb',name:'۲۰ گیگ',price:P('config','20gb','۳۰,۰۰۰')},
+        {id:'50gb',name:'۵۰ گیگ',price:P('config','50gb','۷۰,۰۰۰')},
+        {id:'80gb',name:'۸۰ گیگ',price:P('config','80gb','۱۱۰,۰۰۰')}
     ];
     var exPlans = [
-        {id:'1m',name:'۱ ماهه',price:'۲۲۰,۰۰۰'},
-        {id:'3m',name:'۳ ماهه',price:'۳۳۰,۰۰۰'},
-        {id:'6m',name:'۶ ماهه',price:'۴۹۰,۰۰۰'},
-        {id:'1y',name:'۱ ساله',price:'۹۵۰,۰۰۰'}
+        {id:'1m',name:'۱ ماهه',price:P('express','1m','۲۲۰,۰۰۰')},
+        {id:'3m',name:'۳ ماهه',price:P('express','3m','۳۳۰,۰۰۰')},
+        {id:'6m',name:'۶ ماهه',price:P('express','6m','۴۹۰,۰۰۰')},
+        {id:'1y',name:'۱ ساله',price:P('express','1y','۹۵۰,۰۰۰')}
     ];
     var cp = document.getElementById('cfgPlans');
     if (cp) {
@@ -1260,9 +1461,10 @@ function renderUser() {
 
 // === BUY CONFIG ===
 function buyConfig(planId) {
+    if(!PA('config', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
     var names = {'10gb':'۱۰ گیگ','20gb':'۲۰ گیگ','50gb':'۵۰ گیگ','80gb':'۸۰ گیگ'};
-    var prices = {'10gb':'۱۲,۰۰۰','20gb':'۳۰,۰۰۰','50gb':'۷۰,۰۰۰','80gb':'۱۱۰,۰۰۰'};
-    var planPrice = {'10gb':12000,'20gb':30000,'50gb':70000,'80gb':110000};
+    var prices = {'10gb':P('config','10gb','۱۲,۰۰۰'),'20gb':P('config','20gb','۳۰,۰۰۰'),'50gb':P('config','50gb','۷۰,۰۰۰'),'80gb':P('config','80gb','۱۱۰,۰۰۰')};
+    var planPrice = {'10gb':PO('config','10gb',12000),'20gb':PO('config','20gb',30000),'50gb':PO('config','50gb',70000),'80gb':PO('config','80gb',110000)};
     var bal = (userData && userData.balance) || 0;
     var canPay = bal >= (planPrice[planId] || 0);
     var html = '<div class="st">📦 ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
@@ -1296,9 +1498,10 @@ function payConfigWallet(planId) {
 
 // === BUY EXPRESS ===
 function buyExpress(planId) {
+    if(!PA('express', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
     var names = {'1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','1y':'۱ ساله'};
-    var prices = {'1m':'۲۲۰,۰۰۰','3m':'۳۳۰,۰۰۰','6m':'۴۹۰,۰۰۰','1y':'۹۵۰,۰۰۰'};
-    var planPrice = {'1m':220000,'3m':330000,'6m':490000,'1y':950000};
+    var prices = {'1m':P('express','1m','۲۲۰,۰۰۰'),'3m':P('express','3m','۳۳۰,۰۰۰'),'6m':P('express','6m','۴۹۰,۰۰۰'),'1y':P('express','1y','۹۵۰,۰۰۰')};
+    var planPrice = {'1m':PO('express','1m',220000),'3m':PO('express','3m',330000),'6m':PO('express','6m',490000),'1y':PO('express','1y',950000)};
     var bal = (userData && userData.balance) || 0;
     var canPay = bal >= (planPrice[planId] || 0);
     var html = '<div class="st">⚡ ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
