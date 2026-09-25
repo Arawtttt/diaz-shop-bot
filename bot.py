@@ -1177,8 +1177,8 @@ async def admin_orders(request):
     return web.json_response({"orders": _flat_orders()[:200]})
 
 async def admin_discount_delete(request):
-    if e := _admin_denied(request):
-        return e
+    err = _denied(request)
+    if err: return err
     data = await request.json()
     code = str(data.get("code", "")).strip().lower()
     ds = load_discounts()
