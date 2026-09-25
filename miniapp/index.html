@@ -213,7 +213,6 @@ body.light .thm{color:#1a102a}
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
                 <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی diazplaylist</p></div></div>
-                <div id="svcStatus" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;margin-bottom:12px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.05);font-size:12px;color:var(--dim)">⏳ در حال بررسی وضعیت سرویس...</div>
                 <div class="gl" id="homeSummary" style="padding:14px 16px;margin-bottom:12px">
                     <div class="sk" style="width:55%;height:16px"></div>
                     <div class="sk" style="width:35%;height:12px"></div>
@@ -686,14 +685,6 @@ function payDeezerWallet(planId){
     if(d.error){showToast('❌ '+d.error);return;}
     celebrate('سفارش ثبت شد!', function(){ restoreBlock('musicBrands','music'); loadUser(); showSection('home'); });
   }).catch(function(){showToast('❌ خطا');});
-}
-function fetchStatus(){
-  var el=document.getElementById('svcStatus'); if(!el) return;
-  function set(ok, txt){ el.innerHTML='<span style="width:9px;height:9px;border-radius:50%;background:'+(ok?'#4ade80':'#f87171')+';box-shadow:0 0 8px '+(ok?'#4ade80':'#f87171')+';display:inline-block"></span> '+txt; el.style.color=ok?'#4ade80':'#f87171'; }
-  fetch(API+'/api/status').then(function(r){return r.json();}).then(function(d){
-    if(d.ok) set(true,'سرویس فعال'+(d.ms?' — پاسخ '+d.ms+'ms':''));
-    else set(false,'سرویس موقتاً با مشکل مواجه است');
-  }).catch(function(){set(false,'اتصال برقرار نشد');});
 }
 function renderOrders(){
   var el=document.getElementById('uOrders'); if(!el) return;
@@ -1718,7 +1709,6 @@ window.addEventListener('load', function() {
     initTelegram();
     showSection('home');
     renderPlans();
-    fetchStatus();
     startBanner();
     try { startGtaTimer(); } catch(e) {}
     try { gtaSheetInit(); } catch(e) {}
