@@ -1025,9 +1025,11 @@ function admUsers(){
         for(var i=0;i<us.length;i++){
             var u = us[i];
             h += '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07)">'
-              + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;direction:ltr;text-align:right">' + u.uid + '</div>'
-              + '<div style="font-size:11px;color:var(--dim)">' + u.orders + ' سفارش • ' + u.subs + ' اشتراک</div></div>'
+              + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;direction:ltr;text-align:right">' + u.uid
+              + (u.is_admin ? ' <span style="font-size:10px;color:#4ade80;font-family:sans-serif">🛡️ ادمین</span>' : '') + '</div>'
+              + '<div style="font-size:11px;color:var(--dim)">' + (u.name ? u.name + ' • ' : '') + u.orders + ' سفارش • ' + u.subs + ' اشتراک</div></div>'
               + '<div style="font-size:12px;color:var(--gold);font-weight:700">' + Number(u.balance).toLocaleString('fa-IR') + '</div>'
+              + '<button class="bk" style="padding:6px 8px;font-size:11px;cursor:pointer" title="' + (u.is_admin ? 'حذف دسترسی ادمین' : 'افزودن ادمین') + '" onclick="admToggleAdmin(\'' + u.uid + '\',' + (u.is_admin ? 'false' : 'true') + ')">' + (u.is_admin ? '🚫' : '🛡️') + '</button>'
               + '<button class="bk" style="padding:6px 9px;font-size:11px;cursor:pointer" onclick="admUser(\'' + u.uid + '\')">مدیریت</button></div>';
         }
         h += '</div>';
@@ -1066,6 +1068,15 @@ function admUser(uid){
           + '<button class="bk" style="background:rgba(248,113,113,.18)" onclick="admDelUser(\'' + uid + '\')">🗑 حذف کاربر</button></div>';
         var b = admBox(); if(b) b.innerHTML = h;
         admSubs(uid);
+    }).catch(function(){});
+}
+function admToggleAdmin(uid, on){
+    if(on && !confirm('کاربر ' + uid + ' ادمین بشه؟\n\nبه پنل مدیریت کامل دسترسی می‌گیره (باید رمز ادمین رو بهش بدی).')) return;
+    admFetch('/api/admin/admin_save', {method:'POST', body:JSON.stringify({uid:String(uid), on:on})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast(on ? '🛡️ ادمین اضافه شد' : '🛑 دسترسی ادمین برداشته شد');
+        admUsers();
     }).catch(function(){});
 }
 function admDelUser(uid){

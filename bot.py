@@ -143,7 +143,7 @@ _KV_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko)
 def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
             ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
-            PLAN_OVERRIDES_FILE, RECEIPTS_FILE, USERS_FILE]
+            PLAN_OVERRIDES_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -681,7 +681,7 @@ async def pay_wallet_express(update, context):
     kb = [[InlineKeyboardButton("✅ تایید و ارسال", callback_data=f"approve_express_{uid}_{pid}")],
           [InlineKeyboardButton("❌ رد", callback_data=f"reject_{uid}")]]
     try:
-        await context.bot.send_message(chat_id=OWNER_ID,
+        await _admin_send(context,
             text=f"💰 **خرید ExpressVPN از کیف پول!**\n\n👤 {q.from_user.first_name} (@{q.from_user.username or ''})\n🆔 {uid}\n📦 {plan['name']}\n💰 {plan['price']} تومان\n\nلطفاً اشتراک رو بفرستید.",
             reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
     except: pass
@@ -720,7 +720,7 @@ async def handle_photo(update, context):
             logger.warning(f"receipt save failed: {e}")
         kb = [[InlineKeyboardButton("✅ تایید", callback_data=f"approve_charge_{user.id}_{amount}"),
                InlineKeyboardButton("❌ رد", callback_data=f"reject_{user.id}")]]
-        try: await context.bot.send_photo(chat_id=OWNER_ID, photo=update.message.photo[-1].file_id, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+        try: await _admin_photo(context, photo=update.message.photo[-1].file_id, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
         except: pass
         await update.message.reply_text("✅ رسید دریافت شد!"); return
     if ptype == "charge_custom": del p[uid]; save_pending(p); await update.message.reply_text("❌ ابتدا مبلغ رو عددی تایپ کنید."); return
@@ -738,18 +738,23 @@ async def handle_photo(update, context):
         logger.warning(f"receipt save failed: {e}")
     kb = [[InlineKeyboardButton("✅ تایید", callback_data=f"approve_{ptype}_{user.id}_{plan_id}"),
            InlineKeyboardButton("❌ رد", callback_data=f"reject_{user.id}")]]
-    try: await context.bot.send_photo(chat_id=OWNER_ID, photo=update.message.photo[-1].file_id, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    try: await _admin_photo(context, photo=update.message.photo[-1].file_id, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
     except: pass
     await update.message.reply_text("✅ رسید دریافت شد!")
 
 async def handle_text(update, context):
     touch_user(update.effective_user)
-    uid = str(update.effective_user.id); p = load_pending(); state = p.get(uid)
+    uid = str(update.effective_user.id); p = load_pending(); key = uid; state = p.get(uid)
+    # ادمین دیگه‌ای ممکنه این درخواستِ تحویل رو زیر کلید خودش ذخیره کرده باشه
+    if (not state or not state.get("waiting")) and _is_admin(uid):
+        for _k, _v in p.items():
+            if isinstance(_v, dict) and _v.get("waiting_admin"):
+                state = _v; key = _k; break
     # Admin sending subscription/config link — check FIRST
     if state and state.get("waiting_admin"):
         admin_type = state["type"]; target_user = state["user_id"]
         link = update.message.text.strip()
-        del p[uid]; save_pending(p)
+        del p[key]; save_pending(p)
         configs = load_configs(); k = str(target_user)
         if k not in configs: configs[k] = []
         configs[k].append({"type": admin_type, "data": state.get("plan", ""), "link": link[:300]})
@@ -785,7 +790,7 @@ async def handle_text(update, context):
         if not info:
             # fallback: ادمین دستی لینک رو میفرسته (روی قبلی)
             try:
-                await context.bot.send_message(chat_id=OWNER_ID,
+                await _admin_send(context,
                     text=f"📝 **کانفیگ دستی!** (اتوماسیون در دسترس نیست)\n\n👤 {update.effective_user.first_name}\n🆔 {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n\nلطفاً لینک کانفیگ رو بفرستید.",
                     parse_mode="Markdown")
             except: pass
@@ -819,7 +824,7 @@ async def handle_text(update, context):
             except Exception as e:
                 logger.error(f"send config file failed: {e}")
         try:
-            await context.bot.send_message(chat_id=OWNER_ID,
+            await _admin_send(context,
                 text=f"📦 **کانفیگ خودکار صادر شد ✅**\n\n👤 {update.effective_user.first_name}\n🆔 {uid}\n📝 اسم: {name}\n📦 پلن: {plan.get('name', '')}\n💰 {plan.get('price', '')} تومان",
                 parse_mode="Markdown")
         except: pass
@@ -858,8 +863,18 @@ async def approve_config(update, context):
 async def approve_receipt(update, context):
     q = update.callback_query; await q.answer()
     parts = q.data.split("_"); ptype = parts[1]; user_id = int(parts[2])
-    try: _receipts_resolve(user_id, ptype)
-    except Exception: pass
+    try:
+        _n = _receipts_resolve(user_id, ptype)
+        if _n == 0:
+            _rs = [rc for rc in load_receipts().values() if isinstance(rc, dict)
+                   and str(rc.get("uid")) == str(user_id)
+                   and ptype in str(rc.get("ptype") or "")]
+            if _rs and all(rc.get("status") == "done" for rc in _rs):
+                # قبلاً توسط ادمین دیگه‌ای رسیدگی شده — دوباره اعمال نکن
+                await q.edit_message_caption(caption=(q.message.caption or "") + "\n\n✅ قبلاً تایید شد!", parse_mode="Markdown")
+                return
+    except Exception:
+        pass
     if ptype == "charge":
         amount = int(parts[3]); add_balance(user_id, amount)
         kb = [[InlineKeyboardButton("🏠 صفحه اصلی", callback_data="back_main")]]
@@ -871,7 +886,7 @@ async def approve_receipt(update, context):
         p = load_pending(); p[str(user_id)] = {"waiting": True, "type": "config_receipt_name", "plan": plan_id, "plan_data": CONFIG_PLANS.get(plan_id, {})}; save_pending(p)
         await context.bot.send_message(chat_id=user_id, text="✅ **پرداخت تایید شد!**\n\n📝 **اسمتون رو بفرستید:**", parse_mode="Markdown")
     else:
-        await context.bot.send_message(chat_id=OWNER_ID, text=f"📝 **لینک ExpressVPN رو بفرست:**\n\n👤 {user_id}", parse_mode="Markdown")
+        await _admin_send(context, text=f"📝 **لینک ExpressVPN رو بفرست:**\n\n👤 {user_id}", parse_mode="Markdown")
     await q.edit_message_caption(caption=q.message.caption + "\n\n✅ تایید شد!", parse_mode="Markdown")
 
 async def reject_receipt(update, context):
@@ -883,17 +898,36 @@ async def reject_receipt(update, context):
     await q.edit_message_caption(caption=q.message.caption + "\n\n❌ رد شد!", parse_mode="Markdown")
 
 
+async def _admin_send(context, text, reply_markup=None, parse_mode="Markdown"):
+    """فرستادن پیام به همهٔ ادمین‌ها"""
+    for a in admin_uids():
+        try:
+            await context.bot.send_message(chat_id=int(a), text=text,
+                                           reply_markup=reply_markup, parse_mode=parse_mode)
+        except Exception:
+            pass
+
+async def _admin_photo(context, photo, caption, reply_markup=None, parse_mode="Markdown"):
+    """فرستادن عکس (+دکمه‌ها) به همهٔ ادمین‌ها"""
+    for a in admin_uids():
+        try:
+            await context.bot.send_photo(chat_id=int(a), photo=photo, caption=caption,
+                                         reply_markup=reply_markup, parse_mode=parse_mode)
+        except Exception:
+            pass
+
 def _notify_admin(text):
-    """Send notification to admin via Telegram HTTP API (thread-safe)"""
-    try:
-        import httpx
-        httpx.post(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-            json={"chat_id": OWNER_ID, "text": text, "parse_mode": "Markdown"},
-            timeout=10
-        )
-    except Exception:
-        pass
+    """Send notification to ALL admins via Telegram HTTP API (thread-safe)"""
+    for _a in admin_uids():
+        try:
+            import httpx
+            httpx.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                json={"chat_id": int(_a), "text": text, "parse_mode": "Markdown"},
+                timeout=10
+            )
+        except Exception:
+            pass
 
 # ─── Web Server (serves mini app + API) ──────────────────
 STATIC_DIR = Path(__file__).parent.resolve()
@@ -1213,6 +1247,24 @@ DISCOUNTS_FILE = "discounts.json"
 def load_discounts(): return _load(DISCOUNTS_FILE)
 def save_discounts(d): _save(DISCOUNTS_FILE, d)
 
+ADMINS_FILE = "admins.json"  # ادمین‌های اضافه (علاوه بر مالک) — از پنل افزوده/حذف می‌شوند
+def load_admins(): return _load(ADMINS_FILE)
+def save_admins(d): _save(ADMINS_FILE, d)
+
+def admin_uids():
+    """همهٔ uid هایی که دسترسی ادمین دارن: مالک + ADMIN_UIDS از env + لیست پنل"""
+    ids = {str(OWNER_ID)}
+    try:
+        for x in str(os.environ.get("ADMIN_UIDS", "")).split(","):
+            x = x.strip()
+            if x.isdigit(): ids.add(x)
+    except Exception: pass
+    try: ids |= {str(k) for k in load_admins().keys()}
+    except Exception: pass
+    return {i for i in ids if i}
+
+def _is_admin(uid): return str(uid) != "" and str(uid) in admin_uids()
+
 USERS_FILE = "users.json"   # رجیستری همهٔ کاربرانی که /start زدن (برای پیام همگانی)
 def load_users(): return _load(USERS_FILE)
 def save_users(d): _save(USERS_FILE, d)
@@ -1330,17 +1382,56 @@ async def admin_stats(request):
 async def admin_users(request):
     err = _denied(request)
     if err: return err
-    w = load_wallet(); c = load_configs(); o = load_orders()
+    w = load_wallet(); c = load_configs(); o = load_orders(); us_r = load_users()
     users = []
     for uid in _all_uids():
+        _u = us_r.get(uid) or {}
         users.append({
             "uid": uid,
+            "name": _u.get("first_name", "") or "",
+            "username": _u.get("username", "") or "",
+            "is_admin": _is_admin(uid),
             "balance": int(w.get(uid, {}).get("balance", 0)) if isinstance(w.get(uid), dict) else 0,
             "subs": len(c.get(uid, []) or []),
             "orders": len(o.get(uid, []) or []),
         })
     users.sort(key=lambda x: -x["orders"])
     return web.json_response({"users": users})
+
+async def admin_admins_list(request):
+    err = _denied(request)
+    if err: return err
+    us_r = load_users(); out = []
+    for a in sorted(admin_uids(), key=lambda x: 0 if x == str(OWNER_ID) else 1):
+        u = us_r.get(a) or {}
+        out.append({"uid": a, "owner": a == str(OWNER_ID),
+                    "name": u.get("first_name", ""), "username": u.get("username", "")})
+    return web.json_response({"admins": out})
+
+async def admin_admin_save(request):
+    """افزودن/حذف ادمین — هر ادمینی دسترسی دارد"""
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    uid = str(data.get("uid", "")).strip()
+    if not uid.isdigit():
+        return web.json_response({"error": "uid نامعتبر"}, status=400)
+    if uid == str(OWNER_ID):
+        return web.json_response({"error": "دسترسی مالک رو نمیشه تغییر داد"}, status=400)
+    adm = load_admins()
+    if data.get("on"):
+        if uid in adm:
+            return web.json_response({"ok": True, "admins": sorted(admin_uids())})
+        adm[uid] = {"added_ts": int(time.time())}
+        save_admins(adm)
+        _tg_send(uid, "🛡️ شما به عنوان **ادمین** به پنل فروشگاه اضافه شدید.\n\nبرای ورود: پنل کاربری → 🛠️ پنل مدیریت (همون رمز ادمین).")
+        logger.info(f"admin added: {uid}")
+        return web.json_response({"ok": True, "added": uid, "admins": sorted(admin_uids())})
+    adm.pop(uid, None)
+    save_admins(adm)
+    _tg_send(uid, "🛑 دسترسی ادمین شما برداشته شد.")
+    logger.info(f"admin removed: {uid}")
+    return web.json_response({"ok": True, "removed": uid, "admins": sorted(admin_uids())})
 
 async def admin_user_detail(request):
     err = _denied(request)
@@ -1509,6 +1600,8 @@ def create_web_app():
     app.router.add_get("/api/plans", api_plans)
     app.router.add_get("/api/admin/plans", admin_plans)
     app.router.add_post("/api/admin/plan", admin_plan_save)
+    app.router.add_get("/api/admin/admins", admin_admins_list)
+    app.router.add_post("/api/admin/admin_save", admin_admin_save)
     app.router.add_get("/api/admin/subs", admin_subs)
     app.router.add_post("/api/admin/sub", admin_sub_action)
     app.router.add_get("/api/admin/requests", admin_requests)
@@ -1851,7 +1944,8 @@ def _receipt_approve(rc):
     p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}
     save_pending(p)
     _tg_send(uid, "✅ **پرداخت تایید شد!** به‌زودی لینک اشتراک ارسال می‌شود.")
-    _tg_send(OWNER_ID, f"📝 **لینک ExpressVPN رو بفرست**\n\n👤 {uid}")
+    for _a in admin_uids():
+        _tg_send(_a, f"📝 **لینک ExpressVPN رو بفرست**\n\n👤 {uid}")
     return "پرداخت تایید شد — لینک رو بفرست"
 
 async def admin_requests(request):
