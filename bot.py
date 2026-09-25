@@ -1860,7 +1860,9 @@ async def admin_user_delete(request):
     uid = str(data.get("uid", "")).strip()
     if not uid:
         return web.json_response({"error": "uid لازم"}, status=400)
-    w = load_wallet(); w.get("users", {}).pop(uid, None); save_wallet(w)
+    w = load_wallet()
+    if isinstance(w.get(uid), dict): w.pop(uid, None)   # کیف پول تخت است: {uid: {balance, history}}
+    save_wallet(w)
     cf = load_configs(); cf.pop(uid, None); save_configs(cf)
     od = load_orders(); od.pop(uid, None); save_orders(od)
     rf = load_referrals(); rf.pop(uid, None); save_referrals(rf)
