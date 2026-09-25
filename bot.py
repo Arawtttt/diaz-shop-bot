@@ -1577,7 +1577,8 @@ def _panel_status(u):
 def _remaining_days(u):
     ea = u.get("expireAt", 0)
     if ea <= 0: return 0
-    return max(0, int((ea - time.time()) // 86400))
+    # ceiling: وگرنه هر عملیات پنل یک روز از اشتراک کم می‌کرد
+    return max(0, int((ea - time.time() + 86400 - 1) // 86400))
 
 async def admin_subs(request):
     err = _denied(request)
