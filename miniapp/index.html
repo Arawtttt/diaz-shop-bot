@@ -1015,7 +1015,8 @@ function admDiscounts(){
               + '<div style="font-size:11px;color:var(--dim)">' + off + ' • ' + c.used + '/' + (c.max_uses || '∞') + ' مصرف'
               + (c.expires ? ' • تا ' + new Date(c.expires*1000).toLocaleDateString('fa-IR') : '') + '</div></div>'
               + '<button class="bk" style="padding:6px 9px;font-size:11px;cursor:pointer" onclick="admToggleDiscount(\'' + c.code + '\')">'
-              + (c.active ? 'غیرفعال' : 'فعال') + '</button></div>';
+              + (c.active ? 'غیرفعال' : 'فعال') + '</button>'
+              + '<button class="bk" style="padding:6px 9px;font-size:11px;cursor:pointer" onclick="admDeleteDiscount(\'' + c.code + '\')">🗑</button></div>';
         }
         h += '</div>';
         var b = admBox(); if(b) b.innerHTML = h;
@@ -1037,6 +1038,11 @@ function admSaveDiscount(){
 function admToggleDiscount(code){
     admFetch('/api/admin/discount_toggle', {method:'POST', body:JSON.stringify({code:code})})
     .then(function(){ admDiscounts(); }).catch(function(){});
+}
+function admDeleteDiscount(code){
+    if(!confirm('کد ' + code + ' حذف بشه؟')) return;
+    admFetch('/api/admin/discount_delete', {method:'POST', body:JSON.stringify({code:code})})
+    .then(function(){ showToast('✅ حذف شد'); admDiscounts(); }).catch(function(){});
 }
 function admBroadcastUI(){
     var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">📢 ارسال پیام همگانی</div>';

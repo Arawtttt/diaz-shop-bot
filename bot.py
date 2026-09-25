@@ -1176,6 +1176,19 @@ async def admin_orders(request):
     if err: return err
     return web.json_response({"orders": _flat_orders()[:200]})
 
+async def admin_discount_delete(request):
+    if e := _admin_denied(request):
+        return e
+    data = await request.json()
+    code = str(data.get("code", "")).strip().lower()
+    ds = load_discounts()
+    if code not in ds:
+        return web.json_response({"error": "کد پیدا نشد"}, status=404)
+    del ds[code]
+    save_discounts(ds)
+    return web.json_response({"ok": True})
+
+
 async def admin_broadcast(request):
     err = _denied(request)
     if err: return err
@@ -1271,6 +1284,7 @@ def create_web_app():
     app.router.add_get("/api/admin/discounts", admin_discounts)
     app.router.add_post("/api/admin/discount", admin_discount_save)
     app.router.add_post("/api/admin/discount_toggle", admin_discount_toggle)
+    app.router.add_post("/api/admin/discount_delete", admin_discount_delete)
     # Static files — must come AFTER specific routes
     app.router.add_get("/{name:.*}", serve_static)
     return app
