@@ -846,6 +846,8 @@ async def api_buy_config(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = CONFIG_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
@@ -895,6 +897,8 @@ async def api_buy_express(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = EXPRESS_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
@@ -931,6 +935,8 @@ async def api_buy_deezer(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = DEEZER_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
@@ -948,6 +954,8 @@ async def api_buy_spotify(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = SPOTIFY_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
@@ -965,6 +973,8 @@ async def api_buy_ai(request):
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
     plan = AI_PLANS.get(plan_id)
     if not plan: return web.json_response({"error": "invalid plan"}, status=400)
+    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
             return web.json_response({"error": "insufficient balance"})
@@ -1015,6 +1025,226 @@ async def api_status(request):
         _status_cache["ts"] = time.time()
     return web.json_response({"ok": _status_cache["ok"], "ms": _status_cache["ms"], "ts": int(time.time())})
 
+# ─── ADMIN PANEL API (پنل مدیریت — فقط مالک) ──────────────
+import hmac as _hmac, hashlib as _hashlib, asyncio as _asyncio
+
+ADMIN_UID = int(os.environ.get("ADMIN_UID", str(OWNER_ID)))
+DISCOUNTS_FILE = "discounts.json"
+def load_discounts(): return _load(DISCOUNTS_FILE)
+def save_discounts(d): _save(DISCOUNTS_FILE, d)
+
+def _fa(n):
+    return f"{int(n):,}".translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
+
+def _admin_pw():
+    return os.environ.get("ADMIN_PASSWORD") or os.environ.get("BPB_PASSWORD") or ""
+
+def _make_admin_token():
+    pw = _admin_pw()
+    if not pw: return ""
+    per = int(time.time() // 43200)
+    sig = _hmac.new(BOT_TOKEN.encode(), f"{pw}|{per}".encode(), _hashlib.sha256).hexdigest()
+    return f"{per}.{sig}"
+
+def _admin_token_ok(tok):
+    pw = _admin_pw()
+    if not pw or not tok or "." not in tok: return False
+    try:
+        per_s, sig = tok.split(".", 1); per = int(per_s)
+    except Exception:
+        return False
+    if abs(int(time.time() // 43200) - per) > 1: return False
+    exp = _hmac.new(BOT_TOKEN.encode(), f"{pw}|{per}".encode(), _hashlib.sha256).hexdigest()
+    return _hmac.compare_digest(exp, sig)
+
+def _denied(request):
+    if _admin_token_ok(request.headers.get("X-Admin-Token", "")): return None
+    return web.json_response({"error": "unauthorized"}, status=401)
+
+def _apply_code(plan, code, uid=None, method="wallet"):
+    """نسخه‌ تخفیف‌خوردهٔ پلن. کد نامعتبر → ValueError. مصرف کد فقط بعد از اطمینان از موجودی ثبت می‌شود."""
+    code = (code or "").strip().lower()
+    if not code: return plan
+    ds = load_discounts(); d = ds.get(code)
+    if not d or not d.get("active", True): raise ValueError("کد تخفیف معتبر نیست")
+    if d.get("expires") and time.time() > float(d["expires"]): raise ValueError("کد تخفیف منقضی شده")
+    if d.get("max_uses") and int(d.get("used", 0)) >= int(d["max_uses"]): raise ValueError("سقف استفاده از کد تخفیف تمام شده")
+    price = int(plan["price_int"])
+    off = price * int(d["value"]) // 100 if d.get("type") == "percent" else int(d["value"])
+    final = max(0, price - off)
+    if method == "wallet" and uid is not None and get_balance(int(uid)) < final:
+        raise ValueError("موجودی کافی نیست")
+    d["used"] = int(d.get("used", 0)) + 1
+    ds[code] = d; save_discounts(ds)
+    out = dict(plan); out["price_int"] = final; out["price"] = _fa(final); out["discount"] = code
+    return out
+
+def _all_uids():
+    u = set()
+    for d in (load_wallet(), load_configs(), load_orders()):
+        try: u |= set(str(k) for k in d)
+        except Exception: pass
+    return sorted([x for x in u if str(x).isdigit()], key=int)
+
+def _flat_orders():
+    out = []
+    for uid, lst in load_orders().items():
+        for o in (lst or []):
+            rec = dict(o); rec["uid"] = str(uid); out.append(rec)
+    out.sort(key=lambda o: o.get("ts", 0), reverse=True)
+    return out
+
+def _day_start():
+    lt = time.localtime()
+    return time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, 0, 0, 0, 0, 0, -1))
+
+async def admin_entry(request):
+    """آیا این uid مالک است؟ (بدون لو دادن شناسهٔ مالک)"""
+    uid = str(request.query.get("uid", ""))
+    return web.json_response({"ok": uid != "" and uid == str(ADMIN_UID)})
+
+async def admin_login(request):
+    data = await request.json()
+    pw = str(data.get("password", ""))
+    real = _admin_pw()
+    if not real: return web.json_response({"error": "پنل ادمین پیکربندی نشده"}, status=503)
+    if not _hmac.compare_digest(pw, real): return web.json_response({"error": "رمز اشتباه"}, status=401)
+    return web.json_response({"ok": True, "token": _make_admin_token()})
+
+async def admin_stats(request):
+    err = _denied(request)
+    if err: return err
+    orders = _flat_orders(); now = time.time(); ds = _day_start()
+    today = [o for o in orders if o.get("ts", 0) >= ds]
+    w = load_wallet()
+    return web.json_response({
+        "users": len(_all_uids()),
+        "wallet_total": sum(int(v.get("balance", 0)) for v in w.values() if isinstance(v, dict)),
+        "orders_total": len(orders),
+        "orders_today": len(today),
+        "revenue_total": sum(int(o.get("price", 0)) for o in orders if o.get("status") != "rejected"),
+        "revenue_today": sum(int(o.get("price", 0)) for o in today if o.get("status") != "rejected"),
+        "pending": len([o for o in orders if o.get("status") == "pending"]),
+        "subs": sum(len(v) for v in load_configs().values() if isinstance(v, list)),
+        "pending_admin": len([1 for v in load_pending().values() if isinstance(v, dict) and v.get("waiting_admin")]),
+    })
+
+async def admin_users(request):
+    err = _denied(request)
+    if err: return err
+    w = load_wallet(); c = load_configs(); o = load_orders()
+    users = []
+    for uid in _all_uids():
+        users.append({
+            "uid": uid,
+            "balance": int(w.get(uid, {}).get("balance", 0)) if isinstance(w.get(uid), dict) else 0,
+            "subs": len(c.get(uid, []) or []),
+            "orders": len(o.get(uid, []) or []),
+        })
+    users.sort(key=lambda x: -x["orders"])
+    return web.json_response({"users": users})
+
+async def admin_user_detail(request):
+    err = _denied(request)
+    if err: return err
+    uid = str(request.match_info["uid"])
+    w = load_wallet(); c = load_configs(); o = load_orders(); r = load_referrals()
+    return web.json_response({
+        "uid": uid,
+        "balance": int(w.get(uid, {}).get("balance", 0)) if isinstance(w.get(uid), dict) else 0,
+        "history": (w.get(uid, {}).get("history", []) if isinstance(w.get(uid), dict) else [])[-15:],
+        "configs": c.get(uid, []) or [],
+        "orders": o.get(uid, []) or [],
+        "referrals": len(r.get(uid, {}).get("invited", []) or []),
+    })
+
+async def admin_wallet(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    uid = str(data.get("uid", "")).strip(); delta = int(data.get("delta", 0))
+    if not uid.isdigit() or not delta: return web.json_response({"error": "uid/delta نامعتبر"}, status=400)
+    w = load_wallet()
+    if uid not in w or not isinstance(w[uid], dict): w[uid] = {"balance": 0, "history": []}
+    w[uid]["balance"] = max(0, int(w[uid].get("balance", 0)) + delta)
+    w[uid].setdefault("history", []).append({"amount": delta, "type": "admin", "ts": time.time()})
+    save_wallet(w)
+    return web.json_response({"ok": True, "balance": w[uid]["balance"]})
+
+async def admin_orders(request):
+    err = _denied(request)
+    if err: return err
+    return web.json_response({"orders": _flat_orders()[:200]})
+
+async def admin_broadcast(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    text = str(data.get("text", "")).strip()
+    scope = str(data.get("scope", "all"))
+    if not text: return web.json_response({"error": "متن خالی است"}, status=400)
+    uids = _all_uids()
+    if scope == "buyers":
+        o = load_orders(); uids = [u for u in uids if o.get(u)]
+    sent = failed = 0
+    async with httpx.AsyncClient(timeout=15) as hc:
+        for u in uids[:3000]:
+            try:
+                r = await hc.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                                  json={"chat_id": int(u), "text": text})
+                if r.json().get("ok"): sent += 1
+                else: failed += 1
+            except Exception:
+                failed += 1
+            await _asyncio.sleep(0.05)
+    return web.json_response({"ok": True, "sent": sent, "failed": failed, "targets": len(uids)})
+
+async def admin_discounts(request):
+    err = _denied(request)
+    if err: return err
+    now = time.time()
+    out = []
+    for code, d in load_discounts().items():
+        out.append({"code": code, "type": d.get("type"), "value": d.get("value"),
+                    "used": d.get("used", 0), "max_uses": d.get("max_uses", 0),
+                    "expires": d.get("expires", 0), "active": d.get("active", True),
+                    "expired": bool(d.get("expires")) and now > float(d.get("expires"))})
+    out.sort(key=lambda x: -x["used"])
+    return web.json_response({"discounts": out})
+
+async def admin_discount_save(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    code = str(data.get("code", "")).strip().lower()
+    typ = "percent" if data.get("type") == "percent" else "amount"
+    try: value = int(data.get("value", 0))
+    except Exception: value = 0
+    if not code or value <= 0 or (typ == "percent" and value > 100):
+        return web.json_response({"error": "کد یا مقدار نامعتبر"}, status=400)
+    try: max_uses = int(data.get("max_uses", 0))
+    except Exception: max_uses = 0
+    try: days = float(data.get("expires_days", 0) or 0)
+    except Exception: days = 0
+    ds = load_discounts()
+    ds[code] = {"type": typ, "value": value, "max_uses": max_uses,
+                "used": ds.get(code, {}).get("used", 0),
+                "expires": (time.time() + days * 86400) if days else 0,
+                "active": bool(data.get("active", True)), "created": time.time()}
+    save_discounts(ds)
+    return web.json_response({"ok": True, "code": code})
+
+async def admin_discount_toggle(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    code = str(data.get("code", "")).strip().lower()
+    ds = load_discounts()
+    if code not in ds: return web.json_response({"error": "کد پیدا نشد"}, status=404)
+    ds[code]["active"] = not ds[code].get("active", True)
+    save_discounts(ds)
+    return web.json_response({"ok": True, "active": ds[code]["active"]})
+
 def create_web_app():
     app = web.Application()
     app.router.add_get("/", serve_index)
@@ -1030,6 +1260,17 @@ def create_web_app():
     app.router.add_post("/api/buy_ai", api_buy_ai)
     app.router.add_post("/api/buy_spotify", api_buy_spotify)
     app.router.add_post("/api/wallet_charge", api_wallet_charge)
+    app.router.add_get("/api/admin/entry", admin_entry)
+    app.router.add_post("/api/admin/login", admin_login)
+    app.router.add_get("/api/admin/stats", admin_stats)
+    app.router.add_get("/api/admin/users", admin_users)
+    app.router.add_get("/api/admin/user/{uid}", admin_user_detail)
+    app.router.add_post("/api/admin/wallet", admin_wallet)
+    app.router.add_get("/api/admin/orders", admin_orders)
+    app.router.add_post("/api/admin/broadcast", admin_broadcast)
+    app.router.add_get("/api/admin/discounts", admin_discounts)
+    app.router.add_post("/api/admin/discount", admin_discount_save)
+    app.router.add_post("/api/admin/discount_toggle", admin_discount_toggle)
     # Static files — must come AFTER specific routes
     app.router.add_get("/{name:.*}", serve_static)
     return app
