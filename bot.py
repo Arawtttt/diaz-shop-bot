@@ -131,6 +131,7 @@ BPB_PASSWORD = os.environ.get("BPB_PASSWORD", "")
 _KV_PREFIX = "bot_"
 _KV_STATE = {}        # kv key -> {"ts": float, "data": obj}
 _KV_DIRTY = set()     # kv keys waiting to be pushed
+_KV_UNKNOWN = set()   # keys whose boot read failed — empty pushes blocked
 _KV_ENABLED = bool(BPB_ORIGIN and BPB_SECURE_PATH and BPB_PASSWORD)
 _KV_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Mobile Safari/537.36"
 
@@ -193,28 +194,36 @@ def kv_boot():
         try:
             r = httpx.get(_kv_url(key), headers=_kv_headers(), timeout=25)
         except Exception as e:
+            _KV_UNKNOWN.add(key)
             logger.warning(f"KV boot read {key} failed: {e}")
             continue
-        if r.status_code == 200:
-            try:
-                body = r.json()
-                data = body.get("data") if isinstance(body, dict) else None
-            except Exception:
-                data = None
-            if not isinstance(data, (dict, list)):
-                continue
-            _KV_STATE[key] = {"ts": body.get("ts") or time.time(), "data": data}
-            _write_file(fn, data)
+        if r.status_code != 200:
+            _KV_UNKNOWN.discard(key)      # 404 = key confirmed empty
+            # nothing in KV yet (first run) — push whatever the local file has
+            if os.path.exists(fn):
+                try:
+                    with open(fn) as f: local = json.load(f)
+                except Exception:
+                    local = None
+                if isinstance(local, (dict, list)):
+                    _KV_STATE[key] = {"ts": time.time(), "data": local}
+                    _KV_DIRTY.add(key)
             continue
-        # nothing in KV yet (first run) — push whatever the local file has
-        if os.path.exists(fn):
-            try:
-                with open(fn) as f: local = json.load(f)
-            except Exception:
-                local = None
-            if isinstance(local, (dict, list)):
-                _KV_STATE[key] = {"ts": time.time(), "data": local}
-                _KV_DIRTY.add(key)
+        try:
+            body = r.json()
+        except Exception:
+            body = None
+        # worker responds as {success,status,message,body}; body holds the envelope
+        env = body.get("body") if isinstance(body, dict) and isinstance(body.get("body"), (dict, list)) else body
+        data = env.get("data") if isinstance(env, dict) else None
+        ts = env.get("ts") if isinstance(env, dict) else None
+        if not isinstance(data, (dict, list)):
+            _KV_UNKNOWN.add(key)          # unreadable — never let an empty push clobber it
+            logger.warning(f"KV boot {key}: unexpected payload shape")
+            continue
+        _KV_UNKNOWN.discard(key)
+        _KV_STATE[key] = {"ts": ts or time.time(), "data": data}
+        _write_file(fn, data)
     logger.info(f"KV boot done (enabled={_KV_ENABLED}, keys={len(_KV_STATE)}, pending={len(_KV_DIRTY)})")
 
 async def _kv_push_loop():
@@ -231,6 +240,10 @@ async def _kv_push_loop():
                     try:
                         payload = json.loads(json.dumps(envd, ensure_ascii=False))
                     except Exception:
+                        _KV_DIRTY.discard(key)
+                        continue
+                    if key in _KV_UNKNOWN and not payload.get("data"):
+                        logger.warning(f"KV push {key} blocked: boot read failed, refusing to overwrite with empty state")
                         _KV_DIRTY.discard(key)
                         continue
                     try:
