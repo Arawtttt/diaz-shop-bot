@@ -1349,9 +1349,9 @@ def _day_start():
     return time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, 0, 0, 0, 0, 0, -1))
 
 async def admin_entry(request):
-    """آیا این uid مالک است؟ (بدون لو دادن شناسهٔ مالک)"""
+    """آیا این uid دسترسی ادمین دارد؟ (بدون لو دادن شناسه‌ها)"""
     uid = str(request.query.get("uid", ""))
-    return web.json_response({"ok": uid != "" and uid == str(ADMIN_UID)})
+    return web.json_response({"ok": _is_admin(uid)})
 
 async def admin_login(request):
     data = await request.json()
