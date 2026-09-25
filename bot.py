@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Diaz Shop — Telegram Bot + Web Server + Mini App API (all-in-one)"""
 
+import threading
 import asyncio
 import os, json, time, logging, threading, secrets as _secrets
 from pathlib import Path
@@ -1708,15 +1709,17 @@ def _pending_items():
     return items
 
 def _tg_send(uid, text):
-    try:
-        httpx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                   json={"chat_id": int(uid), "text": text, "parse_mode": "Markdown"}, timeout=15)
-    except Exception:
+    def _fire():
         try:
             httpx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                       json={"chat_id": int(uid), "text": text}, timeout=15)
+                       json={"chat_id": int(uid), "text": text, "parse_mode": "Markdown"}, timeout=15)
         except Exception:
-            pass
+            try:
+                httpx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                           json={"chat_id": int(uid), "text": text}, timeout=15)
+            except Exception:
+                pass
+    threading.Thread(target=_fire, daemon=True).start()   # نباید event loop ربات رو ببنده
 
 def _receipts_resolve(uid, ptype=None):
     rs = load_receipts(); n = 0
