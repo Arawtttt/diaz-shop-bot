@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Diaz Shop — Telegram Bot + Web Server + Mini App API (all-in-one)"""
 
+import asyncio
 import os, json, time, logging, threading, secrets as _secrets
 from pathlib import Path
 import httpx
@@ -120,7 +121,49 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ─── File Helpers ─────────────────────────────────────────
+# ─── Durable storage: Cloudflare KV (state survives Railway deploys) ─────
+# Local files stay the fast sync store; every change is mirrored into KV via the
+# panel worker (GET/POST /<securePath>/bot/<bot_key>, password in x-bot-key).
+# KV wins on boot, so a fresh deploy restores wallets/orders/configs/etc.
+BPB_ORIGIN = os.environ.get("BPB_ORIGIN", "").rstrip("/")
+BPB_SECURE_PATH = os.environ.get("BPB_SECURE_PATH", "").strip("/")
+BPB_PASSWORD = os.environ.get("BPB_PASSWORD", "")
+_KV_PREFIX = "bot_"
+_KV_STATE = {}        # kv key -> {"ts": float, "data": obj}
+_KV_DIRTY = set()     # kv keys waiting to be pushed
+_KV_ENABLED = bool(BPB_ORIGIN and BPB_SECURE_PATH and BPB_PASSWORD)
+_KV_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Mobile Safari/537.36"
+
+def _kv_files():
+    return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
+            ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE]
+
+def _kv_key(fn):
+    return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
+
+def _kv_url(key):
+    return f"{BPB_ORIGIN}/{BPB_SECURE_PATH}/bot/{key}"
+
+def _kv_headers():
+    return {"x-bot-key": BPB_PASSWORD, "User-Agent": _KV_UA,
+            "Content-Type": "application/json"}
+
+def _write_file(fn, d):
+    try:
+        with open(fn, "w") as f: json.dump(d, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        logger.warning(f"local state write failed ({fn}): {e}")
+        return False
+
 def _load(fn):
+    key = _kv_key(fn)
+    env = _KV_STATE.get(key)
+    if env is not None:
+        try:
+            return json.loads(json.dumps(env["data"], ensure_ascii=False))
+        except Exception:
+            pass
     try:
         if os.path.exists(fn):
             with open(fn) as f: return json.load(f)
@@ -128,7 +171,82 @@ def _load(fn):
     return {}
 
 def _save(fn, d):
-    with open(fn, "w") as f: json.dump(d, f, indent=2, ensure_ascii=False)
+    _write_file(fn, d)
+    if not _KV_ENABLED:
+        return
+    try:
+        snap = json.loads(json.dumps(d, ensure_ascii=False))
+    except Exception as e:
+        logger.warning(f"KV snapshot skipped ({fn}): {e}")
+        return
+    key = _kv_key(fn)
+    _KV_STATE[key] = {"ts": time.time(), "data": snap}
+    _KV_DIRTY.add(key)
+
+def kv_boot():
+    """Pull every state key from KV — KV wins over the (wiped) local files."""
+    if not _KV_ENABLED:
+        logger.warning("KV sync OFF: BPB_ORIGIN / BPB_SECURE_PATH / BPB_PASSWORD missing")
+        return
+    for fn in _kv_files():
+        key = _kv_key(fn)
+        try:
+            r = httpx.get(_kv_url(key), headers=_kv_headers(), timeout=25)
+        except Exception as e:
+            logger.warning(f"KV boot read {key} failed: {e}")
+            continue
+        if r.status_code == 200:
+            try:
+                body = r.json()
+                data = body.get("data") if isinstance(body, dict) else None
+            except Exception:
+                data = None
+            if not isinstance(data, (dict, list)):
+                continue
+            _KV_STATE[key] = {"ts": body.get("ts") or time.time(), "data": data}
+            _write_file(fn, data)
+            continue
+        # nothing in KV yet (first run) — push whatever the local file has
+        if os.path.exists(fn):
+            try:
+                with open(fn) as f: local = json.load(f)
+            except Exception:
+                local = None
+            if isinstance(local, (dict, list)):
+                _KV_STATE[key] = {"ts": time.time(), "data": local}
+                _KV_DIRTY.add(key)
+    logger.info(f"KV boot done (enabled={_KV_ENABLED}, keys={len(_KV_STATE)}, pending={len(_KV_DIRTY)})")
+
+async def _kv_push_loop():
+    """Flush dirty state keys to KV every few seconds (the bot is the only writer)."""
+    async with httpx.AsyncClient() as cli:
+        while True:
+            try:
+                while _KV_DIRTY:
+                    key = next(iter(_KV_DIRTY))
+                    envd = _KV_STATE.get(key)
+                    if envd is None:
+                        _KV_DIRTY.discard(key)
+                        continue
+                    try:
+                        payload = json.loads(json.dumps(envd, ensure_ascii=False))
+                    except Exception:
+                        _KV_DIRTY.discard(key)
+                        continue
+                    try:
+                        r = await cli.post(_kv_url(key), headers=_kv_headers(),
+                                           json=payload, timeout=25)
+                    except Exception as e:
+                        logger.warning(f"KV push {key} failed: {e}")
+                        break
+                    if r.status_code == 200:
+                        _KV_DIRTY.discard(key)
+                    else:
+                        logger.warning(f"KV push {key} -> HTTP {r.status_code}")
+                        break
+            except Exception as e:
+                logger.warning(f"KV push loop: {e}")
+            await asyncio.sleep(5)
 
 def load_pending(): return _load(PENDING_FILE)
 def save_pending(d): _save(PENDING_FILE, d)
@@ -159,7 +277,9 @@ def load_wallet(): return _load(WALLET_FILE)
 def save_wallet(d): _save(WALLET_FILE, d)
 def load_referrals(): return _load(REFERRALS_FILE)
 def save_referrals(d): _save(REFERRALS_FILE, d)
-def load_accounts(): return _load(ACCOUNTS_FILE) if os.path.exists(ACCOUNTS_FILE) else []
+def load_accounts():
+    d = _load(ACCOUNTS_FILE)
+    return d if isinstance(d, list) else []
 def save_accounts(d): _save(ACCOUNTS_FILE, d)
 
 # ─── Business Logic ──────────────────────────────────────
@@ -1292,6 +1412,10 @@ def create_web_app():
 # ─── Main: Web Server (thread) + Bot (main thread) ──────
 def main():
     PORT = int(os.environ.get("PORT", 8080))
+    try:
+        kv_boot()
+    except Exception as e:
+        logger.warning(f"KV boot error: {e}")
 
     def run_web():
         import asyncio as _aio
@@ -1301,6 +1425,8 @@ def main():
         loop.run_until_complete(runner.setup())
         loop.run_until_complete(web.TCPSite(runner, "0.0.0.0", PORT).start())
         logger.info(f"Web server on port {PORT}")
+        if _KV_ENABLED:
+            loop.create_task(_kv_push_loop())
         loop.run_forever()
 
     threading.Thread(target=run_web, daemon=True).start()
