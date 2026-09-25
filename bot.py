@@ -1639,21 +1639,23 @@ async def admin_sub_action(request):
         if not u:
             return web.json_response({"error": "کاربر پنل پیدا نشد"}, status=404)
         rem = _remaining_days(u)
+        never = u.get("expireAt", 0) <= 0   # بدون انقضا: days=0 یعنی منقضی‌شدن!
+        keep = 3650 if never else rem
         payload = {"id": u["id"], "name": u.get("name", "user"),
-                   "totalGB": int(u.get("totalGB", 0) or 0), "days": rem,
+                   "totalGB": int(u.get("totalGB", 0) or 0), "days": keep,
                    "enabled": bool(u.get("enabled", True))}
         note = ""
         if action == "disable":
             payload["enabled"] = False; note = "اشتراک غیرفعال شد"
         elif action == "enable":
             payload["enabled"] = True
-            if rem <= 0:
+            if not never and rem <= 0:
                 payload["days"] = days if days > 0 else 30
             note = "اشتراک فعال شد"
         elif action == "extend":
             add = days if days > 0 else 30
             payload["enabled"] = True
-            payload["days"] = (rem if rem > 0 else 0) + add
+            payload["days"] = (keep + add) if (never or rem > 0) else add
             note = f"{add} روز تمدید شد"
         elif action == "quota":
             try:
