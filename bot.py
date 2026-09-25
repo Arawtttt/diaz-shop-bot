@@ -99,6 +99,10 @@ SPOTIFY_PLANS = {
     "spotify1m": {"name": "Spotify اختصاصی یک‌ماهه (نامحدود)", "price": "۱,۵۰۰,۰۰۰", "price_int": 1500000, "days": 30},
 }
 
+SPECIAL_PLANS = {
+    "gta": {"name": "GTA VI Ultimate Edition — Xbox Home", "price": "۱۲,۰۰۰,۰۰۰", "price_int": 12000000},
+}
+
 REFERRAL_TARGET = 1
 
 async def context_broad_config(uid, info, plan, name):
@@ -139,7 +143,7 @@ _KV_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko)
 def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
             ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
-            PLAN_OVERRIDES_FILE, RECEIPTS_FILE]
+            PLAN_OVERRIDES_FILE, RECEIPTS_FILE, USERS_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -432,6 +436,7 @@ async def _process_referral(context, inviter_id, invited_id):
 
 async def start(update, context):
     user = update.effective_user
+    touch_user(user)
     if context.args:
         payload = context.args[0]
         if payload.startswith("ref"):
@@ -699,6 +704,7 @@ async def user_panel(update, context):
 
 # ─── Receipt & Text Handlers ─────────────────────────────
 async def handle_photo(update, context):
+    touch_user(update.effective_user)
     uid = str(update.effective_user.id); p = load_pending(); state = p.get(uid)
     if not state or not state.get("waiting"): return
     user = update.effective_user; ptype = state["type"]
@@ -737,6 +743,7 @@ async def handle_photo(update, context):
     await update.message.reply_text("✅ رسید دریافت شد!")
 
 async def handle_text(update, context):
+    touch_user(update.effective_user)
     uid = str(update.effective_user.id); p = load_pending(); state = p.get(uid)
     # Admin sending subscription/config link — check FIRST
     if state and state.get("waiting_admin"):
@@ -1068,24 +1075,28 @@ async def api_buy_express(request):
         return web.json_response({"ok": True, "action": "wallet_paid"})
 
 
-    # ─── API: Buy GTA VI ─────────────────
-    @routes.post("/api/buy_gta")
-    async def api_buy_gta(request):
-        data = await request.json()
-        uid = data.get("uid")
-        if not uid: return web.json_response({"error": "uid required"})
-        uid = str(uid)
-        balance = get_balance(int(uid))
-        if balance < 12000000:
-            return web.json_response({"error": "موجودی کافی نیست"})
-        if not spend_balance(int(uid), 12000000):
-            return web.json_response({"error": "خطا در کسر موجودی"})
-        p = load_pending()
-        p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_gta", "user_id": uid, "plan": "GTA VI Ultimate Edition Xbox Home"}
-        save_pending(p)
-        _notify_admin("🎮 **سفارش GTA VI (مینی\u200cاپ)**\n\n👤 کاربر: {}\n📦 پلن: Ultimate Edition — Xbox Home\n💰 12,000,000 تومان\n\n🔑 ظرفیت هوم رو بفرستید:".format(uid))
-        return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
+
+# ─── API: Buy GTA VI ─────────────────────────────────────
+async def api_buy_gta(request):
+    data = await request.json()
+    uid = data.get("uid")
+    if not uid: return web.json_response({"error": "uid required"})
+    uid = str(uid)
+    plan = dict(SPECIAL_PLANS["gta"])
+    if plan.get("active") is False:
+        return web.json_response({"error": "این پلن موقتاً غیرفعال است"}, status=400)
+    try: plan = _apply_code(plan, data.get("code"), uid, "wallet")
+    except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
+    if not spend_balance(int(uid), plan["price_int"]):
+        return web.json_response({"error": "موجودی کافی نیست"})
+    p = load_pending()
+    p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_gta", "user_id": uid, "plan": plan["name"]}
+    save_pending(p)
+    _notify_admin(f"🎮 **سفارش GTA VI (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔑 ظرفیت هوم رو بفرستید:")
+    try: add_order(uid, "special", "gta", plan["name"], plan["price_int"])
+    except Exception: pass
+    return web.json_response({"ok": True, "action": "wallet_paid"})
 
 async def api_buy_deezer(request):
     data = await request.json()
@@ -1196,6 +1207,24 @@ DISCOUNTS_FILE = "discounts.json"
 def load_discounts(): return _load(DISCOUNTS_FILE)
 def save_discounts(d): _save(DISCOUNTS_FILE, d)
 
+USERS_FILE = "users.json"   # رجیستری همهٔ کاربرانی که /start زدن (برای پیام همگانی)
+def load_users(): return _load(USERS_FILE)
+def save_users(d): _save(USERS_FILE, d)
+
+def touch_user(user):
+    """هر کاربری که با ربات حرف زد اینجا ثبت می‌شود — تا پیام همگانی به همه برسد."""
+    if not user: return
+    try:
+        us = load_users(); k = str(user.id)
+        cur = us.get(k) if isinstance(us.get(k), dict) else {}
+        cur.update({"first_name": user.first_name or cur.get("first_name", ""),
+                    "username": user.username or cur.get("username", ""),
+                    "first_seen": cur.get("first_seen") or time.time(),
+                    "last_seen": time.time()})
+        us[k] = cur; save_users(us)
+    except Exception as e:
+        logger.warning(f"touch_user: {e}")
+
 def _fa(n):
     return f"{int(n):,}".translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
 
@@ -1244,7 +1273,7 @@ def _apply_code(plan, code, uid=None, method="wallet"):
 
 def _all_uids():
     u = set()
-    for d in (load_wallet(), load_configs(), load_orders()):
+    for d in (load_wallet(), load_configs(), load_orders(), load_users()):
         try: u |= set(str(k) for k in d)
         except Exception: pass
     return sorted([x for x in u if str(x).isdigit()], key=int)
@@ -1352,6 +1381,28 @@ async def admin_discount_delete(request):
     return web.json_response({"ok": True})
 
 
+BC_STATUS = {"running": False, "targets": 0, "sent": 0, "failed": 0, "ts": 0, "scope": ""}
+
+async def _broadcast_run(uids, text):
+    """در بک‌گراند می‌فرستد تا درخواست وب معطل نماند (و ربات قفل نشود)."""
+    sent = failed = 0
+    try:
+        async with httpx.AsyncClient(timeout=15) as hc:
+            for u in uids:
+                try:
+                    r = await hc.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                                      json={"chat_id": int(u), "text": text})
+                    if r.json().get("ok"): sent += 1
+                    else: failed += 1
+                except Exception:
+                    failed += 1
+                BC_STATUS.update({"sent": sent, "failed": failed})
+                await _asyncio.sleep(0.05)
+    except Exception as e:
+        logger.warning(f"broadcast: {e}")
+    BC_STATUS.update({"running": False, "sent": sent, "failed": failed, "ts": int(time.time())})
+    logger.info(f"broadcast done: sent={sent} failed={failed}")
+
 async def admin_broadcast(request):
     err = _denied(request)
     if err: return err
@@ -1359,21 +1410,22 @@ async def admin_broadcast(request):
     text = str(data.get("text", "")).strip()
     scope = str(data.get("scope", "all"))
     if not text: return web.json_response({"error": "متن خالی است"}, status=400)
+    if BC_STATUS.get("running"):
+        return web.json_response({"error": "یک ارسال دیگه در جریانه — صبر کن"}, status=409)
     uids = _all_uids()
     if scope == "buyers":
         o = load_orders(); uids = [u for u in uids if o.get(u)]
-    sent = failed = 0
-    async with httpx.AsyncClient(timeout=15) as hc:
-        for u in uids[:3000]:
-            try:
-                r = await hc.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                                  json={"chat_id": int(u), "text": text})
-                if r.json().get("ok"): sent += 1
-                else: failed += 1
-            except Exception:
-                failed += 1
-            await _asyncio.sleep(0.05)
-    return web.json_response({"ok": True, "sent": sent, "failed": failed, "targets": len(uids)})
+    if not uids:
+        return web.json_response({"error": "گیرنده‌ای وجود نداره (هنوز کسی با ربات شروع نکرده)"}, status=400)
+    BC_STATUS.update({"running": True, "targets": len(uids), "sent": 0, "failed": 0,
+                      "ts": int(time.time()), "scope": scope})
+    _asyncio.get_event_loop().create_task(_broadcast_run(uids[:3000], text))
+    return web.json_response({"ok": True, "targets": len(uids), "running": True})
+
+async def admin_broadcast_status(request):
+    err = _denied(request)
+    if err: return err
+    return web.json_response(dict(BC_STATUS))
 
 async def admin_discounts(request):
     err = _denied(request)
@@ -1457,6 +1509,9 @@ def create_web_app():
     app.router.add_post("/api/admin/request", admin_request_action)
     app.router.add_post("/api/admin/order", admin_order_action)
     app.router.add_post("/api/admin/user_delete", admin_user_delete)
+    app.router.add_post("/api/discount_preview", discount_preview)
+    app.router.add_post("/api/buy_gta", api_buy_gta)
+    app.router.add_get("/api/admin/broadcast/status", admin_broadcast_status)
     # Static files — must come AFTER specific routes
     app.router.add_get("/{name:.*}", serve_static)
     return app
@@ -1471,7 +1526,7 @@ def load_receipts(): return _load(RECEIPTS_FILE)
 def save_receipts(d): _save(RECEIPTS_FILE, d)
 
 PLAN_KINDS = {"config": CONFIG_PLANS, "express": EXPRESS_PLANS, "deezer": DEEZER_PLANS,
-              "ai": AI_PLANS, "spotify": SPOTIFY_PLANS}
+              "ai": AI_PLANS, "spotify": SPOTIFY_PLANS, "special": SPECIAL_PLANS}
 
 TYPE_LABELS = {
     "send_config": "📦 کانفیگ VPN", "send_express": "⚡ ExpressVPN",
@@ -1545,6 +1600,33 @@ async def admin_plan_save(request):
     save_plan_overrides(ov)
     apply_plan_overrides()
     return web.json_response({"ok": True, "plan": _plan_state(kind, key)})
+
+# ─── Discount preview (مینی‌اپ قبل از پرداخت) ──────────────────────────
+async def discount_preview(request):
+    try:
+        data = await request.json()
+    except Exception:
+        return web.json_response({"error": "bad request"}, status=400)
+    code = str(data.get("code", "")).strip().lower()
+    kind = str(data.get("kind", "")); key = str(data.get("plan", ""))
+    if not code:
+        return web.json_response({"error": "کد تخفیف را وارد کنید"}, status=400)
+    plan = PLAN_KINDS.get(kind, {}).get(key)
+    if not plan:
+        return web.json_response({"error": "پلن پیدا نشد"}, status=400)
+    d = load_discounts().get(code)
+    if not d or not d.get("active", True):
+        return web.json_response({"error": "کد تخفیف معتبر نیست"}, status=400)
+    if d.get("expires") and time.time() > float(d["expires"]):
+        return web.json_response({"error": "کد تخفیف منقضی شده"}, status=400)
+    if d.get("max_uses") and int(d.get("used", 0)) >= int(d["max_uses"]):
+        return web.json_response({"error": "سقف استفاده از کد تخفیف تمام شده"}, status=400)
+    price = int(plan.get("price_int", 0))
+    off = price * int(d.get("value", 0)) // 100 if d.get("type") == "percent" else int(d.get("value", 0))
+    final = max(0, price - off)
+    return web.json_response({"ok": True, "code": code, "price_int": final, "price": _fa(final),
+                              "type": d.get("type"), "value": int(d.get("value", 0)),
+                              "save": price - final})
 
 # ─── Subscriptions control (via BPB panel) ─────────────────────────────
 def _panel_ready():

@@ -289,10 +289,11 @@ body.light .thm{color:#1a102a}
                 </div>
                 <div style="margin:16px 10px;padding:14px;background:rgba(224,64,251,0.08);border:1px solid rgba(224,64,251,0.3);border-radius:12px;">
                     <div style="text-align:center;font-size:11px;color:#bb86fc;margin-bottom:10px;">📦 Ultimate Edition — Xbox Home</div>
-                    <div style="text-align:center;font-size:24px;font-weight:bold;color:#e040fb;margin-bottom:4px;">۱۲,۰۰۰,۰۰۰ تومان</div>
+                    <div id="gtaPrice" style="text-align:center;font-size:24px;font-weight:bold;color:#e040fb;margin-bottom:4px;">۱۲,۰۰۰,۰۰۰ تومان</div>
                     <div style="text-align:center;font-size:11px;color:var(--dim);">ظرفیت هوم | تحویل فوری</div>
                 </div>
                 <div style="margin:0 10px;">
+                    <div id="gtaDiscBox"></div>
                     <div class="mi" onclick="buyGta()" style="border:1px solid #e040fb;background:rgba(224,64,251,0.1);">
                         <div class="ic">🛒</div>
                         <div class="tx"><div class="ti" style="color:#e040fb;">خرید ظرفیت</div><div class="sb">پرداخت از کیف پول</div></div>
@@ -554,6 +555,7 @@ function _applySection(name) {
     _cur = name;
     var secs = document.querySelectorAll('.sec');
     for (var i = 0; i < secs.length; i++) secs[i].className = 'sec';
+    if(name === 'games'){ try{ gtaSheetInit(); }catch(e){} }
     var target = document.getElementById('sec-' + name);
     if (target) target.className = 'sec act';
     var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home'})[name] || name;
@@ -633,22 +635,25 @@ function buySpotify(planId){
     if(!PA('spotify', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
   var plans={spotify1m:{name:'Spotify اختصاصی یک‌ماهه',price:P('spotify','spotify1m','۱,۵۰۰,۰۰۰'),int:PO('spotify','spotify1m',1500000)}};
   var p=plans[planId]; if(!p) return;
+  window._SC=function(){ buySpotify(planId); };
+  var fin=discPrice('spotify', planId, p.int, p.price);
   var el=document.getElementById('musicBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
-  var h='<div class="st">🎧 '+p.name+' — '+p.price+' تومان</div>';
-  if(bal>=p.int){
+  var h='<div class="st">🎧 '+p.name+' — '+fin.price+' تومان</div>';
+  if(bal>=fin.int){
     h+='<div class="mi" onclick="paySpotifyWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
   } else {
     h+='<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
     h+='<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
   }
+  h+=discRow('spotify', planId, p.int, p.price);
   h+='<button class="bk" onclick="openMusic(\'spotify\')">← بازگشت</button>';
   el.innerHTML=h;
 }
 function paySpotifyWallet(planId){
   if(!UID){showToast('لطفاً از داخل تلگرام باز کنید');return;}
   showToast('⏳ در حال پردازش...');
-  fetch(API+'/api/buy_spotify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:UID,plan:planId,method:'wallet'})})
+  fetch(API+'/api/buy_spotify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({uid:UID,plan:planId,method:'wallet'}, discPayload()))})
   .then(function(r){return r.json();}).then(function(d){
     if(d.error){showToast('❌ '+d.error);return;}
     celebrate('سفارش ثبت شد!', function(){ restoreBlock('musicBrands','music'); loadUser(); showSection('home'); });
@@ -658,22 +663,25 @@ function buyDeezer(planId){
     if(!PA('deezer', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
   var plans={family:{name:'فمیلی',price:P('deezer','family','۱۵۰,۰۰۰'),int:PO('deezer','family',150000)},personal:{name:'شخصی',price:P('deezer','personal','۲۲۰,۰۰۰'),int:PO('deezer','personal',220000)}};
   var p=plans[planId]; if(!p) return;
+  window._SC=function(){ buyDeezer(planId); };
+  var fin=discPrice('deezer', planId, p.int, p.price);
   var el=document.getElementById('musicBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
-  var h='<div class="st">🎵 Deezer '+p.name+' — '+p.price+' تومان</div>';
-  if(bal>=p.int){
+  var h='<div class="st">🎵 Deezer '+p.name+' — '+fin.price+' تومان</div>';
+  if(bal>=fin.int){
     h+='<div class="mi" onclick="payDeezerWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
   } else {
     h+='<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
     h+='<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
   }
+  h+=discRow('deezer', planId, p.int, p.price);
   h+='<button class="bk" onclick="openMusic(\'deezer\')">← بازگشت</button>';
   el.innerHTML=h;
 }
 function payDeezerWallet(planId){
   if(!UID){showToast('لطفاً از داخل تلگرام باز کنید');return;}
   showToast('⏳ در حال پردازش...');
-  fetch(API+'/api/buy_deezer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:UID,plan:planId,method:'wallet'})})
+  fetch(API+'/api/buy_deezer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({uid:UID,plan:planId,method:'wallet'}, discPayload()))})
   .then(function(r){return r.json();}).then(function(d){
     if(d.error){showToast('❌ '+d.error);return;}
     celebrate('سفارش ثبت شد!', function(){ restoreBlock('musicBrands','music'); loadUser(); showSection('home'); });
@@ -715,6 +723,7 @@ function renderOrders(){
   el.innerHTML=h;
 }
 function celebrate(msg, cb){
+  if(typeof discReset === 'function') discReset();
   var ov=document.createElement('div');
   ov.id='celebOverlay';
   ov.style.cssText='position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,8,16,.94);backdrop-filter:blur(8px);opacity:0;transition:opacity .3s';
@@ -813,28 +822,79 @@ function buyAI(planId){
     if(!PA('ai', planId)){ showToast('این پلن موقتاً غیرفعال است'); return; }
   var plans={gemini18:{name:'جمنای یک‌ماهه',price:P('ai','gemini18','۵۰۰,۰۰۰'),int:PO('ai','gemini18',500000),brand:'gemini'},claudepro:{name:'Claude Pro یک‌ماهه',price:P('ai','claudepro','۶,۵۰۰,۰۰۰'),int:PO('ai','claudepro',6500000),brand:'claude'},gpt_go:{name:'ChatGPT Go یک‌ماهه',price:P('ai','gpt_go','۲,۵۵۰,۰۰۰'),int:PO('ai','gpt_go',2550000),brand:'chatgpt'},gpt_plus:{name:'ChatGPT پلاس آماده یک‌ماهه',price:P('ai','gpt_plus','۴,۷۰۰,۰۰۰'),int:PO('ai','gpt_plus',4700000),brand:'chatgpt'}};
   var p=plans[planId]; if(!p) return;
+  window._SC=function(){ buyAI(planId); };
+  var fin=discPrice('ai', planId, p.int, p.price);
   var el=document.getElementById('aiBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
-  var h='<div class="st">🤖 '+p.name+' — '+p.price+' تومان</div>';
-  if(bal>=p.int){
+  var h='<div class="st">🤖 '+p.name+' — '+fin.price+' تومان</div>';
+  if(bal>=fin.int){
     h+='<div class="mi" onclick="payAIWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
   } else {
     h+='<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
     h+='<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
   }
+  h+=discRow('ai', planId, p.int, p.price);
   h+='<button class="bk" onclick="openAI(\''+(p.brand||'gemini')+'\')">← بازگشت</button>';
   el.innerHTML=h;
 }
 function payAIWallet(planId){
   if(!UID){showToast('لطفاً از داخل تلگرام باز کنید');return;}
   showToast('⏳ در حال پردازش...');
-  fetch(API+'/api/buy_ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:UID,plan:planId,method:'wallet'})})
+  fetch(API+'/api/buy_ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({uid:UID,plan:planId,method:'wallet'}, discPayload()))})
   .then(function(r){return r.json();}).then(function(d){
     if(d.error){showToast('❌ '+d.error);return;}
     celebrate('سفارش ثبت شد!', function(){ restoreBlock('aiBrands','ai'); loadUser(); showSection('home'); });
   }).catch(function(){showToast('❌ خطا');});
 }
 
+
+// === DISCOUNT CODE (کد تخفیف قبل از پرداخت) ===
+var BUY = {code:'', plan:'', price:0, priceStr:''};
+function discReset(){ BUY = {code:'', plan:'', price:0, priceStr:''}; }
+function discPrice(kind, id, defInt, defStr){
+    var key = kind + ':' + id;
+    if(BUY.code && BUY.plan !== key) discReset();
+    if(BUY.code && typeof BUY.price === 'number') return {int: BUY.price, price: BUY.priceStr};
+    return {int: defInt, price: defStr};
+}
+function discRow(kind, id, defInt, defStr){
+    var fin = discPrice(kind, id, defInt, defStr);
+    if(BUY.code){
+        var save = Math.max(0, defInt - BUY.price);
+        return '<div class="mi" style="border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08)">'
+          + '<div class="ic">🎟️</div><div class="tx"><div class="ti">کد ' + BUY.code.toUpperCase() + ' اعمال شد</div>'
+          + '<div class="sb">' + fin.price + ' تومان' + (save > 0 ? ' <span style="color:#4ade80">(' + save.toLocaleString('fa-IR') + ' کمتر)</span>' : '') + '</div></div>'
+          + '<div class="aw" style="cursor:pointer" onclick="event.stopPropagation();discClear()">✕</div></div>';
+    }
+    return '<div class="mi" onclick="discToggle()"><div class="ic">➕</div><div class="tx"><div class="ti">کد تخفیف داری؟</div><div class="sb">اینجا بزن و کد رو وارد کن</div></div><div class="aw">+</div></div>'
+      + '<div id="discBox" style="display:none;margin:-4px 0 12px"><div style="display:flex;gap:6px">'
+      + '<input id="discInput" placeholder="کد تخفیف" autocapitalize="off" style="flex:1;min-width:0;box-sizing:border-box;padding:10px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;direction:ltr;text-align:left" onkeydown="if(event.key===\'Enter\'){event.preventDefault();discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ');}">'
+      + '<button class="bk" style="padding:8px 14px;cursor:pointer" onclick="discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ')">تایید</button>'
+      + '</div></div>';
+}
+function discToggle(){
+    var b = document.getElementById('discBox'); if(!b) return;
+    var show = b.style.display === 'none';
+    b.style.display = show ? 'block' : 'none';
+    if(show){ var i = document.getElementById('discInput'); if(i) i.focus(); }
+}
+function discClear(){ discReset(); if(typeof window._SC === 'function') window._SC(); }
+function discApply(kind, id, defInt){
+    var el = document.getElementById('discInput');
+    var code = ((el && el.value) || '').trim();
+    if(!code){ showToast('کد تخفیف رو وارد کنید'); return; }
+    showToast('⏳ بررسی کد...');
+    fetch(API + '/api/discount_preview', {method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({code:code, kind:kind, plan:id})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        BUY = {code:code, plan:kind + ':' + id, price:d.price_int, priceStr:d.price};
+        showToast('✅ کد اعمال شد: ' + d.price + ' تومان');
+        if(typeof window._SC === 'function') window._SC();
+    }).catch(function(){ showToast('❌ خطا در بررسی کد'); });
+}
+function discPayload(){ return BUY.code ? {code: BUY.code} : {}; }
 
 // === PLAN OVERRIDES (قیمت/فعال از سمت سرور — توسط پنل ادمین) ===
 var PLAN_OV = {};
@@ -1269,14 +1329,31 @@ function admSend(){
     var text = el.value.trim();
     if(!text){ showToast('متن پیام خالیه'); return; }
     var scope = document.getElementById('bcScope').value;
-    if(!confirm('پیام برای گیرنده‌ها ارسال بشه؟')) return;
-    showToast('⏳ در حال ارسال...');
+    var scopeTxt = scope === 'buyers' ? 'فقط خریداران' : 'همه کاربران';
+    if(!confirm('📢 پیش‌نمایش پیام:\n\n' + text + '\n\n─────────\nگیرنده: ' + scopeTxt + '\n\nارسال بشه؟')) return;
+    showToast('⏳ در حال شروع ارسال...');
     admFetch('/api/admin/broadcast', {method:'POST', body:JSON.stringify({text:text, scope:scope})})
     .then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
-        showToast('✅ ارسال شد: ' + d.sent + ' نفر' + (d.failed ? ' • خطا: ' + d.failed : ''));
         el.value = '';
+        showToast('🚀 ارسال شروع شد برای ' + d.targets + ' نفر');
+        admBcWatch();
     }).catch(function(){});
+}
+var _bcTimer = null;
+function admBcWatch(){
+    if(_bcTimer) clearInterval(_bcTimer);
+    var n = 0;
+    _bcTimer = setInterval(function(){
+        n++;
+        if(n > 60){ clearInterval(_bcTimer); _bcTimer = null; return; }
+        admFetch('/api/admin/broadcast/status').then(function(d){
+            if(d.running){ showToast('⏳ ' + d.sent + ' از ' + d.targets + ' ارسال شد'); return; }
+            clearInterval(_bcTimer); _bcTimer = null;
+            if(!d.targets) return;
+            showToast('✅ ارسال تمام شد: ' + d.sent + ' نفر' + (d.failed ? ' • خطا: ' + d.failed : ''));
+        }).catch(function(){});
+    }, 3000);
 }
 
 // === CHANNEL ===
@@ -1474,15 +1551,18 @@ function buyConfig(planId) {
     var names = {'10gb':'۱۰ گیگ','20gb':'۲۰ گیگ','50gb':'۵۰ گیگ','80gb':'۸۰ گیگ'};
     var prices = {'10gb':P('config','10gb','۱۲,۰۰۰'),'20gb':P('config','20gb','۳۰,۰۰۰'),'50gb':P('config','50gb','۷۰,۰۰۰'),'80gb':P('config','80gb','۱۱۰,۰۰۰')};
     var planPrice = {'10gb':PO('config','10gb',12000),'20gb':PO('config','20gb',30000),'50gb':PO('config','50gb',70000),'80gb':PO('config','80gb',110000)};
+    var fin = discPrice('config', planId, planPrice[planId], prices[planId]);
+    window._SC = function(){ buyConfig(planId); };
     var bal = (userData && userData.balance) || 0;
-    var canPay = bal >= (planPrice[planId] || 0);
-    var html = '<div class="st">📦 ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
+    var canPay = bal >= fin.int;
+    var html = '<div class="st">📦 ' + names[planId] + ' — ' + fin.price + ' تومان</div>';
     if (canPay) {
         html += '<div class="mi" onclick="payConfigWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
     } else {
         html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
         html += '<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
     }
+    html += discRow('config', planId, planPrice[planId], prices[planId]);
     html += '<button class="bk" onclick="restoreBlock(\'sec-config\')">← بازگشت</button>';
     var el = document.getElementById('sec-config');
     if (el) { if(!window._origBlocks)window._origBlocks={}; if(!window._origBlocks['sec-config'])window._origBlocks['sec-config']=el.innerHTML; el.innerHTML = html; }
@@ -1511,15 +1591,18 @@ function buyExpress(planId) {
     var names = {'1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','1y':'۱ ساله'};
     var prices = {'1m':P('express','1m','۲۲۰,۰۰۰'),'3m':P('express','3m','۳۳۰,۰۰۰'),'6m':P('express','6m','۴۹۰,۰۰۰'),'1y':P('express','1y','۹۵۰,۰۰۰')};
     var planPrice = {'1m':PO('express','1m',220000),'3m':PO('express','3m',330000),'6m':PO('express','6m',490000),'1y':PO('express','1y',950000)};
+    var fin = discPrice('express', planId, planPrice[planId], prices[planId]);
+    window._SC = function(){ buyExpress(planId); };
     var bal = (userData && userData.balance) || 0;
-    var canPay = bal >= (planPrice[planId] || 0);
-    var html = '<div class="st">⚡ ' + names[planId] + ' — ' + prices[planId] + ' تومان</div>';
+    var canPay = bal >= fin.int;
+    var html = '<div class="st">⚡ ' + names[planId] + ' — ' + fin.price + ' تومان</div>';
     if (canPay) {
         html += '<div class="mi" onclick="payExpressWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
     } else {
         html += '<div class="gl" style="padding:16px;margin-bottom:14px;text-align:center"><p style="color:var(--dim);font-size:13px">💰 موجودی کافی نیست!</p></div>';
         html += '<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">شارژ کیف پول</div><div class="sb">از طریق ربات موجودی اضافه کنید</div></div><div class="aw">‹</div></div>';
     }
+    html += discRow('express', planId, planPrice[planId], prices[planId]);
     html += '<button class="bk" onclick="restoreBlock(\'sec-express\')">← بازگشت</button>';
     var el = document.getElementById('sec-express');
     if (el) { if(!window._origBlocks)window._origBlocks={}; if(!window._origBlocks['sec-express'])window._origBlocks['sec-express']=el.innerHTML; el.innerHTML = html; }
@@ -1531,7 +1614,7 @@ function payExpressWallet(planId) {
     fetch(API + '/api/buy_express', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({uid: UID, plan: planId, method: 'wallet'})
+        body: JSON.stringify(Object.assign({uid: UID, plan: planId, method: 'wallet'}, discPayload()))
     }).then(function(r) { return r.json(); }).then(function(d) {
         if (d.error) { showToast('❌ ' + d.error); return; }
         celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); });
@@ -1551,7 +1634,7 @@ document.getElementById('nameSubmit').addEventListener('click', function() {
     fetch(API + apiPath, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({uid: UID, plan: planId, method: 'wallet'})
+        body: JSON.stringify(Object.assign({uid: UID, plan: planId, method: 'wallet'}, discPayload()))
     }).then(function(r) { return r.json(); }).then(function(d) {
         if (d.error) { showToast('❌ ' + d.error); return; }
         return fetch(API + '/api/buy_config_name', {
@@ -1606,6 +1689,7 @@ window.addEventListener('load', function() {
     fetchStatus();
     startBanner();
     try { startGtaTimer(); } catch(e) {}
+    try { gtaSheetInit(); } catch(e) {}
     (function(){
         var els=document.querySelectorAll('.gl, .pln, .mi');
         for(var i=0;i<els.length;i++) els[i].classList.add('reveal');
@@ -1622,13 +1706,22 @@ window.addEventListener('load', function() {
 
 
 
+function gtaSheetInit(){
+    var box = document.getElementById('gtaDiscBox'); if(!box) return;
+    var di = PO('special','gta',12000000), ds = P('special','gta','۱۲,۰۰۰,۰۰۰');
+    var fin = discPrice('special','gta', di, ds);
+    var pr = document.getElementById('gtaPrice');
+    if(pr) pr.textContent = fin.price + ' تومان';
+    window._SC = gtaSheetInit;
+    box.innerHTML = discRow('special','gta', di, ds);
+}
 function buyGta() {
     if (!UID) { showToast('لطفاً از داخل تلگرام باز کنید'); return; }
     showToast('🛒 در حال ثبت سفارش...');
     fetch(API + '/api/buy_gta', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({uid: UID})
+        body: JSON.stringify(Object.assign({uid: UID}, discPayload()))
     }).then(function(r) { return r.json(); }).then(function(d) {
         if (d.error) { showToast('❌ ' + d.error); return; }
         if (d.ok) {
