@@ -278,7 +278,21 @@ def _plan_days(kind, key):
     if kind == "express": return EXPRESS_PLANS.get(key, {}).get("days", 30)
     if kind == "ai": return AI_PLANS.get(key, {}).get("days", 30)
     if kind == "music": return SPOTIFY_PLANS.get(key, {}).get("days", 30)
+    if kind == "spotify": return SPOTIFY_PLANS.get(key, {}).get("days", 30)
+    if kind == "config": return CONFIG_PLANS.get(key, {}).get("days", 30)
+    if kind == "deezer": return DEEZER_PLANS.get(key, {}).get("days", 30)
+    if kind == "special": return 0   # GTA یک‌بار مصرفه — انقضا نداره
     return 30
+
+def _order_expiry(it):
+    """تاریخ انقضای سفارش: لحظه تحویل (یا خرید) + روزهای پلن"""
+    if not isinstance(it, dict): return 0
+    try:
+        base = int(it.get("delivered_ts") or it.get("ts") or 0)
+        days = int(it.get("days") or _plan_days(it.get("kind", ""), it.get("plan", "")) or 0)
+        return (base + days * 86400) if (base and days) else 0
+    except Exception:
+        return 0
 def add_order(uid, kind, plan_key, plan_name, price):
     o = load_orders(); lst = o.setdefault(str(uid), [])
     lst.append({"id": int(time.time()), "kind": kind, "plan": plan_key, "name": plan_name, "price": price, "status": "pending", "ts": int(time.time())})
@@ -979,6 +993,28 @@ def _orders_with_heal(uid):
     except Exception:
         return load_orders().get(str(uid), [])[-15:]
 
+def _orders_with_expiry(uid):
+    """سفارش‌ها + تاریخ انقضای هرکدام (برای نمایش در پنل کاربری)"""
+    lst = _orders_with_heal(uid)
+    for it in lst:
+        if isinstance(it, dict):
+            it["expires"] = _order_expiry(it)
+    return lst
+
+def _cfgs_with_expiry(uid):
+    """لینک‌های اشتراک کاربر + انقضای سفارش مربوطه (تطبیق از روی لینک)"""
+    try:
+        cfgs = [dict(c) for c in (load_configs().get(uid, []) or [])]
+    except Exception:
+        return []
+    by_link = {}
+    for it in (_orders_with_heal(uid) or []):
+        if isinstance(it, dict) and it.get("link"):
+            by_link[str(it.get("link"))] = _order_expiry(it)
+    for c in cfgs:
+        c["expires"] = by_link.get(str(c.get("link") or ""), 0)
+    return cfgs
+
 async def api_user(request):
     uid = request.match_info["uid"]
     is_member = False
@@ -994,12 +1030,12 @@ async def api_user(request):
         "balance": get_balance(uid),
         "referral_count": get_referral_count(int(uid)),
         "free_done": has_free_sub(int(uid)),
-        "configs": load_configs().get(uid, []),
+        "configs": _cfgs_with_expiry(uid),
         "history": load_wallet().get(uid, {}).get("history", [])[-10:],
         "card_number": CARD_NUMBER, "card_name": CARD_NAME,
         "referral_target": REFERRAL_TARGET, "bot_username": "Diazpshopbot",
         "is_member": is_member,
-        "orders": _orders_with_heal(uid),
+        "orders": _orders_with_expiry(uid),
     })
 
 async def api_sub_status(request):
@@ -1398,6 +1434,25 @@ async def admin_users(request):
     users.sort(key=lambda x: -x["orders"])
     return web.json_response({"users": users})
 
+async def admin_expiry_scan(request):
+    """اجرای دستی اسکن انقضا + گزارش سفارش‌های نزدیک به انقضا"""
+    err = _denied(request)
+    if err: return err
+    now = int(time.time()); near = []
+    o = load_orders()
+    for uid, lst in o.items():
+        if not str(uid).isdigit() or not isinstance(lst, list): continue
+        for it in lst:
+            if not isinstance(it, dict) or it.get("status") != "sent": continue
+            exp = _order_expiry(it)
+            if not exp: continue
+            left = exp - now
+            if left <= 0: continue
+            if left <= 86400 and not it.get("reminded"):
+                near.append({"uid": uid, "name": it.get("name", ""), "hours": int(left // 3600)})
+    sent_n = _expiry_reminder_scan()
+    return web.json_response({"ok": True, "reminded_now": sent_n, "near": near[:50], "near_count": len(near)})
+
 async def admin_admins_list(request):
     err = _denied(request)
     if err: return err
@@ -1601,6 +1656,7 @@ def create_web_app():
     app.router.add_get("/api/admin/plans", admin_plans)
     app.router.add_post("/api/admin/plan", admin_plan_save)
     app.router.add_get("/api/admin/admins", admin_admins_list)
+    app.router.add_post("/api/admin/expiry_scan", admin_expiry_scan)
     app.router.add_post("/api/admin/admin_save", admin_admin_save)
     app.router.add_get("/api/admin/subs", admin_subs)
     app.router.add_post("/api/admin/sub", admin_sub_action)
@@ -1904,6 +1960,52 @@ def _pending_items():
     items.sort(key=lambda x: -x.get("ts", 0))
     return items
 
+def _expiry_reminder_scan():
+    """یک پیام به هر کاربری که اشتراکش تا ۲۴ ساعت آینده تموم میشه — فقط یک بار"""
+    now = int(time.time()); changed = False; sent_n = 0
+    o = load_orders()
+    for uid, lst in list(o.items()):
+        if not str(uid).isdigit() or not isinstance(lst, list): continue
+        for it in lst:
+            if not isinstance(it, dict) or it.get("status") != "sent": continue
+            if it.get("reminded"): continue
+            exp = _order_expiry(it)
+            if not exp: continue
+            left = exp - now
+            if left <= 0 or left > 86400: continue
+            hours = max(1, int(left // 3600))
+            txt = (f"⏳ **اشتراک داره تموم میشه!**\n\n"
+                   f"📦 {it.get('name', '')}\n"
+                   f"⏰ حدود **{hours} ساعت** دیگه انقضا\n"
+                   f"\nاز 👤 پنل کاربری مینی‌اپ تمدیدش کن تا قطع نشه.")
+            ok = False
+            try:
+                import httpx as _hx
+                _r = _hx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                              json={"chat_id": int(uid), "text": txt, "parse_mode": "Markdown"},
+                              timeout=15)
+                ok = bool(_r.json().get("ok"))
+            except Exception as e:
+                logger.warning(f"expiry reminder send failed ({uid}): {e}")
+            it["remind_try"] = int(it.get("remind_try", 0)) + 1
+            if ok or it["remind_try"] >= 3:
+                it["reminded"] = now; changed = True
+            if ok: sent_n += 1
+            logger.info(f"expiry reminder uid={uid} plan={it.get('name','')} ok={ok} try={it['remind_try']}")
+    if changed:
+        save_orders(o)
+    return sent_n
+
+def _expiry_reminder_loop():
+    """هر ۵ دقیقه اسکن انقضا — از استارت ربات شروع میشه"""
+    time.sleep(90)
+    while True:
+        try:
+            _expiry_reminder_scan()
+        except Exception as e:
+            logger.warning(f"expiry scan: {e}")
+        time.sleep(300)
+
 def _tg_send(uid, text):
     def _fire():
         try:
@@ -2093,6 +2195,7 @@ def main():
         loop.run_forever()
 
     threading.Thread(target=run_web, daemon=True).start()
+    threading.Thread(target=_expiry_reminder_loop, daemon=True).start()
 
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))

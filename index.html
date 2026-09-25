@@ -699,7 +699,7 @@ function renderOrders(){
   var el=document.getElementById('uOrders'); if(!el) return;
   var orders=(userData&&userData.orders)||[];
   if(!orders.length){ el.innerHTML='<div class="gl" style="padding:18px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📭 هنوز سفارشی ثبت نکرده‌اید</p><button class="bk" style="margin-top:10px;justify-content:center" onclick="showSection(\'vpn\')">🚀 اولین سفارشت رو بگیر</button></div>'; return; }
-  var kindIcons={config:'📦',express:'⚡',deezer:'🎵',ai:'🤖',gta:'🎮'};
+  var kindIcons={config:'📦',express:'⚡',deezer:'🎵',music:'🎧',ai:'🤖',special:'🎮',gta:'🎮'};
   var h='<div class="gl" style="padding:16px;margin-bottom:14px"><div class="st">📋 سفارش‌های من</div>';
   var list=orders.slice().reverse();
   for(var i=0;i<list.length;i++){
@@ -715,6 +715,11 @@ function renderOrders(){
       var pct=Math.max(0,Math.min(100,(left/o.days)*100));
       var col=left>o.days*0.5?'#4ade80':(left>o.days*0.25?'#fbbf24':'#f87171');
       h+='<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><div style="flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden"><div style="height:100%;width:'+pct.toFixed(1)+'%;border-radius:4px;background:'+col+';transition:width .6s;box-shadow:0 0 6px '+col+'"></div></div><span style="font-size:10.5px;color:'+col+';font-weight:700;white-space:nowrap">'+Math.max(0,Math.ceil(left))+' روز</span></div>';
+    }
+    if(sent&&o.expires){
+      var _od=new Date(o.expires*1000).toLocaleDateString('fa-IR',{year:'numeric',month:'long',day:'numeric'});
+      var _ol=o.expires-Date.now()/1000;
+      h+='<div style="font-size:11.5px;margin-top:5px;font-weight:700;color:'+(_ol>0?'#4ade80':'#f87171')+'">📅 انقضا: '+_od+(_ol>0?' — '+Math.ceil(_ol/86400)+' روز مانده':' — منقضی شده')+'</div>';
     }
     if(sent&&o.link) h+='<div style="font-size:11px;color:var(--dim);margin-top:6px;word-break:break-all">🔗 '+o.link+'</div>';
     h+='</div>';
@@ -1557,6 +1562,12 @@ function renderUser() {
             h += '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
             h += '<div style="font-size:13px;font-weight:600">' + (c.type || '') + ' — ' + (c.data || '') + '</div>';
             if (c.link) h += '<div style="font-size:11px;color:var(--red);word-break:break-all;margin-top:4px;font-family:monospace;direction:ltr;text-align:left">' + c.link + '</div>';
+            if (c.expires) {
+                var _nowS = Date.now() / 1000;
+                var _ed = new Date(c.expires * 1000).toLocaleDateString('fa-IR', {year:'numeric', month:'long', day:'numeric'});
+                if (c.expires <= _nowS) h += '<div style="font-size:11.5px;color:#f87171;margin-top:5px;font-weight:700">🔴 منقضی شده — تمدید کن</div>';
+                else h += '<div style="font-size:11.5px;color:#4ade80;margin-top:5px;font-weight:700">⏰ انقضا: ' + _ed + ' — ' + Math.ceil((c.expires - _nowS) / 86400) + ' روز مانده</div>';
+            }
             h += '</div>';
         }
         h += '</div>';
