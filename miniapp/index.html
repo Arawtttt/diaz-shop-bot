@@ -929,15 +929,28 @@ function PLN(kind,id,def){ var o=_cat(kind,id); return (o && o.name) ? o.name : 
 function escH(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function CATS(kind){
     var out=[], k=PLAN_OV[kind]||{};
-    for(var id in k){ var o=k[id]; if(o && o.custom && o.name) out.push({id:id,name:o.name,price:(o.price!=null&&o.price!=='')?o.price:String(o.price_int||0),brand:o.brand||''}); }
+    for(var id in k){ var o=k[id]; if(o && o.custom && o.name) out.push({id:id,name:o.name,price:(o.price!=null&&o.price!=='')?o.price:String(o.price_int||0),brand:o.brand||'',icon:o.icon||''}); }
     return out;
+}
+// لوگو: لینک عکس → <img>، وگرنه ایموجی/متن خام
+function iconHTML(ic, mode){
+    ic = String(ic||'').trim(); if(!ic) return '';
+    var isUrl = /^(https?:)?\/\//i.test(ic) || /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(ic);
+    if(isUrl){
+        var st = (mode==='box')
+            ? 'width:100%;height:100%;object-fit:contain;padding:5px;box-sizing:border-box'
+            : 'max-height:38px;max-width:78%;object-fit:contain';
+        return '<img src="' + escH(ic) + '" alt="" loading="lazy" style="' + st + '">';
+    }
+    if(mode==='box') return escH(ic);
+    return '<span style="font-size:26px;line-height:1">' + escH(ic) + '</span>';
 }
 function extraRows(kind, fn, brand){
     var list=CATS(kind), out='';
     for(var i=0;i<list.length;i++){
         var it=list[i];
         if(brand && (it.brand||'gemini')!==brand) continue;
-        out += '<div class="mi" onclick="' + fn + '(\'' + it.id + '\')"><div class="ic">✨</div><div class="tx"><div class="ti">' + escH(it.name) + '</div><div class="sb">' + escH(it.price) + ' تومان</div></div><div class="aw">‹</div></div>';
+        out += '<div class="mi" onclick="' + fn + '(\'' + it.id + '\')"><div class="ic">' + (iconHTML(it.icon, 'box') || '✨') + '</div><div class="tx"><div class="ti">' + escH(it.name) + '</div><div class="sb">' + escH(it.price) + ' تومان</div></div><div class="aw">‹</div></div>';
     }
     return out;
 }
@@ -1250,13 +1263,13 @@ function admPlans(){
         var kindNames = {config:'📦 کانفیگ VPN', express:'⚡ ExpressVPN', deezer:'🎵 Deezer', ai:'🤖 هوش مصنوعی', spotify:'🎧 Spotify', special:'🎮 ویژه/بازی'};
         var inp = 'box-sizing:border-box;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px';
         var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">📦 مدیریت پلن‌ها</div>';
-        h += '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">قیمت = تومان. با فرم پایین هر دسته می‌تونی آیتم جدید اضافه کنی؛ بلافاصله توی مینی‌اپ هم ظاهر می‌شه.</div>';
+        h += '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">قیمت = تومان. لوگو: لینک عکس (png/svg/jpg) یا ایموجی. با فرم پایین هر دسته می‌تونی آیتم جدید اضافه کنی؛ بلافاصله توی مینی‌اپ هم ظاهر می‌شه.</div>';
         for(var kind in plans){
             h += '<div style="font-size:12px;color:var(--gold);margin:14px 0 4px;font-weight:700">' + (kindNames[kind] || kind) + '</div>';
             var list = plans[kind] || [];
             for(var i=0;i<list.length;i++){
                 var p = list[i];
-                h += '<div style="display:flex;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+                h += '<div style="display:flex;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap">'
                   + '<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700' + (p.active ? '' : ';color:var(--dim)') + '">' + escH(p.name) + (p.custom ? ' <span style="font-size:9px;color:#4ade80">جدید</span>' : '') + '</div>'
                   + '<div style="font-size:10.5px;color:var(--dim)">' + Number(p.price_int).toLocaleString('fa-IR') + ' تومان' + (p.days ? ' • ' + p.days + ' روز' : '') + (p.active ? '' : ' • غیرفعال') + (p.out ? ' • اتمام موجودی' : '') + '</div></div>'
                   + '<input id="pf_' + kind + '_' + p.key + '" type="number" inputmode="numeric" placeholder="' + p.price_int + '" style="width:86px;' + inp + '">'
@@ -1264,7 +1277,9 @@ function admPlans(){
                   + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="اتمام موجودی" onclick="admOutPlan(\'' + kind + '\',\'' + p.key + '\',' + (p.out ? 'false' : 'true') + ')">' + (p.out ? '✅' : '📦') + '</button>'
                   + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="فعال/غیرفعال" onclick="admTogglePlan(\'' + kind + '\',\'' + p.key + '\',' + (p.active ? 'false' : 'true') + ')">' + (p.active ? '⛔' : '✅') + '</button>'
                   + (p.custom ? '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="حذف آیتم" onclick="admDelPlan(\'' + kind + '\',\'' + p.key + '\')">🗑</button>' : '')
-                  + '</div>';
+                  + '<div style="flex:1 1 100%;display:flex;gap:6px;align-items:center;margin-top:6px">'
+                  + '<input id="pic_' + kind + '_' + p.key + '" placeholder="لوگو: لینک عکس یا ایموجی" value="' + escH(p.icon || '') + '" data-old="' + escH(p.icon || '') + '" style="flex:1;min-width:0;' + inp + '">'
+                  + '<span style="font-size:10px;color:var(--dim)">لوگو</span></div>' + '</div>';
             }
             h += '<div style="display:flex;gap:6px;align-items:center;padding:9px 0;flex-wrap:wrap;border-bottom:1px dashed rgba(255,255,255,.12)">'
               + '<input id="ni_' + kind + '" placeholder="اسم آیتم جدید" style="flex:1;min-width:96px;' + inp + '">'
@@ -1272,6 +1287,7 @@ function admPlans(){
               + '<input id="nd_' + kind + '" type="number" inputmode="numeric" placeholder="روز" style="width:56px;' + inp + '">'
               + (kind === 'config' ? '<input id="ng_' + kind + '" type="number" inputmode="numeric" placeholder="گیگ" style="width:56px;' + inp + '">' : '')
               + (kind === 'ai' ? '<input id="nb_' + kind + '" placeholder="برند" value="gemini" style="width:78px;' + inp + '">' : '')
+              + '<input id="nv_' + kind + '" placeholder="لوگو: لینک عکس یا ایموجی" style="flex:1;min-width:110px;' + inp + '">'
               + '<button class="bk" style="padding:8px 11px;font-size:11px;cursor:pointer" onclick="admAddPlan(\'' + kind + '\')">➕ افزودن</button></div>';
         }
         h += '</div>';
@@ -1286,6 +1302,9 @@ function admAddPlan(kind){
     var pi = el ? parseInt(String(el.value).replace(/[^0-9]/g,''),10) : NaN;
     if(isNaN(pi) || pi < 0){ showToast('قیمت رو وارد کن (تومان)'); return; }
     var body = {kind:kind, name:nm, price_int:pi};
+    var ico = document.getElementById('nv_'+kind);
+    var icoV = ico ? String(ico.value || '').trim().slice(0,300) : '';
+    if(icoV) body.icon = icoV;
     var de = document.getElementById('nd_'+kind);
     var dv = de ? parseInt(de.value,10) : NaN;
     if(!isNaN(dv) && dv >= 0) body.days = dv;
@@ -1321,12 +1340,20 @@ function _planOvRefresh(){
 }
 function admSavePlan(kind, key){
     var el = document.getElementById('pf_' + kind + '_' + key);
+    var icoEl = document.getElementById('pic_' + kind + '_' + key);
     var v = el ? parseInt(el.value, 10) : NaN;
-    if(!v || isNaN(v) || v < 0){ showToast('قیمت جدید رو وارد کنید'); return; }
-    admFetch('/api/admin/plan', {method:'POST', body:JSON.stringify({kind:kind, key:key, price_int:v})})
+    var hasPrice = !isNaN(v) && v >= 0;
+    var icon = icoEl ? String(icoEl.value || '').trim().slice(0,300) : '';
+    var iconChanged = !!icoEl && icon !== String(icoEl.dataset.old || '');
+    if(!hasPrice && !iconChanged){ showToast('قیمت یا لوگو رو وارد کنید'); return; }
+    if(el && el.value !== '' && !hasPrice){ showToast('قیمت نامعتبر'); return; }
+    var body = {kind:kind, key:key};
+    if(hasPrice) body.price_int = v;
+    if(iconChanged) body.icon = icon;
+    admFetch('/api/admin/plan', {method:'POST', body:JSON.stringify(body)})
     .then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
-        showToast('✅ قیمت ذخیره شد'); admPlans(); _planOvRefresh();
+        showToast('✅ ذخیره شد'); admPlans(); _planOvRefresh();
     }).catch(function(){});
 }
 function admOutPlan(kind, key, val){
@@ -1487,8 +1514,8 @@ function renderPlans() {
         {id:'1y',name:'۱ ساله',price:P('express','1y','۹۵۰,۰۰۰')}
     ];
     var _x;
-    _x = CATS('config'); for(var ci=0;ci<_x.length;ci++) cfgPlans.push({id:_x[ci].id,name:_x[ci].name,price:P('config',_x[ci].id,_x[ci].price)});
-    _x = CATS('express'); for(var ei=0;ei<_x.length;ei++) exPlans.push({id:_x[ei].id,name:_x[ei].name,price:P('express',_x[ei].id,_x[ei].price)});
+    _x = CATS('config'); for(var ci=0;ci<_x.length;ci++) cfgPlans.push({id:_x[ci].id,name:_x[ci].name,icon:_x[ci].icon,price:P('config',_x[ci].id,_x[ci].price)});
+    _x = CATS('express'); for(var ei=0;ei<_x.length;ei++) exPlans.push({id:_x[ei].id,name:_x[ei].name,icon:_x[ei].icon,price:P('express',_x[ei].id,_x[ei].price)});
     var cp = document.getElementById('cfgPlans');
     if (cp) {
         cp.innerHTML = '';
@@ -1497,7 +1524,7 @@ function renderPlans() {
             var d = document.createElement('div');
             d.className = 'pln';
             d.setAttribute('data-plan', p.id);
-            d.innerHTML = '<div class="pn">' + p.name + '</div><div class="pp">' + p.price + ' <small>تومان</small></div>';
+            d.innerHTML = (p.icon ? '<div style="height:38px;display:flex;align-items:center;justify-content:center;margin-bottom:6px">' + iconHTML(p.icon,'card') + '</div>' : '') + '<div class="pn">' + escH(p.name) + '</div><div class="pp">' + p.price + ' <small>تومان</small></div>';
             d.onclick = function() { buyConfig(this.getAttribute('data-plan')); };
             cp.appendChild(d);
         }
@@ -1510,7 +1537,7 @@ function renderPlans() {
             var d2 = document.createElement('div');
             d2.className = (q.id === '1m') ? 'pln best' : 'pln';
             d2.setAttribute('data-plan', q.id);
-            d2.innerHTML = '<div class="pn">' + q.name + '</div><div class="pp">' + q.price + ' <small>تومان</small></div>';
+            d2.innerHTML = (q.icon ? '<div style="height:38px;display:flex;align-items:center;justify-content:center;margin-bottom:6px">' + iconHTML(q.icon,'card') + '</div>' : '') + '<div class="pn">' + escH(q.name) + '</div><div class="pp">' + q.price + ' <small>تومان</small></div>';
             d2.onclick = function() { buyExpress(this.getAttribute('data-plan')); };
             ep.appendChild(d2);
         }

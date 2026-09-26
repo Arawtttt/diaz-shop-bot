@@ -1780,6 +1780,10 @@ def apply_plan_overrides():
                 t["price"] = _fa(pi)
             t["active"] = bool(o.get("active", True))
             t["out"] = bool(o.get("out"))
+            if "icon" in o:
+                ic = str(o.get("icon") or "").strip()[:300]
+                if ic: t["icon"] = ic
+                else: t.pop("icon", None)
             n += 1
     logger.info(f"plan overrides applied: {n}")
 
@@ -1790,7 +1794,7 @@ def _plan_state(kind, key):
     return {"key": key, "name": t.get("name", key), "price": t.get("price", ""),
             "price_int": t.get("price_int", 0), "active": t.get("active", True),
             "out": bool(t.get("out")), "custom": bool(t.get("custom")),
-            "days": t.get("days"), "brand": t.get("brand")}
+            "days": t.get("days"), "brand": t.get("brand"), "icon": t.get("icon")}
 
 async def api_plans(request):
     """عمومی — مینی‌اپ قیمت/فعال بودن پلن‌ها رو از همین‌جا می‌گیره"""
@@ -1799,7 +1803,7 @@ async def api_plans(request):
         out[kind] = {k: {"price": v.get("price", ""), "price_int": v.get("price_int", 0),
                          "active": v.get("active", True), "out": bool(v.get("out")),
                          "name": v.get("name", k), "custom": bool(v.get("custom")),
-                         "days": v.get("days"), "brand": v.get("brand")}
+                         "days": v.get("days"), "brand": v.get("brand"), "icon": v.get("icon")}
                      for k, v in table.items()}
     return web.json_response(out)
 
@@ -1831,6 +1835,8 @@ async def admin_plan_save(request):
         if p < 0:
             return web.json_response({"error": "قیمت نامعتبر"}, status=400)
         cur["price_int"] = p
+    if "icon" in data:
+        cur["icon"] = str(data.get("icon") or "").strip()[:300]
     if data.get("name") is not None:
         nm = str(data.get("name") or "").strip()[:60]
         if not nm:
@@ -1875,6 +1881,9 @@ async def admin_plan_add(request):
         if data.get(f) not in (None, ""):
             try: entry[f] = max(0, int(data.get(f)))
             except Exception: return web.json_response({"error": f"{f} نامعتبر است"}, status=400)
+    if "icon" in data:
+        ic = str(data.get("icon") or "").strip()[:300]
+        if ic: entry["icon"] = ic
     for f in ("data", "duration", "brand"):
         v = str(data.get(f) or "").strip()[:30]
         if v: entry[f] = v
