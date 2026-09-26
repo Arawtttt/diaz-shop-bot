@@ -6,6 +6,11 @@ referrals.json
 pending_state.json
 express_accounts.json
 discounts.json
+admins.json
+users.json
+receipts.json
+custom_plans.json
+plan_overrides.json
 
 __pycache__/
 *.pyc

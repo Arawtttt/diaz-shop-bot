@@ -620,6 +620,7 @@ function openMusic(brand){
   if(brand==='spotify'){
     var h='<div class="st">🎧 Spotify Premium — اشتراک یک‌ماهه</div>';
     h+='<div class="mi" onclick="buySpotify(\'spotify1m\')"><div class="ic">🎧</div><div class="tx"><div class="ti">اختصاصی • نامحدود</div><div class="sb">' + P('spotify','spotify1m','۱,۵۰۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+    h+=extraRows('spotify','buySpotify');
     h+='<button class="bk" onclick="restoreBlock(\'musicBrands\',\'music\')">← بازگشت</button>';
     el.innerHTML=h;
     return;
@@ -627,13 +628,16 @@ function openMusic(brand){
   var h='<div class="st">🎵 Deezer — اشتراک یک‌ماهه</div>';
   h+='<div class="mi" onclick="buyDeezer(\'family\')"><div class="ic">👨‍👩‍👧</div><div class="tx"><div class="ti">فمیلی</div><div class="sb">' + P('deezer','family','۱۵۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
   h+='<div class="mi" onclick="buyDeezer(\'personal\')"><div class="ic">👤</div><div class="tx"><div class="ti">شخصی</div><div class="sb">' + P('deezer','personal','۲۲۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
+  h+=extraRows('deezer','buyDeezer');
   h+='<button class="bk" onclick="restoreBlock(\'musicBrands\',\'music\')">← بازگشت</button>';
   el.innerHTML=h;
 }
 function buySpotify(planId){
     if(!PA('spotify', planId)){ showToast(PMSG('spotify', planId)); return; }
   var plans={spotify1m:{name:'Spotify اختصاصی یک‌ماهه',price:P('spotify','spotify1m','۱,۵۰۰,۰۰۰'),int:PO('spotify','spotify1m',1500000)}};
-  var p=plans[planId]; if(!p) return;
+  var p=plans[planId];
+  if(!p){ var _o=_cat('spotify',planId); if(_o) p={name:_o.name||planId, price:P('spotify',planId,''), int:PO('spotify',planId,_o.price_int||0)}; }
+  if(!p) return;
   window._SC=function(){ buySpotify(planId); };
   var fin=discPrice('spotify', planId, p.int, p.price);
   var el=document.getElementById('musicBrands'); if(!el) return;
@@ -661,7 +665,9 @@ function paySpotifyWallet(planId){
 function buyDeezer(planId){
     if(!PA('deezer', planId)){ showToast(PMSG('deezer', planId)); return; }
   var plans={family:{name:'فمیلی',price:P('deezer','family','۱۵۰,۰۰۰'),int:PO('deezer','family',150000)},personal:{name:'شخصی',price:P('deezer','personal','۲۲۰,۰۰۰'),int:PO('deezer','personal',220000)}};
-  var p=plans[planId]; if(!p) return;
+  var p=plans[planId];
+  if(!p){ var _o=_cat('deezer',planId); if(_o) p={name:_o.name||planId, price:P('deezer',planId,''), int:PO('deezer',planId,_o.price_int||0)}; }
+  if(!p) return;
   window._SC=function(){ buyDeezer(planId); };
   var fin=discPrice('deezer', planId, p.int, p.price);
   var el=document.getElementById('musicBrands'); if(!el) return;
@@ -811,13 +817,16 @@ function openAI(brand){
     h='<div class="st">🤖 Gemini — اشتراک یک‌ماهه</div>';
     h+='<div class="mi" onclick="buyAI(\'gemini18\')"><div class="ic">✨</div><div class="tx"><div class="ti">جمنای یک‌ماهه</div><div class="sb">' + P('ai','gemini18','۵۰۰,۰۰۰') + ' تومان — یک ماهه</div></div><div class="aw">‹</div></div>';
   }
+  h+=extraRows('ai','buyAI',brand);
   h+='<button class="bk" onclick="restoreBlock(\'aiBrands\',\'ai\')">← بازگشت</button>';
   el.innerHTML=h;
 }
 function buyAI(planId){
     if(!PA('ai', planId)){ showToast(PMSG('ai', planId)); return; }
   var plans={gemini18:{name:'جمنای یک‌ماهه',price:P('ai','gemini18','۵۰۰,۰۰۰'),int:PO('ai','gemini18',500000),brand:'gemini'},claudepro:{name:'Claude Pro یک‌ماهه',price:P('ai','claudepro','۶,۵۰۰,۰۰۰'),int:PO('ai','claudepro',6500000),brand:'claude'},gpt_go:{name:'ChatGPT Go یک‌ماهه',price:P('ai','gpt_go','۲,۵۵۰,۰۰۰'),int:PO('ai','gpt_go',2550000),brand:'chatgpt'},gpt_plus:{name:'ChatGPT پلاس آماده یک‌ماهه',price:P('ai','gpt_plus','۴,۷۰۰,۰۰۰'),int:PO('ai','gpt_plus',4700000),brand:'chatgpt'}};
-  var p=plans[planId]; if(!p) return;
+  var p=plans[planId];
+  if(!p){ var _o=_cat('ai',planId); if(_o) p={name:_o.name||planId, price:P('ai',planId,''), int:PO('ai',planId,_o.price_int||0), brand:(_o.brand||'gemini')}; }
+  if(!p) return;
   window._SC=function(){ buyAI(planId); };
   var fin=discPrice('ai', planId, p.int, p.price);
   var el=document.getElementById('aiBrands'); if(!el) return;
@@ -913,6 +922,24 @@ function applyStaticPrices(){
         var b = document.querySelector('.banslide.bs-ai i');
         if(b) b.textContent = 'فقط ' + P('ai','gemini18','۵۰۰,۰۰۰') + ' تومان — اشتراک یک‌ماهه';
     }catch(e){}
+}
+// === CUSTOM ITEM CATALOG (آیتم‌های ساخته‌شده از پنل ادمین) ===
+function _cat(kind,id){ return (PLAN_OV[kind] && PLAN_OV[kind][id]) || null; }
+function PLN(kind,id,def){ var o=_cat(kind,id); return (o && o.name) ? o.name : def; }
+function escH(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function CATS(kind){
+    var out=[], k=PLAN_OV[kind]||{};
+    for(var id in k){ var o=k[id]; if(o && o.custom && o.name) out.push({id:id,name:o.name,price:(o.price!=null&&o.price!=='')?o.price:String(o.price_int||0),brand:o.brand||''}); }
+    return out;
+}
+function extraRows(kind, fn, brand){
+    var list=CATS(kind), out='';
+    for(var i=0;i<list.length;i++){
+        var it=list[i];
+        if(brand && (it.brand||'gemini')!==brand) continue;
+        out += '<div class="mi" onclick="' + fn + '(\'' + it.id + '\')"><div class="ic">✨</div><div class="tx"><div class="ti">' + escH(it.name) + '</div><div class="sb">' + escH(it.price) + ' تومان</div></div><div class="aw">‹</div></div>';
+    }
+    return out;
 }
 function loadPlanOverrides(){
     try{
@@ -1220,27 +1247,73 @@ function admReq(key, action, inputId){
 function admPlans(){
     admFetch('/api/admin/plans').then(function(d){
         var plans = d.plans || {};
-        var kindNames = {config:'📦 کانفیگ VPN', express:'⚡ ExpressVPN', deezer:'🎵 Deezer', ai:'🤖 هوش مصنوعی', spotify:'🎧 Spotify'};
+        var kindNames = {config:'📦 کانفیگ VPN', express:'⚡ ExpressVPN', deezer:'🎵 Deezer', ai:'🤖 هوش مصنوعی', spotify:'🎧 Spotify', special:'🎮 ویژه/بازی'};
         var inp = 'box-sizing:border-box;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px';
         var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">📦 مدیریت پلن‌ها</div>';
-        h += '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">قیمت = تومان. بعد از ذخیره، مبلغ خرید از همون لحظه عوض می‌شود.</div>';
+        h += '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">قیمت = تومان. با فرم پایین هر دسته می‌تونی آیتم جدید اضافه کنی؛ بلافاصله توی مینی‌اپ هم ظاهر می‌شه.</div>';
         for(var kind in plans){
             h += '<div style="font-size:12px;color:var(--gold);margin:14px 0 4px;font-weight:700">' + (kindNames[kind] || kind) + '</div>';
             var list = plans[kind] || [];
             for(var i=0;i<list.length;i++){
                 var p = list[i];
                 h += '<div style="display:flex;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
-                  + '<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700' + (p.active ? '' : ';color:var(--dim)') + '">' + p.name + '</div>'
-                  + '<div style="font-size:10.5px;color:var(--dim)">' + Number(p.price_int).toLocaleString('fa-IR') + ' تومان' + (p.active ? '' : ' • غیرفعال') + (p.out ? ' • اتمام موجودی' : '') + '</div></div>'
-                  + '<input id="pf_' + kind + '_' + p.key + '" type="number" inputmode="numeric" placeholder="' + p.price_int + '" style="width:94px;' + inp + '">'
+                  + '<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700' + (p.active ? '' : ';color:var(--dim)') + '">' + escH(p.name) + (p.custom ? ' <span style="font-size:9px;color:#4ade80">جدید</span>' : '') + '</div>'
+                  + '<div style="font-size:10.5px;color:var(--dim)">' + Number(p.price_int).toLocaleString('fa-IR') + ' تومان' + (p.days ? ' • ' + p.days + ' روز' : '') + (p.active ? '' : ' • غیرفعال') + (p.out ? ' • اتمام موجودی' : '') + '</div></div>'
+                  + '<input id="pf_' + kind + '_' + p.key + '" type="number" inputmode="numeric" placeholder="' + p.price_int + '" style="width:86px;' + inp + '">'
                   + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="ذخیره قیمت" onclick="admSavePlan(\'' + kind + '\',\'' + p.key + '\')">💾</button>'
                   + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="اتمام موجودی" onclick="admOutPlan(\'' + kind + '\',\'' + p.key + '\',' + (p.out ? 'false' : 'true') + ')">' + (p.out ? '✅' : '📦') + '</button>'
-                  + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="فعال/غیرفعال" onclick="admTogglePlan(\'' + kind + '\',\'' + p.key + '\',' + (p.active ? 'false' : 'true') + ')">' + (p.active ? '⛔' : '✅') + '</button></div>';
+                  + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="فعال/غیرفعال" onclick="admTogglePlan(\'' + kind + '\',\'' + p.key + '\',' + (p.active ? 'false' : 'true') + ')">' + (p.active ? '⛔' : '✅') + '</button>'
+                  + (p.custom ? '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="حذف آیتم" onclick="admDelPlan(\'' + kind + '\',\'' + p.key + '\')">🗑</button>' : '')
+                  + '</div>';
             }
+            h += '<div style="display:flex;gap:6px;align-items:center;padding:9px 0;flex-wrap:wrap;border-bottom:1px dashed rgba(255,255,255,.12)">'
+              + '<input id="ni_' + kind + '" placeholder="اسم آیتم جدید" style="flex:1;min-width:96px;' + inp + '">'
+              + '<input id="np_' + kind + '" type="number" inputmode="numeric" placeholder="قیمت" style="width:86px;' + inp + '">'
+              + '<input id="nd_' + kind + '" type="number" inputmode="numeric" placeholder="روز" style="width:56px;' + inp + '">'
+              + (kind === 'config' ? '<input id="ng_' + kind + '" type="number" inputmode="numeric" placeholder="گیگ" style="width:56px;' + inp + '">' : '')
+              + (kind === 'ai' ? '<input id="nb_' + kind + '" placeholder="برند" value="gemini" style="width:78px;' + inp + '">' : '')
+              + '<button class="bk" style="padding:8px 11px;font-size:11px;cursor:pointer" onclick="admAddPlan(\'' + kind + '\')">➕ افزودن</button></div>';
         }
         h += '</div>';
         var b = admBox(); if(b) b.innerHTML = h;
     }).catch(function(){});
+}
+function admAddPlan(kind){
+    var nm = (document.getElementById('ni_'+kind)||{}).value || '';
+    nm = String(nm).trim().slice(0,60);
+    if(!nm){ showToast('اسم آیتم رو وارد کن'); return; }
+    var el = document.getElementById('np_'+kind);
+    var pi = el ? parseInt(String(el.value).replace(/[^0-9]/g,''),10) : NaN;
+    if(isNaN(pi) || pi < 0){ showToast('قیمت رو وارد کن (تومان)'); return; }
+    var body = {kind:kind, name:nm, price_int:pi};
+    var de = document.getElementById('nd_'+kind);
+    var dv = de ? parseInt(de.value,10) : NaN;
+    if(!isNaN(dv) && dv >= 0) body.days = dv;
+    if(kind === 'config'){
+        var ge = document.getElementById('ng_'+kind);
+        var gv = ge ? parseInt(ge.value,10) : NaN;
+        if(!isNaN(gv) && gv > 0){ body.limit_gb = gv; body.data = gv + 'GB'; }
+    }
+    if(kind === 'ai'){
+        var be = document.getElementById('nb_'+kind);
+        var bv = be ? String(be.value).trim().toLowerCase() : '';
+        if(bv) body.brand = bv;
+    }
+    admFetch('/api/admin/plan_add', {method:'POST', body:JSON.stringify(body)})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ آیتم اضافه شد');
+        admPlans(); _planOvRefresh();
+    }).catch(function(){ showToast('❌ خطا در اتصال'); });
+}
+function admDelPlan(kind, key){
+    if(!confirm('این آیتم حذف شود؟')) return;
+    admFetch('/api/admin/plan_del', {method:'POST', body:JSON.stringify({kind:kind, key:key})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('🗑 آیتم حذف شد');
+        admPlans(); _planOvRefresh();
+    }).catch(function(){ showToast('❌ خطا در اتصال'); });
 }
 function _planOvRefresh(){
     try{ sessionStorage.removeItem('planOv'); }catch(e){}
@@ -1413,6 +1486,9 @@ function renderPlans() {
         {id:'6m',name:'۶ ماهه',price:P('express','6m','۴۹۰,۰۰۰')},
         {id:'1y',name:'۱ ساله',price:P('express','1y','۹۵۰,۰۰۰')}
     ];
+    var _x;
+    _x = CATS('config'); for(var ci=0;ci<_x.length;ci++) cfgPlans.push({id:_x[ci].id,name:_x[ci].name,price:P('config',_x[ci].id,_x[ci].price)});
+    _x = CATS('express'); for(var ei=0;ei<_x.length;ei++) exPlans.push({id:_x[ei].id,name:_x[ei].name,price:P('express',_x[ei].id,_x[ei].price)});
     var cp = document.getElementById('cfgPlans');
     if (cp) {
         cp.innerHTML = '';
@@ -1574,6 +1650,7 @@ function buyConfig(planId) {
     var names = {'10gb':'۱۰ گیگ','20gb':'۲۰ گیگ','50gb':'۵۰ گیگ','80gb':'۸۰ گیگ'};
     var prices = {'10gb':P('config','10gb','۱۲,۰۰۰'),'20gb':P('config','20gb','۳۰,۰۰۰'),'50gb':P('config','50gb','۷۰,۰۰۰'),'80gb':P('config','80gb','۱۱۰,۰۰۰')};
     var planPrice = {'10gb':PO('config','10gb',12000),'20gb':PO('config','20gb',30000),'50gb':PO('config','50gb',70000),'80gb':PO('config','80gb',110000)};
+    if(!names[planId]){ names[planId]=PLN('config',planId,planId); prices[planId]=P('config',planId,''); planPrice[planId]=PO('config',planId,0); }
     var fin = discPrice('config', planId, planPrice[planId], prices[planId]);
     window._SC = function(){ buyConfig(planId); };
     var bal = (userData && userData.balance) || 0;
@@ -1614,6 +1691,7 @@ function buyExpress(planId) {
     var names = {'1m':'۱ ماهه','3m':'۳ ماهه','6m':'۶ ماهه','1y':'۱ ساله'};
     var prices = {'1m':P('express','1m','۲۲۰,۰۰۰'),'3m':P('express','3m','۳۳۰,۰۰۰'),'6m':P('express','6m','۴۹۰,۰۰۰'),'1y':P('express','1y','۹۵۰,۰۰۰')};
     var planPrice = {'1m':PO('express','1m',220000),'3m':PO('express','3m',330000),'6m':PO('express','6m',490000),'1y':PO('express','1y',950000)};
+    if(!names[planId]){ names[planId]=PLN('express',planId,planId); prices[planId]=P('express',planId,''); planPrice[planId]=PO('express',planId,0); }
     var fin = discPrice('express', planId, planPrice[planId], prices[planId]);
     window._SC = function(){ buyExpress(planId); };
     var bal = (userData && userData.balance) || 0;

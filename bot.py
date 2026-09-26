@@ -143,7 +143,7 @@ _KV_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko)
 def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
             ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
-            PLAN_OVERRIDES_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE]
+            PLAN_OVERRIDES_FILE, CUSTOM_PLANS_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -1674,6 +1674,8 @@ def create_web_app():
     app.router.add_get("/api/plans", api_plans)
     app.router.add_get("/api/admin/plans", admin_plans)
     app.router.add_post("/api/admin/plan", admin_plan_save)
+    app.router.add_post("/api/admin/plan_add", admin_plan_add)
+    app.router.add_post("/api/admin/plan_del", admin_plan_del)
     app.router.add_get("/api/admin/admins", admin_admins_list)
     app.router.add_post("/api/admin/expiry_scan", admin_expiry_scan)
     app.router.add_post("/api/admin/admin_save", admin_admin_save)
@@ -1696,6 +1698,44 @@ RECEIPTS_FILE = "receipts.json"
 
 def load_plan_overrides(): return _load(PLAN_OVERRIDES_FILE)
 def save_plan_overrides(d): _save(PLAN_OVERRIDES_FILE, d)
+CUSTOM_PLANS_FILE = "custom_plans.json"
+
+def load_custom_plans(): return _load(CUSTOM_PLANS_FILE)
+def save_custom_plans(d): _save(CUSTOM_PLANS_FILE, d)
+
+_CUSTOM_ADDED = set()   # (kind, key) که از استور سفارشی تزریق شده
+
+def apply_custom_plans():
+    """آیتم‌های سفارشی ادمین رو داخل جدول‌های زنده می‌شینونه؛ حذف‌شده‌ها رو جمع می‌کنه."""
+    store = load_custom_plans()
+    if not isinstance(store, dict): store = {}
+    for (kind, key) in list(_CUSTOM_ADDED):
+        table = PLAN_KINDS.get(kind)
+        if table is None: continue
+        if key not in (store.get(kind) or {}):
+            table.pop(key, None)
+            _CUSTOM_ADDED.discard((kind, key))
+    n = 0
+    for kind, items in store.items():
+        table = PLAN_KINDS.get(kind)
+        if not isinstance(table, dict) or not isinstance(items, dict): continue
+        for key, o in items.items():
+            if not isinstance(o, dict): continue
+            try: pi = max(0, int(o.get("price_int") or 0))
+            except Exception: pi = 0
+            d = {"name": str(o.get("name") or key), "price_int": pi,
+                 "price": _fa(pi), "custom": True}
+            if o.get("days") is not None:
+                try: d["days"] = int(o.get("days"))
+                except Exception: pass
+            for f in ("data", "duration", "limit_gb", "brand", "icon"):
+                v = o.get(f)
+                if v not in (None, ""): d[f] = v
+            table[key] = d
+            _CUSTOM_ADDED.add((kind, key))
+            n += 1
+    if n: logger.info(f"custom plans applied: {n}")
+    return n
 def load_receipts(): return _load(RECEIPTS_FILE)
 def save_receipts(d): _save(RECEIPTS_FILE, d)
 
@@ -1723,6 +1763,10 @@ def _plan_block(plan):
     return None
 
 def apply_plan_overrides():
+    try:
+        apply_custom_plans()   # اول آیتم‌های سفارشی، بعد قیمت/وضعیت روی همون‌ها
+    except Exception as e:
+        logger.warning(f"custom plans error: {e}")
     ov = load_plan_overrides()
     n = 0
     for kind, table in PLAN_KINDS.items():
@@ -1745,14 +1789,17 @@ def _plan_state(kind, key):
         return None
     return {"key": key, "name": t.get("name", key), "price": t.get("price", ""),
             "price_int": t.get("price_int", 0), "active": t.get("active", True),
-            "out": bool(t.get("out"))}
+            "out": bool(t.get("out")), "custom": bool(t.get("custom")),
+            "days": t.get("days"), "brand": t.get("brand")}
 
 async def api_plans(request):
     """عمومی — مینی‌اپ قیمت/فعال بودن پلن‌ها رو از همین‌جا می‌گیره"""
     out = {}
     for kind, table in PLAN_KINDS.items():
         out[kind] = {k: {"price": v.get("price", ""), "price_int": v.get("price_int", 0),
-                         "active": v.get("active", True), "out": bool(v.get("out"))}
+                         "active": v.get("active", True), "out": bool(v.get("out")),
+                         "name": v.get("name", k), "custom": bool(v.get("custom")),
+                         "days": v.get("days"), "brand": v.get("brand")}
                      for k, v in table.items()}
     return web.json_response(out)
 
@@ -1784,10 +1831,82 @@ async def admin_plan_save(request):
         if p < 0:
             return web.json_response({"error": "قیمت نامعتبر"}, status=400)
         cur["price_int"] = p
+    if data.get("name") is not None:
+        nm = str(data.get("name") or "").strip()[:60]
+        if not nm:
+            return web.json_response({"error": "اسم خالی است"}, status=400)
+        cst = load_custom_plans()
+        if key in (cst.get(kind) or {}):
+            cst[kind][key]["name"] = nm
+            save_custom_plans(cst)
     slot[key] = cur
     save_plan_overrides(ov)
     apply_plan_overrides()
     return web.json_response({"ok": True, "plan": _plan_state(kind, key)})
+
+async def admin_plan_add(request):
+    """افزودن آیتم/پلن جدید از پنل ادمین"""
+    err = _denied(request)
+    if err: return err
+    try:
+        data = await request.json()
+    except Exception:
+        return web.json_response({"error": "bad request"}, status=400)
+    kind = str(data.get("kind", ""))
+    if kind not in PLAN_KINDS:
+        return web.json_response({"error": "دسته‌بندی نامعتبر است"}, status=400)
+    name = str(data.get("name") or "").strip()[:60]
+    if not name:
+        return web.json_response({"error": "اسم آیتم را وارد کنید"}, status=400)
+    try:
+        pi = int(data.get("price_int"))
+    except Exception:
+        return web.json_response({"error": "قیمت نامعتبر است"}, status=400)
+    if pi < 0:
+        return web.json_response({"error": "قیمت نامعتبر است"}, status=400)
+    store = load_custom_plans()
+    if not isinstance(store, dict): store = {}
+    slot = store.setdefault(kind, {})
+    key = "c" + _secrets.token_hex(3)
+    while key in PLAN_KINDS[kind] or key in slot:
+        key = "c" + _secrets.token_hex(3)
+    entry = {"name": name, "price_int": pi, "ts": int(time.time())}
+    for f in ("days", "limit_gb"):
+        if data.get(f) not in (None, ""):
+            try: entry[f] = max(0, int(data.get(f)))
+            except Exception: return web.json_response({"error": f"{f} نامعتبر است"}, status=400)
+    for f in ("data", "duration", "brand"):
+        v = str(data.get(f) or "").strip()[:30]
+        if v: entry[f] = v
+    slot[key] = entry
+    save_custom_plans(store)
+    apply_plan_overrides()
+    return web.json_response({"ok": True, "key": key, "plan": _plan_state(kind, key)})
+
+async def admin_plan_del(request):
+    """حذف آیتم ساخته‌شده توسط ادمین (پلن‌های پیش‌فرض فقط غیرفعال می‌شوند)"""
+    err = _denied(request)
+    if err: return err
+    try:
+        data = await request.json()
+    except Exception:
+        return web.json_response({"error": "bad request"}, status=400)
+    kind = str(data.get("kind", "")); key = str(data.get("key", ""))
+    if kind not in PLAN_KINDS:
+        return web.json_response({"error": "دسته‌بندی نامعتبر است"}, status=400)
+    store = load_custom_plans()
+    if key not in (store.get(kind) or {}):
+        return web.json_response({"error": "فقط آیتم‌های ساخته‌شده از پنل حذف می‌شوند"}, status=404)
+    del store[kind][key]
+    if not store.get(kind): store.pop(kind, None)
+    save_custom_plans(store)
+    ov = load_plan_overrides()
+    if key in (ov.get(kind) or {}):
+        ov.get(kind, {}).pop(key, None)
+        if not ov.get(kind): ov.pop(kind, None)
+        save_plan_overrides(ov)
+    apply_plan_overrides()
+    return web.json_response({"ok": True, "key": key})
 
 # ─── Discount preview (مینی‌اپ قبل از پرداخت) ──────────────────────────
 async def discount_preview(request):
