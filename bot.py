@@ -327,6 +327,9 @@ def add_balance(uid, amount):
     save_wallet(w)
 
 def spend_balance(uid, amount):
+    amount = int(amount or 0)
+    if amount <= 0:
+        return True  # کد تخفیف ۱۰۰٪ → مبلغ صفر، بدون نیاز به موجودی
     w = load_wallet(); k = str(uid)
     if k not in w or w[k]["balance"] < amount: return False
     w[k]["balance"] -= amount
@@ -1079,11 +1082,12 @@ async def api_buy_config(request):
     _blk = _plan_block(plan)
     if _blk:
         return web.json_response({"error": _blk}, status=400)
-    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    try: plan = _apply_code(plan, data.get("code"), uid, method, consume=(method != "wallet"))
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
-            return web.json_response({"error": "insufficient balance"})
+            return web.json_response({"error": "موجودی کافی نیست"}, status=400)
+        _code_consume(data.get("code"))
         p = load_pending(); p[uid] = {"waiting": True, "type": "config_wallet_name", "plan": plan_id, "plan_data": plan}; save_pending(p)
         _notify_admin(f"📦 **سفارش کانفیگ (مینی\u200cاپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n📝 منتظر اسم کاربر...")
         return web.json_response({"ok": True, "action": "need_name"})
@@ -1133,11 +1137,12 @@ async def api_buy_express(request):
     _blk = _plan_block(plan)
     if _blk:
         return web.json_response({"error": _blk}, status=400)
-    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    try: plan = _apply_code(plan, data.get("code"), uid, method, consume=(method != "wallet"))
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
-            return web.json_response({"error": "insufficient balance"})
+            return web.json_response({"error": "موجودی کافی نیست"}, status=400)
+        _code_consume(data.get("code"))
         p = load_pending()
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}
         save_pending(p)
@@ -1159,10 +1164,11 @@ async def api_buy_gta(request):
     _blk = _plan_block(plan)
     if _blk:
         return web.json_response({"error": _blk}, status=400)
-    try: plan = _apply_code(plan, data.get("code"), uid, "wallet")
+    try: plan = _apply_code(plan, data.get("code"), uid, "wallet", consume=False)
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if not spend_balance(int(uid), plan["price_int"]):
-        return web.json_response({"error": "موجودی کافی نیست"})
+        return web.json_response({"error": "موجودی کافی نیست"}, status=400)
+    _code_consume(data.get("code"))
     p = load_pending()
     p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_gta", "user_id": uid, "plan": plan["name"]}
     save_pending(p)
@@ -1179,11 +1185,12 @@ async def api_buy_deezer(request):
     _blk = _plan_block(plan)
     if _blk:
         return web.json_response({"error": _blk}, status=400)
-    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    try: plan = _apply_code(plan, data.get("code"), uid, method, consume=(method != "wallet"))
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
-            return web.json_response({"error": "insufficient balance"})
+            return web.json_response({"error": "موجودی کافی نیست"}, status=400)
+        _code_consume(data.get("code"))
         p = load_pending()
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_deezer", "user_id": uid, "plan": plan["name"]}
         save_pending(p)
@@ -1201,11 +1208,12 @@ async def api_buy_spotify(request):
     _blk = _plan_block(plan)
     if _blk:
         return web.json_response({"error": _blk}, status=400)
-    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    try: plan = _apply_code(plan, data.get("code"), uid, method, consume=(method != "wallet"))
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
-            return web.json_response({"error": "insufficient balance"})
+            return web.json_response({"error": "موجودی کافی نیست"}, status=400)
+        _code_consume(data.get("code"))
         p = load_pending()
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_spotify", "user_id": uid, "plan": plan["name"]}
         save_pending(p)
@@ -1223,11 +1231,12 @@ async def api_buy_ai(request):
     _blk = _plan_block(plan)
     if _blk:
         return web.json_response({"error": _blk}, status=400)
-    try: plan = _apply_code(plan, data.get("code"), uid, method)
+    try: plan = _apply_code(plan, data.get("code"), uid, method, consume=(method != "wallet"))
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
         if not spend_balance(int(uid), plan["price_int"]):
-            return web.json_response({"error": "insufficient balance"})
+            return web.json_response({"error": "موجودی کافی نیست"}, status=400)
+        _code_consume(data.get("code"))
         p = load_pending()
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_ai", "user_id": uid, "plan": plan["name"]}
         save_pending(p)
@@ -1347,8 +1356,17 @@ def _denied(request):
     if _admin_token_ok(request.headers.get("X-Admin-Token", "")): return None
     return web.json_response({"error": "unauthorized"}, status=401)
 
-def _apply_code(plan, code, uid=None, method="wallet"):
-    """نسخه‌ تخفیف‌خوردهٔ پلن. کد نامعتبر → ValueError. مصرف کد فقط بعد از اطمینان از موجودی ثبت می‌شود."""
+def _code_consume(code):
+    """ثبت مصرف کد تخفیف — فقط بعد از پرداخت موفق."""
+    code = (code or "").strip().lower()
+    if not code: return
+    ds = load_discounts(); d = ds.get(code)
+    if not d: return
+    d["used"] = int(d.get("used", 0)) + 1
+    ds[code] = d; save_discounts(ds)
+
+def _apply_code(plan, code, uid=None, method="wallet", consume=True):
+    """نسخه‌ تخفیف‌خوردهٔ پلن. کد نامعتبر → ValueError. مصرف کد فقط بعد از پرداخت موفق ثبت می‌شود."""
     code = (code or "").strip().lower()
     if not code: return plan
     ds = load_discounts(); d = ds.get(code)
@@ -1360,8 +1378,8 @@ def _apply_code(plan, code, uid=None, method="wallet"):
     final = max(0, price - off)
     if method == "wallet" and uid is not None and get_balance(int(uid)) < final:
         raise ValueError("موجودی کافی نیست")
-    d["used"] = int(d.get("used", 0)) + 1
-    ds[code] = d; save_discounts(ds)
+    if consume:
+        _code_consume(code)
     out = dict(plan); out["price_int"] = final; out["price"] = _fa(final); out["discount"] = code
     return out
 
