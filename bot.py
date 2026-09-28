@@ -70,33 +70,37 @@ async def bpb_create_user(name: str, limit_gb: int, days: int) -> dict:
         return {"sub": sub_link, "page": page_link, "configs": raw.strip()}
 
 CONFIG_PLANS = {
-    "10gb": {"name": "۱۰ گیگ", "price": "۱۲,۰۰۰", "data": "10GB", "duration": "۱ ماه", "price_int": 12000, "limit_gb": 10, "days": 30},
-    "20gb": {"name": "۲۰ گیگ", "price": "۳۰,۰۰۰", "data": "20GB", "duration": "۱ ماه", "price_int": 30000, "limit_gb": 20, "days": 30},
-    "50gb": {"name": "۵۰ گیگ", "price": "۷۰,۰۰۰", "data": "50GB", "duration": "۱ ماه", "price_int": 70000, "limit_gb": 50, "days": 30},
-    "80gb": {"name": "۸۰ گیگ", "price": "۱۱۰,۰۰۰", "data": "80GB", "duration": "۱ ماه", "price_int": 110000, "limit_gb": 80, "days": 30},
+    "10gb": {"name": "۱۰ گیگ", "price": "۱۰,۰۰۰", "data": "10GB", "duration": "۱ ماه", "price_int": 10000, "old_price_int": 12000, "limit_gb": 10, "days": 30},
+    "20gb": {"name": "۲۰ گیگ", "price": "۲۶,۰۰۰", "data": "20GB", "duration": "۱ ماه", "price_int": 26000, "old_price_int": 30000, "limit_gb": 20, "days": 30},
+    "50gb": {"name": "۵۰ گیگ", "price": "۶۲,۰۰۰", "data": "50GB", "duration": "۱ ماه", "price_int": 62000, "old_price_int": 70000, "limit_gb": 50, "days": 30},
+    "80gb": {"name": "۸۰ گیگ", "price": "۹۸,۰۰۰", "data": "80GB", "duration": "۱ ماه", "price_int": 98000, "old_price_int": 110000, "limit_gb": 80, "days": 30},
 }
 
 EXPRESS_PLANS = {
-    "1m": {"name": "۱ ماهه", "price": "۲۲۰,۰۰۰", "price_int": 220000, "days": 30},
-    "3m": {"name": "۳ ماهه", "price": "۳۳۰,۰۰۰", "price_int": 330000, "days": 90},
-    "6m": {"name": "۶ ماهه", "price": "۴۹۰,۰۰۰", "price_int": 490000, "days": 180},
-    "1y": {"name": "۱ ساله", "price": "۹۵۰,۰۰۰", "price_int": 950000, "days": 365},
+    "1m": {"name": "۱ ماهه", "price": "۱۹۰,۰۰۰", "price_int": 190000, "old_price_int": 220000, "days": 30},
+    "3m": {"name": "۳ ماهه", "price": "۳۰۰,۰۰۰", "price_int": 300000, "old_price_int": 330000, "days": 90},
+    "6m": {"name": "۶ ماهه", "price": "۴۶۰,۰۰۰", "price_int": 460000, "old_price_int": 490000, "days": 180},
+    "1y": {"name": "۱ ساله", "price": "۹۰۰,۰۰۰", "price_int": 900000, "old_price_int": 950000, "days": 365},
 }
 
 DEEZER_PLANS = {
-    "family": {"name": "فمیلی یک‌ماهه", "price": "۱۵۰,۰۰۰", "price_int": 150000},
-    "personal": {"name": "شخصی یک‌ماهه", "price": "۲۲۰,۰۰۰", "price_int": 220000},
+    "family": {"name": "فمیلی یک‌ماهه", "price": "۱۳۵,۰۰۰", "price_int": 135000, "old_price_int": 150000},
+    "personal": {"name": "شخصی یک‌ماهه", "price": "۲۰۰,۰۰۰", "price_int": 200000, "old_price_int": 220000},
 }
 
 AI_PLANS = {
-    "gemini18": {"name": "جمنای یک‌ماهه", "price": "۵۰۰,۰۰۰", "price_int": 500000, "days": 30},
-    "claudepro": {"name": "Claude Pro یک‌ماهه", "price": "۶,۵۰۰,۰۰۰", "price_int": 6500000, "days": 30},
-    "gpt_go": {"name": "ChatGPT Go یک‌ماهه", "price": "۲,۵۵۰,۰۰۰", "price_int": 2550000, "days": 30},
-    "gpt_plus": {"name": "ChatGPT پلاس آماده یک‌ماهه", "price": "۴,۷۰۰,۰۰۰", "price_int": 4700000, "days": 30},
+    "gemini18": {"name": "جمنای یک‌ماهه", "price": "۴۵۰,۰۰۰", "price_int": 450000, "old_price_int": 500000, "days": 30, "brand": "gemini"},
+    "gemini18m": {"name": "جمنای ۱۸ ماهه پرو • نامحدود", "price": "۲,۵۵۰,۰۰۰", "price_int": 2550000, "old_price_int": 2800000, "days": 548, "brand": "gemini"},
+    "gemfam3m": {"name": "جمنای پرو فمیلی • نامحدود — ۳ ماهه", "price": "۹۰۰,۰۰۰", "price_int": 900000, "old_price_int": 1200000, "days": 90, "brand": "gemini"},
+    "gemfam6m": {"name": "جمنای پرو فمیلی • نامحدود — ۶ ماهه", "price": "۱,۵۵۰,۰۰۰", "price_int": 1550000, "old_price_int": 1800000, "days": 180, "brand": "gemini"},
+    "gemfam1y": {"name": "جمنای پرو فمیلی • نامحدود — ۱ ساله", "price": "۲,۲۰۰,۰۰۰", "price_int": 2200000, "old_price_int": 2500000, "days": 365, "brand": "gemini"},
+    "claudepro": {"name": "Claude Pro یک‌ماهه", "price": "۵,۸۵۰,۰۰۰", "price_int": 5850000, "old_price_int": 6500000, "days": 30},
+    "gpt_go": {"name": "ChatGPT Go یک‌ماهه", "price": "۲,۳۰۰,۰۰۰", "price_int": 2300000, "old_price_int": 2550000, "days": 30},
+    "gpt_plus": {"name": "ChatGPT پلاس آماده یک‌ماهه", "price": "۴,۲۵۰,۰۰۰", "price_int": 4250000, "old_price_int": 4700000, "days": 30},
 }
 
 SPOTIFY_PLANS = {
-    "spotify1m": {"name": "Spotify اختصاصی یک‌ماهه (نامحدود)", "price": "۱,۵۰۰,۰۰۰", "price_int": 1500000, "days": 30},
+    "spotify1m": {"name": "Spotify اختصاصی یک‌ماهه (نامحدود)", "price": "۱,۳۵۰,۰۰۰", "price_int": 1350000, "old_price_int": 1500000, "days": 30},
 }
 
 SPECIAL_PLANS = {
@@ -140,10 +144,222 @@ _KV_UNKNOWN = set()   # keys whose boot read failed — empty pushes blocked
 _KV_ENABLED = bool(BPB_ORIGIN and BPB_SECURE_PATH and BPB_PASSWORD)
 _KV_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Mobile Safari/537.36"
 
+
+# ─── نوت بازگشایی فروشگاه (اطلاعیهٔ روی صفحه) ──────────────
+ANNOUNCE_FILE = "announcement.json"
+DEFAULT_ANNOUNCE = {
+    "enabled": True,
+    "title": "🎉 به مناسب بازگشایی فروشگاه",
+    "text": "رو همهٔ محصولات تخفیف ویژه زدیم 🔥\nتا پایان شمارش معکوس فرصت داری!",
+    "sale_end": "2026-10-06T23:59:00+03:30",
+}
+
+def load_announce():
+    d = _load(ANNOUNCE_FILE)
+    if not isinstance(d, dict): d = {}
+    out = dict(DEFAULT_ANNOUNCE); out.update(d)
+    return out
+
+def save_announce(d): _save(ANNOUNCE_FILE, d)
+
+# ─── تیکت پشتیبانی (جایگزین آیدی شخصی ادمین) ────────────────
+TICKETS_FILE = "tickets.json"
+
+def load_tickets():
+    d = _load(TICKETS_FILE)
+    return d if isinstance(d, dict) else {}
+
+def save_tickets(d): _save(TICKETS_FILE, d)
+
+def create_ticket(uid, user, text, source="bot"):
+    ts = load_tickets()
+    tid = str(max([int(k) for k in ts.keys() if str(k).isdigit()] + [0]) + 1)
+    ts[tid] = {"uid": str(uid),
+               "name": (getattr(user, "first_name", "") or "") if user is not None else "",
+               "uname": (getattr(user, "username", "") or "") if user is not None else "",
+               "text": (text or "")[:1000], "ts": int(time.time()),
+               "status": "open", "reply": "", "reply_ts": 0, "source": source}
+    save_tickets(ts)
+    return tid
+
+def _ticket_reply(tid, uid, reply):
+    ts = load_tickets(); t = ts.get(str(tid))
+    if not isinstance(t, dict): return False
+    t["status"] = "answered"; t["reply"] = (reply or "")[:2000]; t["reply_ts"] = int(time.time())
+    ts[str(tid)] = t; save_tickets(ts)
+    return True
+
+def notify_admins_ticket(tid):
+    """اعلام تیکت جدید به ادمین‌های تلگرام (با دکمهٔ «پاسخ») — توی thread تا لوپ رو نبنده."""
+    t = load_tickets().get(str(tid))
+    if not isinstance(t, dict): return 0
+    uid = str(t.get("uid", ""))
+    nm = t.get("name") or "کاربر"; un = t.get("uname") or ""
+    src = "مینی‌اپ" if t.get("source") == "app" else "ربات"
+    txt = (f"🎫 تیکت پشتیبانی #{tid}\n\n"
+           f"👤 {nm} — {uid}" + (f" @{un}" if un else "") +
+           f"\n📌 {src}\n\n💬 {t.get('text', '')}")
+    kb = None
+    try:
+        kb = InlineKeyboardMarkup([[InlineKeyboardButton("✉️ پاسخ", callback_data=f"ticket_reply_{tid}")]]).to_dict()
+    except Exception:
+        kb = None
+
+    def _fire():
+        for a in admin_uids():
+            if str(a) == uid: continue
+            try:
+                payload = {"chat_id": int(a), "text": txt}
+                if kb: payload["reply_markup"] = kb
+                httpx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload, timeout=12)
+            except Exception as e:
+                logger.error(f"ticket notify {a}: {e}")
+
+    threading.Thread(target=_fire, daemon=True).start()
+    return 1
+
+async def ticket_new(update, context):
+    q = update.callback_query
+    try: await q.answer()
+    except Exception: pass
+    uid = str(q.from_user.id)
+    p = load_pending(); p[uid] = {"waiting": True, "type": "ticket"}; save_pending(p)
+    kb = InlineKeyboardMarkup([[InlineKeyboardButton("🚨 انصراف", callback_data="ticket_cancel")],
+                               [InlineKeyboardButton("🏠 منوی اصلی", callback_data="back_main")]])
+    msg = ("🎫 ثبت تیکت پشتیبانی\n\n"
+           "متن مشکل یا سوالت رو همین‌جا بفرست تا ثبت بشه و جوابش بیاد 👇 ✌️")
+    try:
+        await q.edit_message_text(msg, reply_markup=kb)
+    except Exception:
+        try:
+            if q.message: await q.message.reply_text(msg, reply_markup=kb)
+        except Exception: pass
+
+async def ticket_cancel(update, context):
+    q = update.callback_query
+    uid = str(q.from_user.id)
+    p = load_pending(); st = p.get(uid)
+    if st and st.get("type") == "ticket":
+        del p[uid]; save_pending(p)
+    try: await q.answer("انصراف شد")
+    except Exception: pass
+    try: await q.edit_message_text("❌ ثبت تیکت لغو شد.")
+    except Exception: pass
+
+async def ticket_reply_cb(update, context):
+    q = update.callback_query
+    uid = str(q.from_user.id)
+    if not _is_admin(uid):
+        try: await q.answer("فقط ادمین ❌", show_alert=True)
+        except Exception: pass
+        return
+    tid = str(q.data).split("_")[-1]
+    t = load_tickets().get(tid)
+    if not isinstance(t, dict):
+        try: await q.answer("تیکت پیدا نشد", show_alert=True)
+        except Exception: pass
+        return
+    try: await q.answer()
+    except Exception: pass
+    p = load_pending()
+    p[uid] = {"waiting_admin": True, "type": "ticket_reply", "tid": tid, "user_id": str(t.get("uid", ""))}
+    save_pending(p)
+    body = (t.get("text", "") or "")[:400]
+    await q.edit_message_text(
+        f"✍️ پاسخ تیکت #{tid} رو بفرست:\n\n"
+        f"💬 {t.get('name', 'کاربر')} ({t.get('uid', '')}):\n{body}")
+
+# ─── endpoint های نوت و تیکت ──────────────────────────────
+async def api_announcement(request):
+    try:
+        return web.json_response(load_announce())
+    except Exception as e:
+        logger.error(f"announcement: {e}")
+        return web.json_response({"enabled": False})
+
+async def admin_announcement_save(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    a = load_announce()
+    if "enabled" in data: a["enabled"] = bool(data.get("enabled"))
+    if data.get("title") is not None: a["title"] = str(data.get("title") or "")[:120]
+    if data.get("text") is not None: a["text"] = str(data.get("text") or "")[:800]
+    if data.get("sale_end") is not None:
+        se = str(data.get("sale_end") or "").strip()
+        if se:
+            try:
+                from datetime import datetime as _dtx
+                _dtx.fromisoformat(se)
+            except Exception:
+                return web.json_response({"error": "تاریخ نامعتبر. مثال: 2026-10-06T23:59:00+03:30"}, status=400)
+        a["sale_end"] = se
+    save_announce(a)
+    return web.json_response({"ok": True, "announce": a})
+
+async def api_ticket_new(request):
+    data = await request.json()
+    uid = str(data.get("uid") or "").strip()
+    txt = str(data.get("text") or "").strip()
+    if not uid.isdigit():
+        return web.json_response({"error": "invalid uid"}, status=400)
+    if len(txt) < 3 or len(txt) > 1000:
+        return web.json_response({"error": "متن تیکت باید بین ۳ تا ۱۰۰۰ کاراکتر باشه"}, status=400)
+    import types as _types
+    raw = _load(USERS_FILE)
+    u = raw.get(uid) if isinstance(raw, dict) else None
+    if not isinstance(u, dict): u = {}
+    shim = _types.SimpleNamespace(first_name=u.get("name") or u.get("first_name") or "کاربر مینی‌اپ",
+                                  username=u.get("username") or "")
+    tid = create_ticket(uid, shim, txt, "app")
+    notify_admins_ticket(tid)
+    return web.json_response({"ok": True, "id": tid})
+
+async def admin_tickets(request):
+    err = _denied(request)
+    if err: return err
+    ts = load_tickets(); out = []
+    for k, t in ts.items():
+        if not isinstance(t, dict): continue
+        out.append({"id": str(k), "uid": t.get("uid", ""), "name": t.get("name", ""),
+                    "uname": t.get("uname", ""), "text": t.get("text", ""),
+                    "ts": t.get("ts", 0), "status": t.get("status", "open"),
+                    "reply": t.get("reply", ""), "source": t.get("source", "bot")})
+    out.sort(key=lambda x: -int(x.get("ts") or 0))
+    return web.json_response({"tickets": out})
+
+async def admin_ticket_reply(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    tid = str(data.get("id") or "")
+    txt = str(data.get("text") or "").strip()
+    if len(txt) < 1:
+        return web.json_response({"error": "متن خالی است"}, status=400)
+    t = load_tickets().get(tid)
+    if not isinstance(t, dict):
+        return web.json_response({"error": "تیکت پیدا نشد"}, status=404)
+    _ticket_reply(tid, str(t.get("uid", "")), txt[:2000])
+    if t.get("uid"):
+        _tg_send(str(t.get("uid")), f"📩 پاسخ پشتیبانی (تیکت #{tid}):\n\n{txt[:2000]}")
+    return web.json_response({"ok": True})
+
+async def admin_ticket_close(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    tid = str(data.get("id") or "")
+    ts = load_tickets(); t = ts.get(tid)
+    if not isinstance(t, dict):
+        return web.json_response({"error": "تیکت پیدا نشد"}, status=404)
+    t["status"] = "closed"; ts[tid] = t; save_tickets(ts)
+    return web.json_response({"ok": True})
+
 def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
             ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
-            PLAN_OVERRIDES_FILE, CUSTOM_PLANS_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE]
+            PLAN_OVERRIDES_FILE, CUSTOM_PLANS_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE,
+            ANNOUNCE_FILE, TICKETS_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -427,7 +643,7 @@ WELCOME_TEXT = (
     "🎮 به ربات اختصاصی Diaz Shop خوش آمدید 🚀!\n\n"
     " محصولات ما زیر قیمت و تضمینی هستند! ✅\n\n"
     "━━━━━━━━━━━━━━━━━\n"
-    f" پشتیبانی: @{SUPPORT_USERNAME}"
+    " 🎫 پشتیبانی: از دکمهٔ «🎫 پشتیبانی» تیکت ثبت کن، جوابش همین‌جا میاد."
 )
 
 def main_menu_kb(uid=0):
@@ -436,7 +652,7 @@ def main_menu_kb(uid=0):
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
-        [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
+        [InlineKeyboardButton("🎫 پشتیبانی", callback_data="ticket_new")],
     ])
 
 async def _process_referral(context, inviter_id, invited_id):
@@ -792,7 +1008,7 @@ async def user_panel(update, context):
             text += f"**{i}.** {c.get('type','')} - {c.get('data','')}\n"
             if c.get("link"): text += f"   🔗 `{c['link']}`\n"
     kb = [[InlineKeyboardButton("🔄 بروزرسانی", callback_data="user_panel")],
-          [InlineKeyboardButton("💬 پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}")],
+          [InlineKeyboardButton("🎫 پشتیبانی", callback_data="ticket_new")],
           [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]]
     await q.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
@@ -846,6 +1062,19 @@ async def handle_text(update, context):
                 state = _v; key = _k; break
     # Admin sending subscription/config link — check FIRST
     if state and state.get("waiting_admin"):
+        # پاسخ پشتیبانی: باید قبل از شاخهٔ «لینک اشتراک» جدا بشه
+        if state.get("type") == "ticket_reply":
+            tid = str(state.get("tid", "")); target = str(state.get("user_id", ""))
+            reply = update.message.text.strip()[:2000]
+            if not reply:
+                await update.message.reply_text("❌ متن خالی است."); return
+            del p[key]; save_pending(p)
+            _ticket_reply(tid, target, reply)
+            try:
+                await update.message.reply_text(f"✅ پاسخ تیکت #{tid} برای کاربر ارسال شد.")
+            except Exception: pass
+            _tg_send(target, f"📩 **پاسخ پشتیبانی** (تیکت #{tid}):\n\n{reply}")
+            return
         admin_type = state["type"]; target_user = state["user_id"]
         link = update.message.text.strip()
         del p[key]; save_pending(p)
@@ -864,6 +1093,17 @@ async def handle_text(update, context):
         except: pass
         return
     if not state or not state.get("waiting"): return
+    if state["type"] == "ticket":
+        txt = update.message.text.strip()[:1000]
+        if len(txt) < 3:
+            await update.message.reply_text("❌ متن تیکت کوتاه است؛ کمی توضیح بده."); return
+        del p[uid]; save_pending(p)
+        tid = create_ticket(uid, update.effective_user, txt, "bot")
+        await update.message.reply_text(
+            f"🎫 تیکت شما ثبت شد — شماره **#{tid}**\n\nپاسخ پشتیبانی رو همین‌جا دریافت میکنی. ممنون از صبرت 🙌",
+            parse_mode="Markdown")
+        notify_admins_ticket(tid)
+        return
     if state["type"] == "charge_custom":
         try: amount = int(update.message.text.strip())
         except: await update.message.reply_text("❌ فقط عدد."); return
@@ -1794,6 +2034,12 @@ def create_web_app():
     app.router.add_post("/api/admin/request", admin_request_action)
     app.router.add_post("/api/admin/order", admin_order_action)
     app.router.add_post("/api/admin/user_delete", admin_user_delete)
+    app.router.add_get("/api/announcement", api_announcement)
+    app.router.add_post("/api/ticket", api_ticket_new)
+    app.router.add_post("/api/admin/announcement", admin_announcement_save)
+    app.router.add_get("/api/admin/tickets", admin_tickets)
+    app.router.add_post("/api/admin/ticket_reply", admin_ticket_reply)
+    app.router.add_post("/api/admin/ticket_close", admin_ticket_close)
     app.router.add_post("/api/discount_preview", discount_preview)
     app.router.add_post("/api/buy_gta", api_buy_gta)
     app.router.add_get("/api/admin/broadcast/status", admin_broadcast_status)
@@ -1887,6 +2133,12 @@ def apply_plan_overrides():
             if isinstance(pi, int) and pi > 0:
                 t["price_int"] = pi
                 t["price"] = _fa(pi)
+            opi = o.get("old_price_int")
+            if isinstance(opi, int) and opi >= 0:
+                if opi > 0:
+                    t["old_price_int"] = opi
+                else:
+                    t.pop("old_price_int", None)
             t["active"] = bool(o.get("active", True))
             t["out"] = bool(o.get("out"))
             if "icon" in o:
@@ -1901,7 +2153,8 @@ def _plan_state(kind, key):
     if not isinstance(t, dict):
         return None
     return {"key": key, "name": t.get("name", key), "price": t.get("price", ""),
-            "price_int": t.get("price_int", 0), "active": t.get("active", True),
+            "price_int": t.get("price_int", 0), "old_price_int": t.get("old_price_int", 0),
+            "active": t.get("active", True),
             "out": bool(t.get("out")), "custom": bool(t.get("custom")),
             "days": t.get("days"), "brand": t.get("brand"), "icon": t.get("icon")}
 
@@ -1910,6 +2163,7 @@ async def api_plans(request):
     out = {}
     for kind, table in PLAN_KINDS.items():
         out[kind] = {k: {"price": v.get("price", ""), "price_int": v.get("price_int", 0),
+                         "old_price_int": v.get("old_price_int", 0),
                          "active": v.get("active", True), "out": bool(v.get("out")),
                          "name": v.get("name", k), "custom": bool(v.get("custom")),
                          "days": v.get("days"), "brand": v.get("brand"), "icon": v.get("icon")}
@@ -1944,6 +2198,14 @@ async def admin_plan_save(request):
         if p < 0:
             return web.json_response({"error": "قیمت نامعتبر"}, status=400)
         cur["price_int"] = p
+    if "old_price_int" in data:
+        try:
+            opi = int(data.get("old_price_int") or 0)
+        except Exception:
+            return web.json_response({"error": "قیمت قبل نامعتبر"}, status=400)
+        if opi < 0:
+            return web.json_response({"error": "قیمت قبل نامعتبر"}, status=400)
+        cur["old_price_int"] = opi   # صفر = برداشتن حراج (در override هم ثبت میشه)
     if "icon" in data:
         cur["icon"] = str(data.get("icon") or "").strip()[:300]
     if data.get("name") is not None:
@@ -2477,6 +2739,9 @@ def main():
     app.add_handler(CallbackQueryHandler(user_panel, pattern="^user_panel$"))
     app.add_handler(CallbackQueryHandler(sub_status, pattern="^sub_status$"))
     app.add_handler(CallbackQueryHandler(back_main, pattern="^back_main$"))
+    app.add_handler(CallbackQueryHandler(ticket_new, pattern="^ticket_new$"))
+    app.add_handler(CallbackQueryHandler(ticket_cancel, pattern="^ticket_cancel$"))
+    app.add_handler(CallbackQueryHandler(ticket_reply_cb, pattern=r"^ticket_reply_[0-9]+$"))
     app.add_handler(CallbackQueryHandler(approve_express, pattern="^approve_express_"))
     app.add_handler(CallbackQueryHandler(approve_config, pattern="^approve_config_"))
     app.add_handler(CallbackQueryHandler(approve_receipt, pattern="^approve_"))
