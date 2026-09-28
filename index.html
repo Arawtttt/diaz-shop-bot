@@ -608,7 +608,7 @@ function copyCard(){
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(function(){showToast('✅ شماره کارت کپی شد');},function(){fallbackCopy(v);});}
     else fallbackCopy(v);
 }
-function restoreBlock(id,go){var el=document.getElementById(id);if(el&&window._origBlocks&&window._origBlocks[id])el.innerHTML=window._origBlocks[id];showSection(go||'vpn');}
+function restoreBlock(id,go){var el=document.getElementById(id);if(el&&window._origBlocks&&window._origBlocks[id])el.innerHTML=window._origBlocks[id];if(typeof renderPlans==='function')renderPlans();showSection(go||'vpn');}
 function openMusic(brand){
   var el=document.getElementById('musicBrands'); if(!el) return;
   if(!window._origBlocks)window._origBlocks={};
@@ -1528,7 +1528,7 @@ function renderPlans() {
             d.className = 'pln';
             d.setAttribute('data-plan', p.id);
             d.innerHTML = (p.icon ? '<div style="height:38px;display:flex;align-items:center;justify-content:center;margin-bottom:6px">' + iconHTML(p.icon,'card') + '</div>' : '') + '<div class="pn">' + escH(p.name) + '</div><div class="pp">' + p.price + ' <small>تومان</small></div>';
-            d.onclick = function() { buyConfig(this.getAttribute('data-plan')); };
+            d.setAttribute('onclick', "buyConfig(this.getAttribute('data-plan'))");
             cp.appendChild(d);
         }
     }
@@ -1541,7 +1541,7 @@ function renderPlans() {
             d2.className = (q.id === '1m') ? 'pln best' : 'pln';
             d2.setAttribute('data-plan', q.id);
             d2.innerHTML = (q.icon ? '<div style="height:38px;display:flex;align-items:center;justify-content:center;margin-bottom:6px">' + iconHTML(q.icon,'card') + '</div>' : '') + '<div class="pn">' + escH(q.name) + '</div><div class="pp">' + q.price + ' <small>تومان</small></div>';
-            d2.onclick = function() { buyExpress(this.getAttribute('data-plan')); };
+            d2.setAttribute('onclick', "buyExpress(this.getAttribute('data-plan'))");
             ep.appendChild(d2);
         }
     }
