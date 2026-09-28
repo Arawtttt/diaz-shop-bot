@@ -89,7 +89,6 @@ DEEZER_PLANS = {
 }
 
 AI_PLANS = {
-    "gemini18": {"name": "جمنای یک‌ماهه", "price": "۴۵۰,۰۰۰", "price_int": 450000, "old_price_int": 500000, "days": 30, "brand": "gemini"},
     "gemini18m": {"name": "جمنای ۱۸ ماهه پرو • نامحدود", "price": "۲,۵۵۰,۰۰۰", "price_int": 2550000, "old_price_int": 2800000, "days": 548, "brand": "gemini"},
     "gemfam3m": {"name": "جمنای پرو فمیلی • نامحدود — ۳ ماهه", "price": "۹۰۰,۰۰۰", "price_int": 900000, "old_price_int": 1200000, "days": 90, "brand": "gemini"},
     "gemfam6m": {"name": "جمنای پرو فمیلی • نامحدود — ۶ ماهه", "price": "۱,۵۵۰,۰۰۰", "price_int": 1550000, "old_price_int": 1800000, "days": 180, "brand": "gemini"},
@@ -174,20 +173,59 @@ def save_tickets(d): _save(TICKETS_FILE, d)
 def create_ticket(uid, user, text, source="bot"):
     ts = load_tickets()
     tid = str(max([int(k) for k in ts.keys() if str(k).isdigit()] + [0]) + 1)
+    now = int(time.time())
     ts[tid] = {"uid": str(uid),
                "name": (getattr(user, "first_name", "") or "") if user is not None else "",
                "uname": (getattr(user, "username", "") or "") if user is not None else "",
-               "text": (text or "")[:1000], "ts": int(time.time()),
-               "status": "open", "reply": "", "reply_ts": 0, "source": source}
+               "text": (text or "")[:1000], "ts": now,
+               "status": "open", "reply": "", "reply_ts": 0, "source": source,
+               "messages": [{"from": "user", "text": (text or "")[:1000], "ts": now}]}
     save_tickets(ts)
     return tid
+
+def _ticket_msgs(t):
+    """تاریخچهٔ پیام‌ها؛ تیکت‌های قدیمی (بدون messages) مهاجرت داده می‌شن."""
+    if not isinstance(t, dict): return []
+    m = t.get("messages")
+    if isinstance(m, list) and m: return m
+    out = []
+    if t.get("text"):
+        out.append({"from": "user", "text": str(t.get("text"))[:2000], "ts": int(t.get("ts") or 0)})
+    if t.get("reply"):
+        out.append({"from": "admin", "text": str(t.get("reply"))[:2000], "ts": int(t.get("reply_ts") or 0)})
+    return out
+
+def _open_ticket_for(uid):
+    """آخرین تیکتِ بازِ این کاربر (بسته‌شده = چت پاک شده)."""
+    ts = load_tickets(); best = None; bi = -1
+    for k, t in ts.items():
+        if not isinstance(t, dict) or not str(k).isdigit(): continue
+        if str(t.get("uid")) != str(uid): continue
+        if t.get("status") == "closed": continue
+        if int(k) > bi: bi = int(k); best = (str(k), t)
+    return best
 
 def _ticket_reply(tid, uid, reply):
     ts = load_tickets(); t = ts.get(str(tid))
     if not isinstance(t, dict): return False
+    msgs = list(_ticket_msgs(t))                      # قبل از ست کردن reply
     t["status"] = "answered"; t["reply"] = (reply or "")[:2000]; t["reply_ts"] = int(time.time())
+    msgs.append({"from": "admin", "text": t["reply"], "ts": t["reply_ts"]})
+    t["messages"] = msgs
     ts[str(tid)] = t; save_tickets(ts)
     return True
+
+def _ticket_push(tid, text, who="user"):
+    ts = load_tickets(); t = ts.get(str(tid))
+    if not isinstance(t, dict): return None
+    msgs = list(_ticket_msgs(t))
+    msgs.append({"from": who, "text": str(text)[:2000], "ts": int(time.time())})
+    t["messages"] = msgs
+    if who == "user":
+        t["text"] = str(text)[:1000]                   # آخرین پیام کاربر برای اعلان/لیست
+        t["status"] = t.get("status") or "open"
+    ts[str(tid)] = t; save_tickets(ts)
+    return t
 
 def notify_admins_ticket(tid):
     """اعلام تیکت جدید به ادمین‌های تلگرام (با دکمهٔ «پاسخ») — توی thread تا لوپ رو نبنده."""
@@ -311,9 +349,31 @@ async def api_ticket_new(request):
     if not isinstance(u, dict): u = {}
     shim = _types.SimpleNamespace(first_name=u.get("name") or u.get("first_name") or "کاربر مینی‌اپ",
                                   username=u.get("username") or "")
+    found = _open_ticket_for(uid)
+    if found:
+        tid, _t = found
+        t2 = _ticket_push(tid, txt, "user")
+        msgs = (t2 or {}).get("messages") or _ticket_msgs(_t)
+        # فقط وقتی آخرین پیام از ادمین بوده اطلاع بده تا اسپم نشه
+        if len(msgs) >= 2 and msgs[-2].get("from") == "admin":
+            notify_admins_ticket(tid)
+        return web.json_response({"ok": True, "id": tid, "messages": msgs, "reused": True})
     tid = create_ticket(uid, shim, txt, "app")
     notify_admins_ticket(tid)
-    return web.json_response({"ok": True, "id": tid})
+    return web.json_response({"ok": True, "id": tid,
+                              "messages": _ticket_msgs(load_tickets().get(tid) or {})})
+
+async def api_ticket_get(request):
+    uid = str(request.query.get("uid") or "").strip()
+    if not uid.isdigit():
+        return web.json_response({"error": "invalid uid"}, status=400)
+    found = _open_ticket_for(uid)
+    if not found:
+        return web.json_response({"ticket": None})
+    tid, t = found
+    return web.json_response({"ticket": {"id": tid, "status": t.get("status", "open"),
+                                         "source": t.get("source", "bot"),
+                                         "ts": t.get("ts", 0), "messages": _ticket_msgs(t)}})
 
 async def admin_tickets(request):
     err = _denied(request)
@@ -324,7 +384,8 @@ async def admin_tickets(request):
         out.append({"id": str(k), "uid": t.get("uid", ""), "name": t.get("name", ""),
                     "uname": t.get("uname", ""), "text": t.get("text", ""),
                     "ts": t.get("ts", 0), "status": t.get("status", "open"),
-                    "reply": t.get("reply", ""), "source": t.get("source", "bot")})
+                    "reply": t.get("reply", ""), "source": t.get("source", "bot"),
+                    "messages": _ticket_msgs(t)})
     out.sort(key=lambda x: -int(x.get("ts") or 0))
     return web.json_response({"tickets": out})
 
@@ -352,7 +413,11 @@ async def admin_ticket_close(request):
     ts = load_tickets(); t = ts.get(tid)
     if not isinstance(t, dict):
         return web.json_response({"error": "تیکت پیدا نشد"}, status=404)
-    t["status"] = "closed"; ts[tid] = t; save_tickets(ts)
+    if t.get("status") != "closed":
+        t["status"] = "closed"; ts[tid] = t; save_tickets(ts)
+        if t.get("uid"):
+            _tg_send(str(t.get("uid")),
+                     f"🔒 تیکت #{tid} بسته شد.\nاگه سوال جدیدی داشتی دوباره از پنل کاربری → پشتیبانی بفرست.")
     return web.json_response({"ok": True})
 
 def _kv_files():
@@ -2036,6 +2101,7 @@ def create_web_app():
     app.router.add_post("/api/admin/user_delete", admin_user_delete)
     app.router.add_get("/api/announcement", api_announcement)
     app.router.add_post("/api/ticket", api_ticket_new)
+    app.router.add_get("/api/ticket", api_ticket_get)
     app.router.add_post("/api/admin/announcement", admin_announcement_save)
     app.router.add_get("/api/admin/tickets", admin_tickets)
     app.router.add_post("/api/admin/ticket_reply", admin_ticket_reply)

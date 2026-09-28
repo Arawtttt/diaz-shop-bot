@@ -218,7 +218,7 @@ body.light .thm{color:#1a102a}
                     <div class="sk" style="width:35%;height:12px"></div>
                 </div>
                 <div class="banslider" id="banslider">
-                    <div class="banslide bs-ai act" onclick="showSection('ai')"><div class="bstx"><b>🔥 حراج بازگشایی فروشگاه</b><i>جمنای یک‌ماهه فقط ۴۵۰,۰۰۰ تومان</i></div><span class="bsart"><svg width="46" height="46" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
+                    <div class="banslide bs-ai act" onclick="showSection('ai')"><div class="bstx"><b>🔥 حراج بازگشایی فروشگاه</b><i>جمنای ۱۸ ماهه پرو فقط ۲,۵۵۰,۰۰۰ تومان</i></div><span class="bsart"><svg width="46" height="46" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
                     <div class="banslide bs-gta" onclick="showSection('gtavi')"><div class="bstx"><b>GTA VI پیش‌فروش</b><i>Ultimate Edition — ظرفیت هوم</i></div><span class="bsart gtaart">VI</span></div>
                     <div class="banslide bs-ref" onclick="showSection('referral')"><div class="bstx"><b>دعوت کن، هدیه بگیر</b><i>با یک دعوت، اشتراک رایگان ببر</i></div><span class="bsart refart">🎁</span></div>
                     <div class="bandots"><span class="bd act"></span><span class="bd"></span><span class="bd"></span></div>
@@ -232,7 +232,6 @@ body.light .thm{color:#1a102a}
                                 <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">اشتراک رایگان</div><div class="sb">دعوت دوستان</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
-                <div class="mi" onclick="openTicket()"><div class="ic">🎫</div><div class="tx"><div class="ti">پشتیبانی</div><div class="sb">ثبت تیکت و دریافت جواب</div></div><div class="aw">‹</div></div>
                 </div>
             </div>
                 <div class="sec" id="sec-vpn">
@@ -347,6 +346,19 @@ body.light .thm{color:#1a102a}
                     <button class="bk" onclick="goBack()">← بازگشت</button>
                 </div>
             </div>
+            <div class="sec" id="sec-ticket">
+                <div class="st">🎫 پشتیبانی</div>
+                <div class="gl" style="padding:13px 12px;margin-bottom:12px">
+                    <div id="tktInfo" style="font-size:11.5px;color:var(--dim);text-align:center;line-height:2;margin-bottom:9px">تا وقتی پشتیبانی تیکت رو نبنده، گفتگو اینجا می‌مونه.</div>
+                    <div id="tktChat" style="display:flex;flex-direction:column;gap:8px;min-height:80px;max-height:44vh;overflow-y:auto;padding:2px"></div>
+                </div>
+                <div class="gl" style="padding:12px">
+                    <div id="tktStatus" style="font-size:11.5px;color:var(--dim);margin-bottom:7px;text-align:center">—</div>
+                    <textarea id="tktText" rows="3" placeholder="پیامت رو اینجا بنویس..." style="width:100%;box-sizing:border-box;padding:10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:13px;resize:vertical"></textarea>
+                    <div id="tktMsg" style="font-size:11.5px;text-align:center;margin-top:6px;min-height:16px;color:#4ade80"></div>
+                    <button id="tktSend" onclick="ticketSend()" style="width:100%;padding:12px;border:none;border-radius:13px;background:linear-gradient(135deg,#3d7bff,#6aa1ff);color:#fff;font-weight:800;font-size:13.5px;cursor:pointer">📨 ارسال</button>
+                </div>
+            </div>
             <div class="sec" id="sec-panel">
                 <div class="st">👤 پنل کاربری</div>
                 <div class="gl" style="padding:20px;margin-bottom:14px">
@@ -362,6 +374,7 @@ body.light .thm{color:#1a102a}
                 <div id="subStatus"><div class="gl stcSk"><div class="sk" style="width:45%"></div><div class="sk" style="width:100%;height:60px;border-radius:18px"></div><div class="sk" style="width:70%"></div></div></div>
                 <div id="uOrders"><div class="gl" style="padding:16px;margin-bottom:14px"><div class="sk" style="width:55%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:40%"></div></div></div>
                 <div id="userConfigs"></div>
+                <div class="mi" id="supEntry" onclick="openTicket()"><div class="ic">🎫</div><div class="tx"><div class="ti">پشتیبانی</div><div class="sb" id="supSub">گفتگو با پشتیبانی</div></div><div class="aw">‹</div></div>
                 <div class="mi" id="admEntry" style="display:none;margin-top:4px" onclick="openAdmin()"><div class="ic">🛠️</div><div class="tx"><div class="ti">پنل مدیریت</div><div class="sb">فقط برای مدیر فروشگاه</div></div><div class="aw">‹</div></div>
 
                 
@@ -566,6 +579,8 @@ function _applySection(name) {
     var hb = document.getElementById('hback');
     if (hb) hb.style.display = (name === 'home') ? 'none' : 'flex';
     if (name === 'panel' && typeof loadSubStatus === 'function') loadSubStatus();
+    if (name === 'panel' && typeof ticketBadge === 'function') ticketBadge();
+    if (name === 'ticket' && typeof loadChat === 'function') loadChat();
 }
 function navTo(name) { showSection(name); }
 function startBanner(){
@@ -823,7 +838,6 @@ function openAI(brand){
     h+='<div class="mi" onclick="buyAI(\'claudepro\')"><div class="ic">✳️</div><div class="tx"><div class="ti">Claude Pro یک‌ماهه</div><div class="sb">' + saleRow('ai','claudepro','۵,۸۵۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
   } else {
     h='<div class="st">🤖 Gemini — اشتراک نامحدود</div>';
-    h+=aiRow('gemini18','✨','جمنای یک‌ماهه','۴۵۰,۰۰۰','یک ماهه');
     h+=aiRow('gemini18m','💎','جمنای ۱۸ ماهه پرو • نامحدود','۲,۵۵۰,۰۰۰','۱۸ ماهه');
     h+=aiRow('gemfam3m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۳ ماهه','۹۰۰,۰۰۰','۳ ماهه');
     h+=aiRow('gemfam6m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۶ ماهه','۱,۵۵۰,۰۰۰','۶ ماهه');
@@ -835,7 +849,7 @@ function openAI(brand){
 }
 function buyAI(planId){
     if(!PA('ai', planId)){ showToast(PMSG('ai', planId)); return; }
-  var plans={gemini18:{name:'جمنای یک‌ماهه',price:P('ai','gemini18','۴۵۰,۰۰۰'),int:PO('ai','gemini18',450000),brand:'gemini'},
+  var plans={
  gemini18m:{name:'جمنای ۱۸ ماهه پرو • نامحدود',price:P('ai','gemini18m','۲,۵۵۰,۰۰۰'),int:PO('ai','gemini18m',2550000),brand:'gemini'},
  gemfam3m:{name:'جمنای پرو فمیلی • نامحدود — ۳ ماهه',price:P('ai','gemfam3m','۹۰۰,۰۰۰'),int:PO('ai','gemfam3m',900000),brand:'gemini'},
  gemfam6m:{name:'جمنای پرو فمیلی • نامحدود — ۶ ماهه',price:P('ai','gemfam6m','۱,۵۵۰,۰۰۰'),int:PO('ai','gemfam6m',1550000),brand:'gemini'},
@@ -971,7 +985,7 @@ function finHTML(kind,id,fin){
 function applyStaticPrices(){
     try{
         var b = document.querySelector('.banslide.bs-ai i');
-        if(b) b.textContent = 'فقط ' + P('ai','gemini18','۴۵۰,۰۰۰') + ' تومان — اشتراک یک‌ماهه';
+        if(b) b.textContent = 'جمنای ۱۸ ماهه پرو فقط ' + P('ai','gemini18m','۲,۵۵۰,۰۰۰') + ' تومان';
     }catch(e){}
 }
 // === CUSTOM ITEM CATALOG (آیتم‌های ساخته‌شده از پنل ادمین) ===
@@ -1097,10 +1111,22 @@ function admTickets(){
               + '<span><b style="color:#fff">#' + escH(String(t.id)) + '</b> · ' + escH(t.name || 'کاربر') + ' (' + escH(String(t.uid)) + ')'
               + (t.uname ? ' @' + escH(t.uname) : '') + ' · ' + escH(t.source === 'app' ? 'مینی‌اپ' : 'ربات') + ' · ' + escH(dt) + '</span>'
               + '<span style="color:' + col + ';font-weight:700">' + st + '</span></div>'
-              + '<div style="font-size:13px;margin-top:7px;white-space:pre-wrap;color:#fff;line-height:1.9">' + escH(t.text || '') + '</div>';
-            if(t.reply){
-                h += '<div style="font-size:12px;margin-top:7px;white-space:pre-wrap;color:#4ade80;line-height:1.9;border-right:2px solid #4ade80;padding-right:8px">↩️ ' + escH(t.reply) + '</div>';
+            var msgs = t.messages;
+            if(!msgs || !msgs.length){
+                msgs = [];
+                if(t.text) msgs.push({ from: 'user', text: t.text });
+                if(t.reply) msgs.push({ from: 'admin', text: t.reply });
             }
+            h += '<div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto">';
+            for(var j = 0; j < msgs.length; j++){
+                var mm = msgs[j] || {}, isA = (mm.from === 'admin');
+                h += '<div style="font-size:12.5px;white-space:pre-wrap;line-height:1.9;padding:7px 9px;border-radius:10px;max-width:92%;overflow-wrap:break-word;'
+                  + (isA ? 'background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.28);align-self:flex-start;color:#dcffe9;'
+                          : 'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);align-self:flex-end;color:#fff;')
+                  + '"><b style="font-size:9.5px;opacity:.6;display:block">' + (isA ? '🛠️ پاسخ من' : '🙋 ' + escH(t.name || 'کاربر')) + '</b>'
+                  + escH(String(mm.text || '')) + '</div>';
+            }
+            h += '</div>';
             h += '<div style="display:flex;gap:6px;margin-top:9px">'
               + '<input id="tr_' + escH(String(t.id)) + '" placeholder="جواب این تیکت..." style="flex:1;min-width:0;' + inp + '">'
               + '<button class="bk" style="padding:8px 11px;font-size:11px;cursor:pointer" onclick="admTicketReply(\'' + t.id + '\')">📤 ارسال</button>'
@@ -2194,45 +2220,89 @@ function showAnn(a, k){
 function annClose(){
     var m = document.getElementById('annModal'); if(m) m.parentNode.removeChild(m);
 }
-// ==== تیکت پشتیبانی از داخل مینی‌اپ ====
-function openTicket(){
-    var m = document.getElementById('tktModal');
-    if(m){ m.style.display = 'flex'; return; }
-    m = document.createElement('div');
-    m.id = 'tktModal';
-    m.style.cssText = 'position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)';
-    m.innerHTML = '<div style="position:relative;width:100%;max-width:340px;border-radius:20px;padding:24px 18px 18px;'
-      + 'background:linear-gradient(160deg,#101a2b,#0d1220 60%,#0a0d16);border:1px solid rgba(90,150,255,.35)">'
-      + '<div style="font-size:16px;font-weight:800;text-align:center">🎫 ثبت تیکت پشتیبانی</div>'
-      + '<div style="font-size:11.5px;color:rgba(255,255,255,.5);text-align:center;margin-top:7px;line-height:1.9">مشکل یا سوالت رو بنویس، جوابش همین‌جا میاد.</div>'
-      + '<textarea id="tktText" rows="5" placeholder="متن تیکت..." style="width:100%;box-sizing:border-box;margin-top:13px;padding:10px;border-radius:11px;'
-      + 'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:13px;resize:vertical"></textarea>'
-      + '<div id="tktMsg" style="font-size:11.5px;text-align:center;margin-top:8px;min-height:15px;color:#4ade80"></div>'
-      + '<div style="display:flex;gap:8px;margin-top:6px">'
-      + '<button id="tktSend" style="flex:1;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#3d7bff,#6aa1ff);color:#fff;font-weight:800;font-size:13px;cursor:pointer">📨 ارسال تیکت</button>'
-      + '<button id="tktCancel" style="padding:11px 15px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:transparent;color:#fff;font-size:13px;cursor:pointer">بستن</button>'
+// ==== گفتگوی پشتیبانی (صفحهٔ چت داخل پنل کاربری) ====
+var _tktTimer = null;
+function openTicket(){ showSection('ticket'); }
+function tktBubble(m){
+    var admin = (m && m.from === 'admin');
+    var tss = (m && m.ts) ? new Date(m.ts * 1000).toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit'}) : '';
+    return '<div style="display:flex;justify-content:' + (admin ? 'flex-start' : 'flex-end') + '">'
+      + '<div style="max-width:84%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.95;white-space:pre-wrap;overflow-wrap:break-word;'
+      + (admin ? 'background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.32);color:#dcffe9;border-top-left-radius:5px;'
+               : 'background:linear-gradient(135deg,rgba(61,123,255,.30),rgba(106,161,255,.18));border:1px solid rgba(106,161,255,.38);color:#eef3ff;border-top-right-radius:5px;')
+      + '">'
+      + '<div style="font-size:9.5px;opacity:.55;font-weight:800;margin-bottom:2px">' + (admin ? '🛠️ پشتیبانی' : '🙋 شما') + '</div>'
+      + escH(String((m && m.text) || ''))
+      + (tss ? '<div style="font-size:9.5px;opacity:.45;margin-top:4px;text-align:left">' + tss + '</div>' : '')
       + '</div></div>';
-    document.body.appendChild(m);
-    document.getElementById('tktCancel').onclick = function(){ m.style.display = 'none'; };
-    document.getElementById('tktSend').onclick = ticketSend;
+}
+function loadChat(){
+    var box = document.getElementById('tktChat'), info = document.getElementById('tktInfo'), st = document.getElementById('tktStatus');
+    if(!box) return;
+    if(!UID){
+        box.innerHTML = '';
+        if(info) info.textContent = 'برای گفتگو اول ربات رو توی تلگرام /start کن.';
+        if(st) st.textContent = '';
+        return;
+    }
+    fetch(API + '/api/ticket?uid=' + encodeURIComponent(String(UID)))
+      .then(function(r){ return r.json(); }).then(function(d){
+        var t = d && d.ticket;
+        if(!t){
+            box.innerHTML = '<div style="font-size:12.5px;color:var(--dim);text-align:center;padding:18px 6px;line-height:2.2">هنوز گفتگوی بازی نداری.<br>پیامت رو پایین بنویس و بفرست تا ثبت بشه.</div>';
+            if(info) info.textContent = 'وقتی پشتیبانی تیکت رو میبنده، این چت پاک میشه.';
+            if(st) st.textContent = '';
+            if(_tktTimer){ clearInterval(_tktTimer); _tktTimer = null; }
+            return;
+        }
+        var msgs = t.messages || [], h = '';
+        for(var i = 0; i < msgs.length; i++) h += tktBubble(msgs[i]);
+        box.innerHTML = h;
+        try{ box.scrollTop = box.scrollHeight; }catch(e){}
+        if(info) info.textContent = 'تیکت #' + t.id + ' — تا وقتی پشتیبانی نبندهش، گفتگو همین‌جا می‌مونه.';
+        if(st){
+            st.textContent = (t.status === 'answered')
+                ? '✅ پشتیبانی جواب داد — جواب رو بخون، اگه لازمه بنویس'
+                : '⏳ در انتظار جواب پشتیبانی';
+            st.style.color = (t.status === 'answered') ? '#4ade80' : '#ffb020';
+        }
+        if(!_tktTimer){
+            _tktTimer = setInterval(function(){
+                if(_cur !== 'ticket'){ clearInterval(_tktTimer); _tktTimer = null; return; }
+                loadChat();
+            }, 12000);
+        }
+    }).catch(function(){});
+}
+function ticketBadge(){
+    var sb = document.getElementById('supSub');
+    if(!sb) return;
+    if(!UID){ sb.textContent = 'گفتگو با پشتیبانی'; return; }
+    fetch(API + '/api/ticket?uid=' + encodeURIComponent(String(UID)))
+      .then(function(r){ return r.json(); }).then(function(d){
+        var t = d && d.ticket;
+        if(!t){ sb.textContent = 'گفتگو با پشتیبانی'; sb.style.color = ''; return; }
+        sb.textContent = (t.status === 'answered') ? '💬 جواب پشتیبانی رسید' : '⏳ در انتظار جواب پشتیبانی';
+        sb.style.color = (t.status === 'answered') ? '#4ade80' : '#ffb020';
+    }).catch(function(){});
 }
 function ticketSend(){
     var el = document.getElementById('tktText'), msg = document.getElementById('tktMsg'), btn = document.getElementById('tktSend');
     if(!el) return;
     var txt = String(el.value || '').trim();
-    if(txt.length < 3){ if(msg){ msg.style.color = '#ff8a8a'; msg.textContent = 'متن تیکت باید حداقل ۳ کاراکتر باشه'; } return; }
-    if(!UID){ if(msg){ msg.style.color = '#ff8a8a'; msg.textContent = 'اول ربات رو /start کن و بعد تیکت بزن'; } return; }
+    if(txt.length < 3){ if(msg){ msg.style.color = '#ff8a8a'; msg.textContent = 'حداقل ۳ کاراکتر بنویس'; } return; }
+    if(!UID){ if(msg){ msg.style.color = '#ff8a8a'; msg.textContent = 'اول ربات رو /start کن'; } return; }
     if(btn){ btn.disabled = true; btn.textContent = 'در حال ارسال...'; }
     fetch(API + '/api/ticket', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: String(UID), text: txt }) })
     .then(function(r){ return r.json(); }).then(function(d){
-        if(btn){ btn.disabled = false; btn.textContent = '📨 ارسال تیکت'; }
+        if(btn){ btn.disabled = false; btn.textContent = '📨 ارسال'; }
         if(d.error){ if(msg){ msg.style.color = '#ff8a8a'; msg.textContent = d.error; } return; }
-        if(msg){ msg.style.color = '#4ade80'; msg.textContent = '✅ تیکت #' + d.id + ' ثبت شد'; }
         el.value = '';
-        setTimeout(function(){ var m = document.getElementById('tktModal'); if(m) m.style.display = 'none'; if(msg) msg.textContent = ''; }, 1600);
+        if(msg){ msg.style.color = '#4ade80'; msg.textContent = '✅ فرستاده شد'; setTimeout(function(){ if(msg) msg.textContent = ''; }, 2500); }
+        loadChat();
     }).catch(function(){
-        if(btn){ btn.disabled = false; btn.textContent = '📨 ارسال تیکت'; }
+        if(btn){ btn.disabled = false; btn.textContent = '📨 ارسال'; }
         if(msg){ msg.style.color = '#ff8a8a'; msg.textContent = 'خطا در ارسال؛ دوباره تلاش کن'; }
     });
 }
