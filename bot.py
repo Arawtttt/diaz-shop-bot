@@ -1163,6 +1163,17 @@ async def handle_text(update, context):
         if len(txt) < 3:
             await update.message.reply_text("❌ متن تیکت کوتاه است؛ کمی توضیح بده."); return
         del p[uid]; save_pending(p)
+        found = _open_ticket_for(str(uid))
+        if found:
+            tid, _t = found
+            _ticket_push(tid, txt, "user")
+            _m = (load_tickets().get(tid) or {}).get("messages") or []
+            if len(_m) >= 2 and _m[-2].get("from") == "admin":
+                notify_admins_ticket(tid)
+            await update.message.reply_text(
+                f"📩 پیامت به گفتگوی تیکت **#{tid}** اضافه شد.\nپاسخ پشتیبانی همین‌جا میاد.",
+                parse_mode="Markdown")
+            return
         tid = create_ticket(uid, update.effective_user, txt, "bot")
         await update.message.reply_text(
             f"🎫 تیکت شما ثبت شد — شماره **#{tid}**\n\nپاسخ پشتیبانی رو همین‌جا دریافت میکنی. ممنون از صبرت 🙌",
