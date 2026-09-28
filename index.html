@@ -2110,8 +2110,9 @@ function buildSaleBar(){
       + 'font-size:12.5px;font-weight:800;font-style:normal;box-shadow:0 0 10px rgba(255,120,0,.5)}'
       + '#saleClock i{font-style:normal;opacity:.6;font-weight:800;font-size:12px}'
       + '#saleClock .sbu{font-size:9.5px;opacity:.75;margin-inline-end:3px;color:#ffb8a0}</style>';
-    var host = document.body.firstElementChild || null;
-    document.body.insertBefore(bar, host);
+    var host = document.getElementById('app');
+    if(host){ if(host.firstChild !== bar) host.insertBefore(bar, host.firstChild); }
+    else if(document.body.firstElementChild !== bar){ document.body.insertBefore(bar, document.body.firstElementChild); }
     if(!window._saleTimer) window._saleTimer = setInterval(saleTick, 1000);
     saleTick();
 }
@@ -2121,6 +2122,19 @@ function annSeenKey(a){
     for(var i = 0; i < t.length; i++){ h = ((h << 5) - h) + t.charCodeAt(i); h |= 0; }
     return 'diazAnn_' + h;
 }
+function annReady(){
+    try{
+        var sp = document.getElementById('splash');
+        if(sp && (' ' + sp.className + ' ').indexOf(' hide ') < 0) return false;   // هنوز روی صفحهٔ ورودیم
+        var ct = document.getElementById('ct');
+        var t = ct ? (ct.textContent || '') : '';
+        if(t.indexOf('فروشگاه فقط داخل تلگرام') >= 0) return false;
+        if(t.indexOf('عضویت در کانال الزامی است') >= 0) return false;
+        var ap = document.getElementById('app');
+        if(!ap || ap.style.display === 'none') return false;
+        return true;
+    }catch(e){ return true; }
+}
 function loadAnnounce(force){
     fetch(API + '/api/announcement').then(function(r){ return r.json(); }).then(function(a){
         if(!a || a.error) return;
@@ -2129,9 +2143,12 @@ function loadAnnounce(force){
         if(!isNaN(ms)){ SALE_END = ms; }
         buildSaleBar(); saleTick();
         if(a.enabled){
-            var k = annSeenKey(a), seen = null;
-            try{ seen = localStorage.getItem(k); }catch(e){}
-            if(!seen || force === true) showAnn(a, k);
+            // هر بار که اپ باز بشه نوت بیاد؛ فقط بعد از ورود کامل (روی صفحهٔ ورود و گیت‌ها نه)
+            var tries = 0;
+            (function waitAnn(){
+                if(!annReady()){ if(tries++ < 360){ setTimeout(waitAnn, 500); } return; }
+                showAnn(a);
+            })();
         }
     }).catch(function(){ buildSaleBar(); });
 }
@@ -2139,7 +2156,7 @@ function showAnn(a, k){
     if(document.getElementById('annModal')) return;
     var m = document.createElement('div');
     m.id = 'annModal';
-    m.style.cssText = 'position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:22px;backdrop-filter:blur(5px)';
+    m.style.cssText = 'position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:22px;backdrop-filter:blur(5px)';
     m.innerHTML = '<div style="position:relative;width:100%;max-width:340px;border-radius:22px;padding:30px 20px 20px;text-align:center;'
       + 'background:linear-gradient(160deg,#2d0f17,#1b0a12 55%,#12060b);border:1px solid rgba(255,90,0,.5);'
       + 'box-shadow:0 22px 60px rgba(255,60,0,.3)"><div style="position:absolute;top:-19px;left:50%;transform:translateX(-50%);font-size:36px;'
@@ -2175,7 +2192,6 @@ function showAnn(a, k){
     }
 }
 function annClose(){
-    try{ if(window._annKey) localStorage.setItem(window._annKey, '1'); }catch(e){}
     var m = document.getElementById('annModal'); if(m) m.parentNode.removeChild(m);
 }
 // ==== تیکت پشتیبانی از داخل مینی‌اپ ====
@@ -2184,7 +2200,7 @@ function openTicket(){
     if(m){ m.style.display = 'flex'; return; }
     m = document.createElement('div');
     m.id = 'tktModal';
-    m.style.cssText = 'position:fixed;inset:0;z-index:85;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)';
+    m.style.cssText = 'position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)';
     m.innerHTML = '<div style="position:relative;width:100%;max-width:340px;border-radius:20px;padding:24px 18px 18px;'
       + 'background:linear-gradient(160deg,#101a2b,#0d1220 60%,#0a0d16);border:1px solid rgba(90,150,255,.35)">'
       + '<div style="font-size:16px;font-weight:800;text-align:center">🎫 ثبت تیکت پشتیبانی</div>'
