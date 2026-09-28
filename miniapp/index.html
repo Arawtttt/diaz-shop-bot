@@ -349,7 +349,7 @@ body.light .thm{color:#1a102a}
             <div class="sec" id="sec-ticket">
                 <div class="st">🎫 پشتیبانی</div>
                 <div class="gl" style="padding:13px 12px;margin-bottom:12px">
-                    <div id="tktInfo" style="font-size:11.5px;color:var(--dim);text-align:center;line-height:2;margin-bottom:9px">تا وقتی پشتیبانی تیکت رو نبنده، گفتگو اینجا می‌مونه.</div>
+                    <div id="tktInfo" style="font-size:11.5px;color:var(--dim);text-align:center;line-height:2;margin-bottom:9px">تا وقتی پشتیبانی بستش نکنه، گفتگو اینجا می‌مونه.</div>
                     <div id="tktChat" style="display:flex;flex-direction:column;gap:8px;min-height:80px;max-height:44vh;overflow-y:auto;padding:2px"></div>
                 </div>
                 <div class="gl" style="padding:12px">
@@ -1093,49 +1093,95 @@ function admRender(){
     admLoad();
 }
 // ─── تیکت‌های پشتیبانی (پنل ادمین) ───
-function admTickets(){
+var _admTktCache = null, _admTktOpen = null;
+function _admReload(keepOpen){
     admFetch('/api/admin/tickets').then(function(d){
-        var list = d.tickets || [];
-        var inp = 'box-sizing:border-box;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px';
-        var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">🎫 تیکت‌های پشتیبانی</div>'
-              + '<div style="font-size:11px;color:var(--dim);margin-bottom:10px">جواب رو اینجا بنویس و بفرست → هم توی تلگرام کاربر میاد هم توی مینی‌اپ.</div>';
-        if(!list.length) h += '<div style="font-size:12px;color:var(--dim)">هنوز تیکتی ثبت نشده 🎉</div>';
-        for(var i=0;i<list.length;i++){
-            var t = list[i];
-            var open = (t.status === 'open');
-            var st = open ? '🆕 باز' : (t.status === 'answered' ? '✅ جواب داده' : '🔒 بسته');
-            var col = open ? '#ffb020' : (t.status === 'answered' ? '#4ade80' : 'var(--dim)');
-            var dt = t.ts ? new Date(t.ts * 1000).toLocaleString('fa-IR') : '';
-            h += '<div style="border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px;margin-bottom:10px">'
-              + '<div style="display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--dim);flex-wrap:wrap">'
-              + '<span><b style="color:#fff">#' + escH(String(t.id)) + '</b> · ' + escH(t.name || 'کاربر') + ' (' + escH(String(t.uid)) + ')'
-              + (t.uname ? ' @' + escH(t.uname) : '') + ' · ' + escH(t.source === 'app' ? 'مینی‌اپ' : 'ربات') + ' · ' + escH(dt) + '</span>'
-              + '<span style="color:' + col + ';font-weight:700">' + st + '</span></div>'
-            var msgs = t.messages;
-            if(!msgs || !msgs.length){
-                msgs = [];
-                if(t.text) msgs.push({ from: 'user', text: t.text });
-                if(t.reply) msgs.push({ from: 'admin', text: t.reply });
-            }
-            h += '<div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto">';
-            for(var j = 0; j < msgs.length; j++){
-                var mm = msgs[j] || {}, isA = (mm.from === 'admin');
-                h += '<div style="font-size:12.5px;white-space:pre-wrap;line-height:1.9;padding:7px 9px;border-radius:10px;max-width:92%;overflow-wrap:break-word;'
-                  + (isA ? 'background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.28);align-self:flex-start;color:#dcffe9;'
-                          : 'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);align-self:flex-end;color:#fff;')
-                  + '"><b style="font-size:9.5px;opacity:.6;display:block">' + (isA ? '🛠️ پاسخ من' : '🙋 ' + escH(t.name || 'کاربر')) + '</b>'
-                  + escH(String(mm.text || '')) + '</div>';
-            }
-            h += '</div>';
-            h += '<div style="display:flex;gap:6px;margin-top:9px">'
-              + '<input id="tr_' + escH(String(t.id)) + '" placeholder="جواب این تیکت..." style="flex:1;min-width:0;' + inp + '">'
-              + '<button class="bk" style="padding:8px 11px;font-size:11px;cursor:pointer" onclick="admTicketReply(\'' + t.id + '\')">📤 ارسال</button>'
-              + (open ? '<button class="bk" style="padding:8px 11px;font-size:11px;cursor:pointer" onclick="admTicketClose(\'' + t.id + '\')">🔒</button>' : '')
-              + '</div></div>';
-        }
-        h += '</div>';
-        var b = admBox(); if(b) b.innerHTML = h;
+        _admTktCache = d.tickets || [];
+        if(keepOpen){ admTicketOpen(keepOpen); } else { admTicketList(); }
     }).catch(function(){ showToast('خطا در دریافت تیکت‌ها'); });
+}
+function admTickets(){ _admTktOpen = null; _admReload(null); }
+function admTicketList(){
+    var list = _admTktCache || [];
+    var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">🎫 تیکت‌های پشتیبانی</div>'
+          + '<div style="font-size:11px;color:var(--dim);margin-bottom:13px">روی اسم کاربر بزن تا گفتگوش باز بشه.</div>';
+    if(!list.length){
+        h += '<div style="font-size:12.5px;color:var(--dim);text-align:center;padding:16px 6px">هنوز تیکتی ثبت نشده 🎉</div>';
+    }
+    for(var i = 0; i < list.length; i++){
+        var t = list[i];
+        var col = t.status === 'open' ? '#ffb020' : (t.status === 'answered' ? '#4ade80' : 'var(--dim)');
+        var st  = t.status === 'open' ? '🆕 باز' : (t.status === 'answered' ? '💬 جواب داده' : '🔒 بسته');
+        var dt  = t.ts ? new Date(t.ts * 1000).toLocaleString('fa-IR', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}) : '';
+        var msgs = t.messages || (t.text ? [{from:'user', text:t.text}] : []);
+        var last = msgs.length ? msgs[msgs.length - 1] : {text:''};
+        var nm = t.name || (t.uname ? '@' + t.uname : 'کاربر');
+        var ini = escH(String(nm).trim().charAt(0) || '؟');
+        h += '<div onclick="admTicketOpen(\'' + escH(String(t.id)) + '\')" style="display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid rgba(255,255,255,.1);border-radius:13px;margin-bottom:9px;cursor:pointer;background:rgba(255,255,255,.035)">'
+          + '<div style="width:38px;height:38px;flex-shrink:0;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff">' + ini + '</div>'
+          + '<div style="flex:1;min-width:0">'
+          + '<div style="font-size:13.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escH(nm)
+          + ' <span style="font-size:10.5px;font-weight:600;color:var(--dim)">' + escH(String(t.uid)) + '</span></div>'
+          + '<div style="font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">'
+          + (last.from === 'admin' ? '↩️ ' : '') + escH(String(last.text || '').slice(0, 70)) + '</div>'
+          + '</div>'
+          + '<div style="text-align:left;flex-shrink:0">'
+          + '<div style="font-size:10.5px;font-weight:800;color:' + col + '">' + st + '</div>'
+          + '<div style="font-size:9.5px;color:var(--dim);margin-top:3px">' + escH(dt) + '</div>'
+          + '</div>'
+          + '<div style="color:var(--dim);flex-shrink:0;font-size:16px">‹</div>'
+          + '</div>';
+    }
+    h += '</div>';
+    var b = admBox(); if(b) b.innerHTML = h;
+}
+function admTicketOpen(id){
+    id = String(id);
+    _admTktOpen = id;
+    if(!_admTktCache){ _admReload(id); return; }
+    var t = null;
+    for(var i = 0; i < _admTktCache.length; i++){ if(String(_admTktCache[i].id) === id){ t = _admTktCache[i]; break; } }
+    if(!t){ admTicketList(); return; }
+    var msgs = t.messages;
+    if(!msgs || !msgs.length){
+        msgs = [];
+        if(t.text) msgs.push({from:'user', text:t.text});
+        if(t.reply) msgs.push({from:'admin', text:t.reply});
+    }
+    var st  = t.status === 'open' ? '🆕 در انتظار جواب' : (t.status === 'answered' ? '💬 جواب داده شد' : '🔒 بسته');
+    var col = t.status === 'open' ? '#ffb020' : (t.status === 'answered' ? '#4ade80' : 'var(--dim)');
+    var inp = 'box-sizing:border-box;padding:9px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12.5px';
+    var h = '<div class="gl" style="padding:14px;margin-bottom:12px">'
+          + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:11px">'
+          + '<button class="bk" style="padding:7px 11px;font-size:11.5px;cursor:pointer" onclick="admTickets()">→ بازگشت</button>'
+          + '<div style="flex:1;min-width:0"><div style="font-size:14.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
+          + escH(t.name || 'کاربر') + (t.uname ? ' <span style="font-size:11px;font-weight:600;color:var(--dim)">@' + escH(t.uname) + '</span>' : '') + '</div>'
+          + '<div style="font-size:10.5px;color:var(--dim);margin-top:2px">' + escH(String(t.uid)) + ' · ' + escH(t.source === 'app' ? 'مینی‌اپ' : 'ربات') + '</div></div>'
+          + '<div style="font-size:11px;font-weight:800;color:' + col + ';flex-shrink:0">' + st + '</div>'
+          + '</div>'
+          + '<div id="admTktChat" style="display:flex;flex-direction:column;gap:7px;max-height:44vh;overflow-y:auto">';
+    for(var j = 0; j < msgs.length; j++){
+        var mm = msgs[j] || {}, isA = (mm.from === 'admin');
+        h += '<div style="font-size:12.5px;white-space:pre-wrap;line-height:1.9;padding:8px 10px;border-radius:11px;max-width:92%;overflow-wrap:break-word;'
+          + (isA ? 'background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.28);align-self:flex-start;color:#dcffe9;'
+                  : 'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);align-self:flex-end;color:#fff;')
+          + '"><b style="font-size:9.5px;opacity:.6;display:block">' + (isA ? '🛠️ پاسخ من' : '🙋 ' + escH(t.name || 'کاربر')) + '</b>'
+          + escH(String(mm.text || '')) + '</div>';
+    }
+    h += '</div></div>'
+      + '<div class="gl" style="padding:12px">'
+      + '<div style="display:flex;gap:6px">'
+      + '<input id="tr_' + escH(id) + '" placeholder="جواب رو بنویس..." style="flex:1;min-width:0;' + inp + '">'
+      + '<button class="bk" style="padding:9px 12px;font-size:11.5px;cursor:pointer" onclick="admTicketReply(\'' + escH(id) + '\')">📤</button>'
+      + (t.status !== 'closed' ? '<button class="bk" style="padding:9px 12px;font-size:11.5px;cursor:pointer" title="بستن تیکت — چت کاربر پاک میشه" onclick="admTicketClose(\'' + escH(id) + '\')">🔒</button>' : '')
+      + '</div>'
+      + '<div style="font-size:10.5px;color:var(--dim);margin-top:9px;text-align:center;line-height:1.9">جواب هم توی تلگرام کاربر میره هم اینجا. با 🔒 تیکت رو ببند تا چتش پاک بشه.</div>'
+      + '</div>';
+    var b = admBox(); if(b) b.innerHTML = h;
+    var chat = document.getElementById('admTktChat');
+    if(chat){ try{ chat.scrollTop = chat.scrollHeight; }catch(e){} }
+    var el = document.getElementById('tr_' + id);
+    if(el) el.addEventListener('keydown', function(ev){ if(ev.key === 'Enter'){ admTicketReply(id); } });
 }
 function admTicketReply(id){
     var el = document.getElementById('tr_' + id);
@@ -1143,13 +1189,15 @@ function admTicketReply(id){
     if(!v){ showToast('متن جواب رو بنویس'); return; }
     admFetch('/api/admin/ticket_reply', { method:'POST', body: JSON.stringify({ id: String(id), text: v }) }).then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
-        showToast('✅ جواب فرستاده شد'); admTickets();
+        showToast('✅ جواب فرستاده شد');
+        _admReload(_admTktOpen);
     }).catch(function(){ showToast('خطا در ارسال'); });
 }
 function admTicketClose(id){
     admFetch('/api/admin/ticket_close', { method:'POST', body: JSON.stringify({ id: String(id) }) }).then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
-        showToast('✅ بسته شد'); admTickets();
+        showToast('✅ تیکت بسته شد — چت کاربر پاک شد');
+        _admTktOpen = null; _admReload(null);
     }).catch(function(){ showToast('خطا'); });
 }
 // ─── نوت بازگشایی + پایان تایمر (پنل ادمین) ───
@@ -2236,6 +2284,12 @@ function tktBubble(m){
       + (tss ? '<div style="font-size:9.5px;opacity:.45;margin-top:4px;text-align:left">' + tss + '</div>' : '')
       + '</div></div>';
 }
+function _tktSeenKey(){ return 'diazTktSeen_' + String(UID || ''); }
+function _lastAdminTs(msgs){
+    var ts = 0;
+    for(var i = 0; i < msgs.length; i++){ var m = msgs[i]; if(m && m.from === 'admin' && (Number(m.ts) || 0) > ts) ts = Number(m.ts) || 0; }
+    return ts;
+}
 function loadChat(){
     var box = document.getElementById('tktChat'), info = document.getElementById('tktInfo'), st = document.getElementById('tktStatus');
     if(!box) return;
@@ -2250,7 +2304,7 @@ function loadChat(){
         var t = d && d.ticket;
         if(!t){
             box.innerHTML = '<div style="font-size:12.5px;color:var(--dim);text-align:center;padding:18px 6px;line-height:2.2">هنوز گفتگوی بازی نداری.<br>پیامت رو پایین بنویس و بفرست تا ثبت بشه.</div>';
-            if(info) info.textContent = 'وقتی پشتیبانی تیکت رو میبنده، این چت پاک میشه.';
+            if(info) info.textContent = 'تا وقتی پشتیبانی بستش نکنه، گفتگو همین‌جا می‌مونه.';
             if(st) st.textContent = '';
             if(_tktTimer){ clearInterval(_tktTimer); _tktTimer = null; }
             return;
@@ -2259,7 +2313,9 @@ function loadChat(){
         for(var i = 0; i < msgs.length; i++) h += tktBubble(msgs[i]);
         box.innerHTML = h;
         try{ box.scrollTop = box.scrollHeight; }catch(e){}
-        if(info) info.textContent = 'تیکت #' + t.id + ' — تا وقتی پشتیبانی نبندهش، گفتگو همین‌جا می‌مونه.';
+        // باز کردنِ صفحه = خواندن جواب‌ها
+        try{ localStorage.setItem(_tktSeenKey(), String(_lastAdminTs(msgs))); }catch(e){}
+        if(info) info.textContent = 'تیکت #' + t.id + ' — تا وقتی پشتیبانی بستش نکنه، گفتگو همین‌جا می‌مونه.';
         if(st){
             st.textContent = (t.status === 'answered')
                 ? '✅ پشتیبانی جواب داد — جواب رو بخون، اگه لازمه بنویس'
@@ -2282,8 +2338,12 @@ function ticketBadge(){
       .then(function(r){ return r.json(); }).then(function(d){
         var t = d && d.ticket;
         if(!t){ sb.textContent = 'گفتگو با پشتیبانی'; sb.style.color = ''; return; }
-        sb.textContent = (t.status === 'answered') ? '💬 جواب پشتیبانی رسید' : '⏳ در انتظار جواب پشتیبانی';
-        sb.style.color = (t.status === 'answered') ? '#4ade80' : '#ffb020';
+        var msgs = t.messages || [];
+        var lastA = _lastAdminTs(msgs), seen = 0;
+        try{ seen = Number(localStorage.getItem(_tktSeenKey())) || 0; }catch(e){}
+        if(!lastA){ sb.textContent = '⏳ در انتظار جواب پشتیبانی'; sb.style.color = '#ffb020'; }
+        else if(lastA > seen){ sb.textContent = '💬 جواب پشتیبانی رسید'; sb.style.color = '#4ade80'; }
+        else { sb.textContent = 'گفتگو با پشتیبانی'; sb.style.color = ''; }
     }).catch(function(){});
 }
 function ticketSend(){
