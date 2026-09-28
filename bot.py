@@ -706,10 +706,13 @@ spider = SpiderPanel(SPIDER_URL, SPIDER_PASSWORD)
 # ─── Telegram Bot Handlers ───────────────────────────────
 WELCOME_TEXT = (
     "🎮 به ربات اختصاصی Diaz Shop خوش آمدید 🚀!\n\n"
-    " محصولات ما زیر قیمت و تضمینی هستند! ✅\n\n"
-    "━━━━━━━━━━━━━━━━━\n"
-    " 🎫 پشتیبانی: از دکمهٔ «🎫 پشتیبانی» تیکت ثبت کن، جوابش همین‌جا میاد."
+    " محصولات ما زیر قیمت و تضمینی هستند! ✅"
 )
+
+def support_url(uid):
+    "لینک مستقیم مینی‌اپ روی صفحهٔ چت تیکت."
+    import time as _ts
+    return f"https://worker-production-e8dd.up.railway.app/?uid={uid}&t={int(_ts.time())}&sec=ticket"
 
 def main_menu_kb(uid=0):
     import time as _ts; _t = int(_ts.time()); shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}&t={_t}"
@@ -717,7 +720,7 @@ def main_menu_kb(uid=0):
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
-        [InlineKeyboardButton("🎫 پشتیبانی", callback_data="ticket_new")],
+        [InlineKeyboardButton("🎫 پشتیبانی", web_app=WebAppInfo(url=support_url(uid)))],
     ])
 
 async def _process_referral(context, inviter_id, invited_id):
@@ -1073,7 +1076,7 @@ async def user_panel(update, context):
             text += f"**{i}.** {c.get('type','')} - {c.get('data','')}\n"
             if c.get("link"): text += f"   🔗 `{c['link']}`\n"
     kb = [[InlineKeyboardButton("🔄 بروزرسانی", callback_data="user_panel")],
-          [InlineKeyboardButton("🎫 پشتیبانی", callback_data="ticket_new")],
+          [InlineKeyboardButton("🎫 پشتیبانی", web_app=WebAppInfo(url=support_url(uid)))],
           [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]]
     await q.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 

@@ -546,6 +546,12 @@ function enterApp() {
     initTelegram();
     if (UID) loadUser();
     else renderPlans();
+    // لینک مستقیم از ربات (دکمهٔ پشتیبانی → صفحهٔ چت تیکت)
+    try {
+        var _p = new URLSearchParams(window.location.search);
+        var _sec = (_p.get('sec') || (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || '').replace(/[^a-z0-9_-]/gi, '');
+        if (_sec && document.getElementById('sec-' + _sec)) showSection(_sec);
+    } catch (e) {}
 }
 
 // === TOAST ===
