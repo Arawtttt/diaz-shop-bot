@@ -1483,8 +1483,42 @@ function openChannel() {
 }
 
 // === LOAD USER DATA ===
+// === CHANNEL GATE ===
+function memberGateHTML(){
+    return '<div style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px">📢</div>'
+        + '<div style="font-size:16px;color:var(--red);margin-bottom:8px">عضویت در کانال الزامی است</div>'
+        + '<div style="font-size:12px;color:var(--dim);margin-bottom:20px">برای استفاده از فروشگاه ابتدا در کانال عضو شوید</div>'
+        + '<a href="https://t.me/Diazplaylist" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;border-radius:12px;text-decoration:none;font-weight:700;">عضویت در کانال</a></div>';
+}
+function showMemberGate(){ var ct = document.querySelector('.ct'); if (ct) ct.innerHTML = memberGateHTML(); }
+function noAppGateHTML(){
+    return '<div style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px">📱</div>'
+        + '<div style="font-size:16px;color:var(--red);margin-bottom:8px">فروشگاه فقط داخل تلگرام</div>'
+        + '<div style="font-size:12px;color:var(--dim);margin-bottom:20px">برای استفاده، ربات رو داخل تلگرام باز کن</div>'
+        + '<a href="https://t.me/Diazpshopbot" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;border-radius:12px;text-decoration:none;font-weight:700;">باز کردن در تلگرام</a>'
+        + '<div style="margin-top:18px"><a href="#" onclick="checkAdminEntry();return false;" style="font-size:12px;color:var(--dim);text-decoration:underline">🔑 ورود ادمین</a></div></div>';
+}
+function showNoAppGate(){ var ct = document.querySelector('.ct'); if (ct) ct.innerHTML = noAppGateHTML(); }
+// حق دیدن فروشگاه: یا داخل تلگرام باشی (UID) یا توکن ادمین داشته باشی
+function canShop(){ if (UID) return true; try { if (sessionStorage.getItem('admTok')) return true; } catch(e){} return false; }
+// خطای 403 عضویت از سرور → گیت به‌جای toast
+(function(){ var _st = showToast;
+  if (typeof _st === 'function') {
+    showToast = function(){
+      var t = Array.prototype.slice.call(arguments).join(' ');
+      if (String(t).indexOf('member_required') >= 0) { showMemberGate(); return; }
+      return _st.apply(null, arguments);
+    };
+  }
+})();
+
 function loadUser() {
-    if (!UID) { renderPlans(); return; }
+    if (!UID) {
+        var _admTok = ''; try { _admTok = sessionStorage.getItem('admTok') || ''; } catch(e) {}
+        if (!_admTok) { var _ct0 = document.querySelector('.ct'); if (_ct0) _ct0.innerHTML = noAppGateHTML(); return; }
+        renderPlans(); try { checkAdminEntry(); } catch(e) {}
+        return;
+    }
     var headers = {};
     if (tg && tg.initData) headers['X-Telegram-Init-Data'] = tg.initData;
     fetch(API + '/api/user/' + UID, { headers: headers })
@@ -1492,11 +1526,7 @@ function loadUser() {
         .then(function(d) {
             userData = d;
             checkAdminEntry();
-            if (d.is_member === false) {
-                var ct = document.querySelector('.ct');
-                if (ct) ct.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px">📢</div><div style="font-size:16px;color:var(--red);margin-bottom:8px">عضویت در کانال الزامی است</div><div style="font-size:12px;color:var(--dim);margin-bottom:20px">برای استفاده از فروشگاه ابتدا در کانال عضو شوید</div><a href="https://t.me/Diazplaylist" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;border-radius:12px;text-decoration:none;font-weight:700;">عضویت در کانال</a></div>';
-                return;
-            }
+            if (d.is_member === false) { showMemberGate(); return; }
             renderPlans(); renderUser();
         })
         .catch(function(e) { console.error('[Diaz] API error:', e); renderPlans(); });
@@ -1504,6 +1534,7 @@ function loadUser() {
 
 // === RENDER PLANS ===
 function renderPlans() {
+    if (!canShop()) { showNoAppGate(); return; }
     var cfgPlans = [
         {id:'10gb',name:'۱۰ گیگ',price:P('config','10gb','۱۲,۰۰۰')},
         {id:'20gb',name:'۲۰ گیگ',price:P('config','20gb','۳۰,۰۰۰')},
