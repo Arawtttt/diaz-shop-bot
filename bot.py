@@ -711,13 +711,15 @@ WELCOME_TEXT = (
     " محصولات ما زیر قیمت و تضمینی هستند! ✅"
 )
 
+SHOP_ORIGIN = os.environ.get("SHOP_ORIGIN", "https://diazshop.arateafc.workers.dev")
+
 def support_url(uid):
     "لینک مستقیم مینی‌اپ روی صفحهٔ چت تیکت."
     import time as _ts
-    return f"https://diazshop.arateafc.workers.dev/?uid={uid}&t={int(_ts.time())}&sec=ticket"
+    return f"{SHOP_ORIGIN}/?uid={uid}&t={int(_ts.time())}&sec=ticket"
 
 def main_menu_kb(uid=0):
-    import time as _ts; _t = int(_ts.time()); shop_url = f"https://diazshop.arateafc.workers.dev/?uid={uid}&t={_t}"
+    import time as _ts; _t = int(_ts.time()); shop_url = f"{SHOP_ORIGIN}/?uid={uid}&t={_t}"
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
@@ -1695,7 +1697,8 @@ async def api_status(request):
             _status_cache["ok"] = False
         _status_cache["ms"] = int((time.time() - t0) * 1000)
         _status_cache["ts"] = time.time()
-    return web.json_response({"ok": _status_cache["ok"], "ms": _status_cache["ms"], "ts": int(time.time())})
+    return web.json_response({"ok": _status_cache["ok"], "ms": _status_cache["ms"],
+                              "ts": int(time.time()), "shop_origin": SHOP_ORIGIN})
 
 # ─── ADMIN PANEL API (پنل مدیریت — فقط مالک) ──────────────
 import hmac as _hmac, hashlib as _hashlib, asyncio as _asyncio
