@@ -205,12 +205,13 @@ def _open_ticket_for(uid):
         if int(k) > bi: bi = int(k); best = (str(k), t)
     return best
 
-def _ticket_reply(tid, uid, reply):
+def _ticket_reply(tid, uid, reply, by=""):
     ts = load_tickets(); t = ts.get(str(tid))
     if not isinstance(t, dict): return False
     msgs = list(_ticket_msgs(t))                      # قبل از ست کردن reply
     t["status"] = "answered"; t["reply"] = (reply or "")[:2000]; t["reply_ts"] = int(time.time())
-    msgs.append({"from": "admin", "text": t["reply"], "ts": t["reply_ts"]})
+    msgs.append({"from": "admin", "text": t["reply"], "ts": t["reply_ts"],
+                 "name": (str(by or "").strip() or "Diaz support")[:40]})
     t["messages"] = msgs
     ts[str(tid)] = t; save_tickets(ts)
     return True
@@ -400,9 +401,10 @@ async def admin_ticket_reply(request):
     t = load_tickets().get(tid)
     if not isinstance(t, dict):
         return web.json_response({"error": "تیکت پیدا نشد"}, status=404)
-    _ticket_reply(tid, str(t.get("uid", "")), txt[:2000])
+    nm = admin_name(str(data.get("uid") or ""), str(data.get("name") or ""))
+    _ticket_reply(tid, str(t.get("uid", "")), txt[:2000], nm)
     if t.get("uid"):
-        _tg_send(str(t.get("uid")), f"📩 پاسخ پشتیبانی (تیکت #{tid}):\n\n{txt[:2000]}")
+        _tg_send(str(t.get("uid")), f"📩 پاسخ {nm} (تیکت #{tid}):\n\n{txt[:2000]}")
     return web.json_response({"ok": True})
 
 async def admin_ticket_close(request):
@@ -1137,11 +1139,12 @@ async def handle_text(update, context):
             if not reply:
                 await update.message.reply_text("❌ متن خالی است."); return
             del p[key]; save_pending(p)
-            _ticket_reply(tid, target, reply)
+            _by = admin_name(key, getattr(update.effective_user, "first_name", "") or "")
+            _ticket_reply(tid, target, reply, _by)
             try:
                 await update.message.reply_text(f"✅ پاسخ تیکت #{tid} برای کاربر ارسال شد.")
             except Exception: pass
-            _tg_send(target, f"📩 **پاسخ پشتیبانی** (تیکت #{tid}):\n\n{reply}")
+            _tg_send(target, f"📩 **پاسخ { _by }** (تیکت #{tid}):\n\n{reply}")
             return
         admin_type = state["type"]; target_user = state["user_id"]
         link = update.message.text.strip()
@@ -1720,6 +1723,28 @@ def admin_uids():
 
 def _is_admin(uid): return str(uid) != "" and str(uid) in admin_uids()
 
+OWNER_NAME = str(os.environ.get("ADMIN_OWNER_NAME", "Arat"))  # اسم مالک زیر جواب‌ها
+
+def admin_name(uid="", explicit=""):
+    """اسمی که زیر جواب ادمین توی چت مشتری نوشته میشه.
+
+    اولویت: نامِ ثبت‌شده برای uid → اسم مالک → اسمی که پنل فرستاده → Diaz support
+    """
+    u = str(uid or "").strip()
+    if u:
+        try:
+            a = load_admins().get(u)
+            if isinstance(a, dict) and str(a.get("name") or "").strip():
+                return str(a["name"]).strip()[:40]
+        except Exception:
+            pass
+        if u == str(OWNER_ID):
+            return OWNER_NAME
+    nm = str(explicit or "").strip()
+    if nm:
+        return nm[:40]
+    return "Diaz support"
+
 USERS_FILE = "users.json"   # رجیستری همهٔ کاربرانی که /start زدن (برای پیام همگانی)
 def load_users(): return _load(USERS_FILE)
 def save_users(d): _save(USERS_FILE, d)
@@ -1925,6 +1950,9 @@ async def admin_admin_save(request):
         if uid in adm:
             return web.json_response({"ok": True, "admins": sorted(admin_uids())})
         adm[uid] = {"added_ts": int(time.time())}
+        _nm = str(data.get("name") or "").strip()
+        if _nm:
+            adm[uid]["name"] = _nm[:40]
         save_admins(adm)
         _tg_send(uid, "🛡️ شما به عنوان **ادمین** به پنل فروشگاه اضافه شدید.\n\nبرای ورود: پنل کاربری → 🛠️ پنل مدیریت (همون رمز ادمین).")
         logger.info(f"admin added: {uid}")

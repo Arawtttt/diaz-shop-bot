@@ -336,6 +336,8 @@ body.light .thm{color:#1a102a}
                 <div id="admGate">
                     <div class="gl" style="padding:18px;margin-bottom:14px">
                         <div style="font-size:13px;color:var(--dim);margin-bottom:12px">برای ورود، رمز مدیریت رو وارد کنید</div>
+                        <input id="admName" list="admNames" placeholder="اسم شما (زیر جواب‌ها نوشته میشه)" style="width:100%;box-sizing:border-box;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;margin-bottom:12px">
+                        <datalist id="admNames"><option value="Arat"><option value="Mary"><option value="Diaz support"></datalist>
                         <input type="password" id="admPass" placeholder="رمز پنل" style="width:100%;box-sizing:border-box;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;margin-bottom:12px">
                         <button class="mbtn" style="width:100%" onclick="admLogin()">ورود</button>
                     </div>
@@ -1043,6 +1045,27 @@ loadPlanOverrides();
 
 // === ADMIN PANEL (پنل مدیریت) ===
 var ADM_TOK = (function(){ try { return sessionStorage.getItem('admTok') || ''; } catch(e) { return ''; } })();
+function _admName(){
+    var v = '';
+    try { var e = document.getElementById('admName'); if (e) v = e.value || ''; } catch(e){}
+    if (!v) { try { v = localStorage.getItem('admName') || ''; } catch(e){} }
+    v = String(v).trim().slice(0, 40);
+    return v || 'Diaz support';
+}
+function _admNameSave(v){
+    v = String(v || '').trim().slice(0, 40);
+    if (v) { try { localStorage.setItem('admName', v); } catch(e){} }
+    return v;
+}
+try {
+    var _ae = document.getElementById('admName');
+    var _stored = ''; try { _stored = localStorage.getItem('admName') || ''; } catch(e){}
+    if (_ae) {
+        if (_stored) _ae.value = _stored;
+        else { try { if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) _ae.value = String(tg.initDataUnsafe.user.first_name).slice(0,40); } catch(e){} }
+        _ae.addEventListener('change', function(){ _admNameSave(_ae.value); });
+    }
+} catch(e){}
 var ADM_TAB = 'stats';
 var ADM_TABS = [['stats','📊 آمار'],['requests','📥 درخواست‌ها'],['users','👥 کاربران'],['orders','📦 سفارش‌ها'],['plans','📦 پلن‌ها'],['discounts','🎟️ تخفیف'],['broadcast','📢 پیام'],['tickets','🎫 تیکت‌ها'],['announce','🔔 نوت و تایمر']];
 function admBox(){ return document.getElementById('admBody'); }
@@ -1080,6 +1103,7 @@ function admLogin(){
     .then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
         ADM_TOK = d.token; try{ sessionStorage.setItem('admTok', d.token); }catch(e){}
+        try { var _ane = document.getElementById('admName'); if (_ane) _admNameSave(_ane.value); } catch(e){}
         el.value='';
         document.getElementById('admGate').style.display='none';
         document.getElementById('admPanel').style.display='block';
@@ -1152,7 +1176,7 @@ function admTicketOpen(id){
     if(!msgs || !msgs.length){
         msgs = [];
         if(t.text) msgs.push({from:'user', text:t.text});
-        if(t.reply) msgs.push({from:'admin', text:t.reply});
+        if(t.reply) msgs.push({from:'admin', text:t.reply, name:'Diaz support'});
     }
     var st  = t.status === 'open' ? '🆕 در انتظار جواب' : (t.status === 'answered' ? '💬 جواب داده شد' : '🔒 بسته');
     var col = t.status === 'open' ? '#ffb020' : (t.status === 'answered' ? '#4ade80' : 'var(--dim)');
@@ -1171,7 +1195,7 @@ function admTicketOpen(id){
         h += '<div style="font-size:12.5px;white-space:pre-wrap;line-height:1.9;padding:8px 10px;border-radius:11px;max-width:92%;overflow-wrap:break-word;'
           + (isA ? 'background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.28);align-self:flex-start;color:#dcffe9;'
                   : 'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);align-self:flex-end;color:#fff;')
-          + '"><b style="font-size:9.5px;opacity:.6;display:block">' + (isA ? '🛠️ پاسخ من' : '🙋 ' + escH(t.name || 'کاربر')) + '</b>'
+          + '"><b style="font-size:9.5px;opacity:.6;display:block">' + (isA ? '🛡️ ' + escH(String(mm.name || 'Diaz support')) : '🙋 ' + escH(t.name || 'کاربر')) + '</b>'
           + escH(String(mm.text || '')) + '</div>';
     }
     h += '</div></div>'
@@ -1193,7 +1217,7 @@ function admTicketReply(id){
     var el = document.getElementById('tr_' + id);
     var v = el ? String(el.value || '').trim() : '';
     if(!v){ showToast('متن جواب رو بنویس'); return; }
-    admFetch('/api/admin/ticket_reply', { method:'POST', body: JSON.stringify({ id: String(id), text: v }) }).then(function(d){
+    admFetch('/api/admin/ticket_reply', { method:'POST', body: JSON.stringify({ id: String(id), text: v, name: _admName(), uid: String(UID || '') }) }).then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
         showToast('✅ جواب فرستاده شد');
         _admReload(_admTktOpen);
@@ -2285,7 +2309,7 @@ function tktBubble(m){
       + (admin ? 'background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.32);color:#dcffe9;border-top-left-radius:5px;'
                : 'background:linear-gradient(135deg,rgba(61,123,255,.30),rgba(106,161,255,.18));border:1px solid rgba(106,161,255,.38);color:#eef3ff;border-top-right-radius:5px;')
       + '">'
-      + '<div style="font-size:9.5px;opacity:.55;font-weight:800;margin-bottom:2px">' + (admin ? '🛠️ پشتیبانی' : '🙋 شما') + '</div>'
+      + '<div style="font-size:9.5px;opacity:.55;font-weight:800;margin-bottom:2px">' + (admin ? '🛡️ ' + escH(String(m.name || 'Diaz support')) : '🙋 شما') + '</div>'
       + escH(String((m && m.text) || ''))
       + (tss ? '<div style="font-size:9.5px;opacity:.45;margin-top:4px;text-align:left">' + tss + '</div>' : '')
       + '</div></div>';
