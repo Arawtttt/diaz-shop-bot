@@ -1707,6 +1707,8 @@ async def api_debug_channel(request):
 
 _status_cache = {"ts": 0, "ok": False, "ms": 0}
 
+BUILD_TAG = "2026-09-30-jobs"   # تگ نسخهٔ دیپلوی — از /api/status خوانده میشه
+
 async def api_status(request):
     if time.time() - _status_cache["ts"] > 60:
         t0 = time.time()
@@ -1719,7 +1721,7 @@ async def api_status(request):
         _status_cache["ms"] = int((time.time() - t0) * 1000)
         _status_cache["ts"] = time.time()
     return web.json_response({"ok": _status_cache["ok"], "ms": _status_cache["ms"],
-                              "ts": int(time.time()), "shop_origin": SHOP_ORIGIN})
+                              "ts": int(time.time()), "shop_origin": SHOP_ORIGIN, "build": BUILD_TAG})
 
 # ─── ADMIN PANEL API (پنل مدیریت — فقط مالک) ──────────────
 import hmac as _hmac, hashlib as _hashlib, asyncio as _asyncio
@@ -2182,6 +2184,7 @@ def create_web_app():
 # ─── Admin panel: plan overrides / subscriptions / requests ────────────
 PLAN_OVERRIDES_FILE = "plan_overrides.json"
 RECEIPTS_FILE = "receipts.json"
+REPORT_STATE_FILE = "daily_report_state.json"
 
 def load_plan_overrides(): return _load(PLAN_OVERRIDES_FILE)
 def save_plan_overrides(d): _save(PLAN_OVERRIDES_FILE, d)
@@ -2610,41 +2613,166 @@ def _pending_items():
     items.sort(key=lambda x: -x.get("ts", 0))
     return items
 
+def _tg_send_md(uid, text, kb=None):
+    """ارسال پیام مارکداون با دکمهٔ اختیاری — True اگه تلگرام قبول کرد (برای تست قابل جایگزینی)."""
+    payload = {"chat_id": int(uid), "text": text, "parse_mode": "Markdown"}
+    if kb is not None:
+        try:
+            payload["reply_markup"] = kb.to_dict() if hasattr(kb, "to_dict") else kb
+        except Exception:
+            pass
+    try:
+        import httpx as _hx
+        _r = _hx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload, timeout=15)
+        if bool(_r.json().get("ok")): return True
+    except Exception as e:
+        logger.warning(f"send failed ({uid}): {e}")
+    try:  # تلاش دوم بدون مارکداون
+        import httpx as _hx
+        _r = _hx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                      json={"chat_id": int(uid), "text": text.replace("**", "")}, timeout=15)
+        return bool(_r.json().get("ok"))
+    except Exception:
+        return False
+
+# (کلید, حداکثر باقی‌مانده, حداقل باقی‌مانده) — سه مرحلهٔ یادآوری انقضا
+_EXPIRY_STAGES = (("3d", 3 * 86400, 86400), ("1d", 86400, 6 * 3600), ("6h", 6 * 3600, 0))
+
+def _expiry_stage_for(left):
+    """کدام مرحله برای این باقی‌مانده فعاله (وگرنه None)."""
+    if left <= 0: return None
+    for key, hi, lo in _EXPIRY_STAGES:
+        if lo < left <= hi: return key
+    return None
+
+def _expiry_reminder_text(it, stage, left):
+    name = it.get("name", "") or "اشتراک"
+    if stage == "3d":
+        head = f"⏳ **۳ روز تا انقضای اشتراکت مونده**\n\n"
+        when = f"⏰ حدود **{_fa(max(1, int(left // 86400)))} روز** دیگه منقضی میشه"
+    elif stage == "1d":
+        head = f"⚠️ **فردا اشتراکتم تموم میشه!**\n\n"
+        when = f"⏰ حدود **{_fa(max(1, int(left // 3600)))} ساعت** دیگه منقضی میشه"
+    else:
+        head = f"🚨 **چند ساعت دیگه قطع میشه!**\n\n"
+        when = f"⏰ حدود **{_fa(max(1, int(left // 3600)))} ساعت** دیگه منقضی میشه"
+    return head + f"📦 {name}\n{when}\n\nبا دکمهٔ پایین تمدیدش کن تا قطع نشه."
+
+def _renew_kb(uid):
+    try:
+        _t = int(time.time())
+        return InlineKeyboardMarkup([[InlineKeyboardButton(
+            "🔁 تمدید اشتراک", web_app=WebAppInfo(url=f"{SHOP_ORIGIN}/?uid={uid}&t={_t}&sec=panel"))]])
+    except Exception:
+        return None
+
 def _expiry_reminder_scan():
-    """یک پیام به هر کاربری که اشتراکش تا ۲۴ ساعت آینده تموم میشه — فقط یک بار"""
+    """یادآوری انقضا در سه مرحله: ۳ روز، ۱ روز و ۶ ساعت مانده — هر مرحله فقط یک بار."""
     now = int(time.time()); changed = False; sent_n = 0
     o = load_orders()
     for uid, lst in list(o.items()):
         if not str(uid).isdigit() or not isinstance(lst, list): continue
         for it in lst:
             if not isinstance(it, dict) or it.get("status") != "sent": continue
-            if it.get("reminded"): continue
             exp = _order_expiry(it)
             if not exp: continue
+            stage = _expiry_stage_for(exp - now)
+            if not stage: continue
+            done = [str(s) for s in (it.get("remind_stages") or [])]
+            if it.get("reminded") and "1d" not in done:
+                done.append("1d")   # یادآوری قدیمیِ ۲۴ ساعته معادل مرحلهٔ «۱ روز»
+            if stage in done: continue
             left = exp - now
-            if left <= 0 or left > 86400: continue
-            hours = max(1, int(left // 3600))
-            txt = (f"⏳ **اشتراک داره تموم میشه!**\n\n"
-                   f"📦 {it.get('name', '')}\n"
-                   f"⏰ حدود **{hours} ساعت** دیگه انقضا\n"
-                   f"\nاز 👤 پنل کاربری مینی‌اپ تمدیدش کن تا قطع نشه.")
-            ok = False
-            try:
-                import httpx as _hx
-                _r = _hx.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                              json={"chat_id": int(uid), "text": txt, "parse_mode": "Markdown"},
-                              timeout=15)
-                ok = bool(_r.json().get("ok"))
-            except Exception as e:
-                logger.warning(f"expiry reminder send failed ({uid}): {e}")
-            it["remind_try"] = int(it.get("remind_try", 0)) + 1
-            if ok or it["remind_try"] >= 3:
-                it["reminded"] = now; changed = True
-            if ok: sent_n += 1
-            logger.info(f"expiry reminder uid={uid} plan={it.get('name','')} ok={ok} try={it['remind_try']}")
+            ok = _tg_send_md(uid, _expiry_reminder_text(it, stage, left), _renew_kb(uid))
+            if ok:
+                done.append(stage)
+                it["remind_stages"] = done
+                it["remind_try"] = 0
+                if stage == "6h": it["reminded"] = now
+                sent_n += 1
+            else:
+                it["remind_try"] = int(it.get("remind_try", 0)) + 1
+                if it["remind_try"] >= 3:      # بعد از ۳ تلاش همون مرحله رو رد کن
+                    done.append(stage)
+                    it["remind_stages"] = done
+                    it["remind_try"] = 0
+            changed = True
+            logger.info(f"expiry reminder uid={uid} plan={it.get('name','')} stage={stage} ok={ok}")
     if changed:
         save_orders(o)
     return sent_n
+
+TEH_OFFSET = 3 * 3600 + 1800          # تهران = UTC+3:30
+
+def _teh_date(ts):
+    g = time.gmtime(int(ts) + TEH_OFFSET)
+    return f"{g.tm_year:04d}-{g.tm_mon:02d}-{g.tm_mday:02d}"
+
+def _teh_midnight(ts):
+    """نیمه‌شب به وقت تهرانِ همون روزِ ts (epoch)."""
+    import calendar
+    g = time.gmtime(int(ts) + TEH_OFFSET)
+    return calendar.timegm((g.tm_year, g.tm_mon, g.tm_mday, 0, 0, 0)) - TEH_OFFSET
+
+_KIND_FA = {"config": "کانفیگ VPN", "ai": "هوش مصنوعی", "music": "موزیک",
+            "express": "اکسپرس", "deezer": "Deezer", "special": "محصول ویژه"}
+
+def _build_daily_report(day_start, day_end):
+    """متن گزارش فروش بازهٔ [day_start, day_end) — معمولاً دیروز به وقت تهران."""
+    orders = [o for o in _flat_orders()
+              if day_start <= int(o.get("ts", 0) or 0) < day_end and o.get("status") != "rejected"]
+    total = sum(int(o.get("price", 0) or 0) for o in orders)
+    by_kind = {}
+    for o in orders:
+        k = str(o.get("kind") or "دیگر")
+        c, a = by_kind.get(k, (0, 0))
+        by_kind[k] = (c + 1, a + int(o.get("price", 0) or 0))
+    users = load_users()
+    new_users = sum(1 for u in users.values()
+                    if isinstance(u, dict) and day_start <= int(u.get("first_seen") or 0) < day_end)
+    today_end = day_end + 86400
+    expiring = 0
+    for lst in load_orders().values():
+        for it in (lst or []):
+            if not isinstance(it, dict) or it.get("status") != "sent": continue
+            e = _order_expiry(it)
+            if e and day_end <= e < today_end: expiring += 1
+    waiting = len([1 for v in load_pending().values()
+                   if isinstance(v, dict) and v.get("waiting_admin")])
+    L = ["", f"📊 **گزارش فروش {_teh_date(day_end - 1)}**", ""]
+    if orders:
+        L.append(f"📦 سفارش‌ها: **{_fa(len(orders))}**")
+        L.append(f"💰 درآمد: **{_fa(total)} تومان**")
+        for k, (c, a) in sorted(by_kind.items(), key=lambda x: -x[1][0]):
+            L.append(f"   • {_KIND_FA.get(k, k)}: {_fa(c)} — {_fa(a)}")
+    else:
+        L.append("📦 سفارشی ثبت نشد")
+    L.append(f"🆕 کاربر جدید: **{_fa(new_users)}**")
+    L.append(f"⏳ انقضای امروز: **{_fa(expiring)}** اشتراک")
+    if waiting:
+        L.append(f"🔔 منتظر پاسخ شما: **{_fa(waiting)}** سفارش")
+    return "\n".join(L)
+
+def _daily_report_due(now):
+    """گزارش امروز فقط یک بار و بعد از ساعت ۹ صبح به وقت تهران."""
+    st = _load(REPORT_STATE_FILE) or {}
+    if st.get("last_date") == _teh_date(now): return False
+    return int(now) >= _teh_midnight(now) + 9 * 3600
+
+def _daily_report_loop():
+    """هر ۵ دقیقه: اگه ساعت ۹ صبح تهران رد شده و گزارش امروز نرفته، برای ادمین‌ها میفرسته."""
+    time.sleep(60)
+    while True:
+        try:
+            now = int(time.time())
+            if _daily_report_due(now):
+                y_start = _teh_midnight(now - 86400)
+                _notify_admin(_build_daily_report(y_start, _teh_midnight(now)))
+                _save(REPORT_STATE_FILE, {"last_date": _teh_date(now)})
+                logger.info("daily report sent")
+        except Exception as e:
+            logger.warning(f"daily report: {e}")
+        time.sleep(300)
 
 def _expiry_reminder_loop():
     """هر ۵ دقیقه اسکن انقضا — از استارت ربات شروع میشه"""
@@ -2846,6 +2974,7 @@ def main():
 
     threading.Thread(target=run_web, daemon=True).start()
     threading.Thread(target=_expiry_reminder_loop, daemon=True).start()
+    threading.Thread(target=_daily_report_loop, daemon=True).start()
 
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
