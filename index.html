@@ -400,7 +400,7 @@ var UID = (function() {
     return p.get('uid') || '';
 })();
 var BOT = 'Diazpshopbot';
-var API = window.location.origin.indexOf('railway') >= 0 ? window.location.origin : 'https://worker-production-e8dd.up.railway.app';
+var _ho = window.location.hostname || '';var _sameOrigin = _ho.indexOf('railway.app') >= 0 || _ho.indexOf('workers.dev') >= 0 || _ho.indexOf('diaz') >= 0;var API = _sameOrigin ? window.location.origin : 'https://diazshop.arateafc.workers.dev';
 var userData = null;
 
 function toggleTheme(){

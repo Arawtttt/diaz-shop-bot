@@ -714,10 +714,10 @@ WELCOME_TEXT = (
 def support_url(uid):
     "لینک مستقیم مینی‌اپ روی صفحهٔ چت تیکت."
     import time as _ts
-    return f"https://worker-production-e8dd.up.railway.app/?uid={uid}&t={int(_ts.time())}&sec=ticket"
+    return f"https://diazshop.arateafc.workers.dev/?uid={uid}&t={int(_ts.time())}&sec=ticket"
 
 def main_menu_kb(uid=0):
-    import time as _ts; _t = int(_ts.time()); shop_url = f"https://worker-production-e8dd.up.railway.app/?uid={uid}&t={_t}"
+    import time as _ts; _t = int(_ts.time()); shop_url = f"https://diazshop.arateafc.workers.dev/?uid={uid}&t={_t}"
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
