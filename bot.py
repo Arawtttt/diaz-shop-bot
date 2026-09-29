@@ -711,7 +711,7 @@ WELCOME_TEXT = (
     " محصولات ما زیر قیمت و تضمینی هستند! ✅"
 )
 
-SHOP_ORIGIN = os.environ.get("SHOP_ORIGIN", "https://diazshop.pages.dev")
+SHOP_ORIGIN = os.environ.get("SHOP_ORIGIN", "https://worker-production-e8dd.up.railway.app")
 SHOP_ALT_ORIGIN = os.environ.get("SHOP_ALT_ORIGIN", "https://diazshop.arateafc.workers.dev")
 
 def support_url(uid):
@@ -721,10 +721,8 @@ def support_url(uid):
 
 def main_menu_kb(uid=0):
     import time as _ts; _t = int(_ts.time()); shop_url = f"{SHOP_ORIGIN}/?uid={uid}&t={_t}"
-    alt_url = f"{SHOP_ALT_ORIGIN}/?uid={uid}&t={_t}"
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url)),
-         InlineKeyboardButton("🔄 جایگزین", web_app=WebAppInfo(url=alt_url))],
+        [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
         [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
         [InlineKeyboardButton("🎫 پشتیبانی", web_app=WebAppInfo(url=support_url(uid)))],
