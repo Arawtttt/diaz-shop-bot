@@ -1431,6 +1431,7 @@ async def api_user(request):
             if _d.get("ok"):
                 is_member = _d["result"]["status"] in ["member", "administrator", "creator"]
     except: pass
+    _ui = load_users().get(str(uid), {}) or {}
     return web.json_response({
         "balance": get_balance(uid),
         "referral_count": get_referral_count(int(uid)),
@@ -1439,6 +1440,8 @@ async def api_user(request):
         "history": load_wallet().get(uid, {}).get("history", [])[-10:],
         "card_number": CARD_NUMBER, "card_name": CARD_NAME,
         "referral_target": REFERRAL_TARGET, "bot_username": "Diazpshopbot",
+        "name": _ui.get("first_name", "") or "",
+        "username": _ui.get("username", "") or "",
         "is_member": is_member,
         "orders": _orders_with_expiry(uid),
     })

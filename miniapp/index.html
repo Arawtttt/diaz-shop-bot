@@ -412,6 +412,7 @@ function toggleTheme(){
 }
 function initTelegram() {
     tg = window.Telegram && window.Telegram.WebApp;
+    try { user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null; } catch(e) { user = null; }
     if (tg) {
         try { tg.ready(); } catch(e) {}
         try { tg.expand(); } catch(e) {}
@@ -1892,13 +1893,18 @@ function renderUser() {
     if (rl) rl.textContent = 'https://t.me/' + BOT + '?start=ref' + UID;
     var un = document.getElementById('uName');
     if (un) {
-        var nm = (user && user.first_name) ? user.first_name : (userData.bot_username || '—');
+        var nm = '';
+        if (user && (user.first_name || user.last_name)) { nm = ((user.first_name || '') + ' ' + (user.last_name || '')).trim(); }
+        if (!nm && userData.name) { nm = String(userData.name); }
+        if (!nm && user && user.username) { nm = '@' + user.username; }
+        if (!nm && userData.username) { nm = '@' + userData.username; }
+        if (!nm) { nm = 'کاربر'; }
         un.textContent = nm;
         var av = document.getElementById('uAvatar');
         if (av) av.textContent = (nm && nm.length && nm !== '—') ? nm.charAt(0).toUpperCase() : '👤';
     }
     var uidEl = document.getElementById('uId');
-    if (uidEl) uidEl.textContent = user ? ('@' + (user.username || 'ندارد')) : UID;
+    if (uidEl) uidEl.textContent = (userData && userData.username) ? ('@' + userData.username) : (user && user.username) ? ('@' + user.username) : UID;
     var orders = (userData.orders || []);
     var joinEl = document.getElementById('uJoined');
     if (joinEl) {
