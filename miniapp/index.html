@@ -190,7 +190,7 @@ body.light .thm{color:#1a102a}
         <canvas id="spCanvas"></canvas>
         <div class="spLogo" id="spLogo"><img src="spider-bg.jpg" alt="Diaz Shop"></div>
         <h2 class="spTitle" id="spTitle">Diaz Shop</h2>
-        <p class="spSub" id="spSub">فروشگاه اختصاصی diazplaylist</p>
+        <p class="spSub" id="spSub">فروشگاه دیجیتال دیاز</p>
         <button class="sbtn" id="playBtn" style="position:relative;z-index:5">ورود</button>
     </div>
     <audio id="bgm" preload="auto"></audio>
@@ -209,10 +209,10 @@ body.light .thm{color:#1a102a}
         </div>
     </div>
     <div class="app" id="app" style="display:none">
-        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><h1>🕷️ Diaz Shop</h1><p>فروشگاه اختصاصی diazplaylist</p></div>
+        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><h1>🕷️ Diaz Shop</h1><p>فروشگاه دیجیتال دیاز</p></div>
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
-                <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه اختصاصی diazplaylist</p></div></div>
+                <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه دیجیتال دیاز</p></div></div>
                 <div class="gl" id="homeSummary" style="padding:14px 16px;margin-bottom:12px">
                     <div class="sk" style="width:55%;height:16px"></div>
                     <div class="sk" style="width:35%;height:12px"></div>
@@ -224,7 +224,7 @@ body.light .thm{color:#1a102a}
                     <div class="bandots"><span class="bd act"></span><span class="bd"></span><span class="bd"></span></div>
                 </div>
                 <div class="mgrid">
-                <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">DiazPlaylist</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
+                <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">کانال رسمی</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('vpn')"><div class="ic">🛡️</div><div class="tx"><div class="ti">VPN</div><div class="sb">کانفیگ و اشتراک اکسپرس</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('games')"><div class="ic">🎮</div><div class="tx"><div class="ti">بازی‌ها</div><div class="sb">فروش ظرفیت بازی‌ها</div></div><div class="aw">‹</div></div>
 <div class="mi" onclick="showSection('music')"><div class="ic">🎵</div><div class="tx"><div class="ti">موزیک</div><div class="sb">Apple Music، Spotify و Deezer</div></div><div class="aw">‹</div></div>
@@ -1739,8 +1739,8 @@ function admBcWatch(){
 
 // === CHANNEL ===
 function openChannel() {
-    if (tg) tg.openTelegramLink('https://t.me/diazplaylist');
-    else window.open('https://t.me/diazplaylist', '_blank');
+    if (tg) tg.openTelegramLink('https://t.me/diazshopcom');
+    else window.open('https://t.me/diazshopcom', '_blank');
 }
 
 // === LOAD USER DATA ===
@@ -1749,7 +1749,7 @@ function memberGateHTML(){
     return '<div style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px">📢</div>'
         + '<div style="font-size:16px;color:var(--red);margin-bottom:8px">عضویت در کانال الزامی است</div>'
         + '<div style="font-size:12px;color:var(--dim);margin-bottom:20px">برای استفاده از فروشگاه ابتدا در کانال عضو شوید</div>'
-        + '<a href="https://t.me/Diazplaylist" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;border-radius:12px;text-decoration:none;font-weight:700;">عضویت در کانال</a></div>';
+        + '<a href="https://t.me/diazshopcom" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,var(--red),var(--rd));color:#fff;border-radius:12px;text-decoration:none;font-weight:700;">عضویت در کانال</a></div>';
 }
 function showMemberGate(){ var ct = document.querySelector('.ct'); if (ct) ct.innerHTML = memberGateHTML(); }
 function noAppGateHTML(){

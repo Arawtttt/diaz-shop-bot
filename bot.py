@@ -16,7 +16,7 @@ from telegram.ext import (
 
 # ─── Config ───────────────────────────────────────────────
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-CHANNEL_ID = os.environ.get("CHANNEL_ID", "@diazplaylist")
+CHANNEL_ID = os.environ.get("CHANNEL_ID", "@diazshopcom")
 OWNER_ID = int(os.environ.get("OWNER_ID", "6326889425"))
 SUPPORT_USERNAME = "MrArat"
 CARD_NUMBER = "6219861825198608"
