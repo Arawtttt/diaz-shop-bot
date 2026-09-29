@@ -16,7 +16,10 @@ from telegram.ext import (
 
 # ─── Config ───────────────────────────────────────────────
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-CHANNEL_ID = os.environ.get("CHANNEL_ID", "@diazshopcom")
+_CH_RAW = (os.environ.get("CHANNEL_ID") or "").strip()
+# کانال عضویت = diazshopcom؛ مقدار قدیمی @diazplaylist که در env ریل‌وی مانده نادیده گرفته می‌شود
+CHANNEL_ID = "@diazshopcom" if _CH_RAW.lstrip("@").lower() in ("", "diazplaylist") \
+    else ("@" + _CH_RAW.lstrip("@"))
 OWNER_ID = int(os.environ.get("OWNER_ID", "6326889425"))
 SUPPORT_USERNAME = "MrArat"
 CARD_NUMBER = "6219861825198608"
