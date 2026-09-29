@@ -89,10 +89,10 @@ DEEZER_PLANS = {
 }
 
 AI_PLANS = {
-    "gemini18m": {"name": "جمنای ۱۸ ماهه پرو • نامحدود", "price": "۲,۵۵۰,۰۰۰", "price_int": 2550000, "old_price_int": 2800000, "days": 548, "brand": "gemini"},
-    "gemfam3m": {"name": "جمنای پرو فمیلی • نامحدود — ۳ ماهه", "price": "۹۰۰,۰۰۰", "price_int": 900000, "old_price_int": 1200000, "days": 90, "brand": "gemini"},
-    "gemfam6m": {"name": "جمنای پرو فمیلی • نامحدود — ۶ ماهه", "price": "۱,۵۵۰,۰۰۰", "price_int": 1550000, "old_price_int": 1800000, "days": 180, "brand": "gemini"},
-    "gemfam1y": {"name": "جمنای پرو فمیلی • نامحدود — ۱ ساله", "price": "۲,۲۰۰,۰۰۰", "price_int": 2200000, "old_price_int": 2500000, "days": 365, "brand": "gemini"},
+    "gemini18m": {"name": "جمنای ۱۸ ماهه پرو • نامحدود", "price": "۳,۲۵۰,۰۰۰", "price_int": 3250000, "old_price_int": 3500000, "days": 548, "brand": "gemini"},
+    "gemfam3m": {"name": "جمنای پرو فمیلی • نامحدود — ۳ ماهه", "price": "۱,۱۵۰,۰۰۰", "price_int": 1150000, "old_price_int": 1350000, "days": 90, "brand": "gemini"},
+    "gemfam6m": {"name": "جمنای پرو فمیلی • نامحدود — ۶ ماهه", "price": "۱,۸۰۰,۰۰۰", "price_int": 1800000, "old_price_int": 2000000, "days": 180, "brand": "gemini"},
+    "gemfam1y": {"name": "جمنای پرو فمیلی • نامحدود — ۱ ساله", "price": "۲,۵۰۰,۰۰۰", "price_int": 2500000, "old_price_int": 2800000, "days": 365, "brand": "gemini"},
     "claudepro": {"name": "Claude Pro یک‌ماهه", "price": "۵,۸۵۰,۰۰۰", "price_int": 5850000, "old_price_int": 6500000, "days": 30},
     "gpt_go": {"name": "ChatGPT Go یک‌ماهه", "price": "۲,۳۰۰,۰۰۰", "price_int": 2300000, "old_price_int": 2550000, "days": 30},
     "gpt_plus": {"name": "ChatGPT پلاس آماده یک‌ماهه", "price": "۴,۲۵۰,۰۰۰", "price_int": 4250000, "old_price_int": 4700000, "days": 30},

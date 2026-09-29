@@ -218,7 +218,7 @@ body.light .thm{color:#1a102a}
                     <div class="sk" style="width:35%;height:12px"></div>
                 </div>
                 <div class="banslider" id="banslider">
-                    <div class="banslide bs-ai act" onclick="showSection('ai')"><div class="bstx"><b>🔥 حراج بازگشایی فروشگاه</b><i>جمنای ۱۸ ماهه پرو فقط ۲,۵۵۰,۰۰۰ تومان</i></div><span class="bsart"><svg width="46" height="46" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
+                    <div class="banslide bs-ai act" onclick="showSection('ai')"><div class="bstx"><b>🔥 حراج بازگشایی فروشگاه</b><i>جمنای ۱۸ ماهه پرو فقط ۳,۲۵۰,۰۰۰ تومان</i></div><span class="bsart"><svg width="46" height="46" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
                     <div class="banslide bs-gta" onclick="showSection('gtavi')"><div class="bstx"><b>GTA VI پیش‌فروش</b><i>Ultimate Edition — ظرفیت هوم</i></div><span class="bsart gtaart">VI</span></div>
                     <div class="banslide bs-ref" onclick="showSection('referral')"><div class="bstx"><b>دعوت کن، هدیه بگیر</b><i>با یک دعوت، اشتراک رایگان ببر</i></div><span class="bsart refart">🎁</span></div>
                     <div class="bandots"><span class="bd act"></span><span class="bd"></span><span class="bd"></span></div>
@@ -847,10 +847,10 @@ function openAI(brand){
     h+='<div class="mi" onclick="buyAI(\'claudepro\')"><div class="ic">✳️</div><div class="tx"><div class="ti">Claude Pro یک‌ماهه</div><div class="sb">' + saleRow('ai','claudepro','۵,۸۵۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
   } else {
     h='<div class="st">🤖 Gemini — اشتراک نامحدود</div>';
-    h+=aiRow('gemini18m','💎','جمنای ۱۸ ماهه پرو • نامحدود','۲,۵۵۰,۰۰۰','۱۸ ماهه');
-    h+=aiRow('gemfam3m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۳ ماهه','۹۰۰,۰۰۰','۳ ماهه');
-    h+=aiRow('gemfam6m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۶ ماهه','۱,۵۵۰,۰۰۰','۶ ماهه');
-    h+=aiRow('gemfam1y','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۱ ساله','۲,۲۰۰,۰۰۰','۱ ساله');
+    h+=aiRow('gemini18m','💎','جمنای ۱۸ ماهه پرو • نامحدود','۳,۲۵۰,۰۰۰','۱۸ ماهه');
+    h+=aiRow('gemfam3m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۳ ماهه','۱,۱۵۰,۰۰۰','۳ ماهه');
+    h+=aiRow('gemfam6m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۶ ماهه','۱,۸۰۰,۰۰۰','۶ ماهه');
+    h+=aiRow('gemfam1y','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۱ ساله','۲,۵۰۰,۰۰۰','۱ ساله');
   }
   h+=extraRows('ai','buyAI',brand);
   h+='<button class="bk" onclick="restoreBlock(\'aiBrands\',\'ai\')">← بازگشت</button>';
@@ -859,10 +859,10 @@ function openAI(brand){
 function buyAI(planId){
     if(!PA('ai', planId)){ showToast(PMSG('ai', planId)); return; }
   var plans={
- gemini18m:{name:'جمنای ۱۸ ماهه پرو • نامحدود',price:P('ai','gemini18m','۲,۵۵۰,۰۰۰'),int:PO('ai','gemini18m',2550000),brand:'gemini'},
- gemfam3m:{name:'جمنای پرو فمیلی • نامحدود — ۳ ماهه',price:P('ai','gemfam3m','۹۰۰,۰۰۰'),int:PO('ai','gemfam3m',900000),brand:'gemini'},
- gemfam6m:{name:'جمنای پرو فمیلی • نامحدود — ۶ ماهه',price:P('ai','gemfam6m','۱,۵۵۰,۰۰۰'),int:PO('ai','gemfam6m',1550000),brand:'gemini'},
- gemfam1y:{name:'جمنای پرو فمیلی • نامحدود — ۱ ساله',price:P('ai','gemfam1y','۲,۲۰۰,۰۰۰'),int:PO('ai','gemfam1y',2200000),brand:'gemini'},
+ gemini18m:{name:'جمنای ۱۸ ماهه پرو • نامحدود',price:P('ai','gemini18m','۳,۲۵۰,۰۰۰'),int:PO('ai','gemini18m',3250000),brand:'gemini'},
+ gemfam3m:{name:'جمنای پرو فمیلی • نامحدود — ۳ ماهه',price:P('ai','gemfam3m','۱,۱۵۰,۰۰۰'),int:PO('ai','gemfam3m',1150000),brand:'gemini'},
+ gemfam6m:{name:'جمنای پرو فمیلی • نامحدود — ۶ ماهه',price:P('ai','gemfam6m','۱,۸۰۰,۰۰۰'),int:PO('ai','gemfam6m',1800000),brand:'gemini'},
+ gemfam1y:{name:'جمنای پرو فمیلی • نامحدود — ۱ ساله',price:P('ai','gemfam1y','۲,۵۰۰,۰۰۰'),int:PO('ai','gemfam1y',2500000),brand:'gemini'},
  claudepro:{name:'Claude Pro یک‌ماهه',price:P('ai','claudepro','۵,۸۵۰,۰۰۰'),int:PO('ai','claudepro',5850000),brand:'claude'},
  gpt_go:{name:'ChatGPT Go یک‌ماهه',price:P('ai','gpt_go','۲,۳۰۰,۰۰۰'),int:PO('ai','gpt_go',2300000),brand:'chatgpt'},
  gpt_plus:{name:'ChatGPT پلاس آماده یک‌ماهه',price:P('ai','gpt_plus','۴,۲۵۰,۰۰۰'),int:PO('ai','gpt_plus',4250000),brand:'chatgpt'}};
@@ -994,7 +994,7 @@ function finHTML(kind,id,fin){
 function applyStaticPrices(){
     try{
         var b = document.querySelector('.banslide.bs-ai i');
-        if(b) b.textContent = 'جمنای ۱۸ ماهه پرو فقط ' + P('ai','gemini18m','۲,۵۵۰,۰۰۰') + ' تومان';
+        if(b) b.textContent = 'جمنای ۱۸ ماهه پرو فقط ' + P('ai','gemini18m','۳,۲۵۰,۰۰۰') + ' تومان';
     }catch(e){}
 }
 // === CUSTOM ITEM CATALOG (آیتم‌های ساخته‌شده از پنل ادمین) ===
