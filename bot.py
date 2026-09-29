@@ -576,9 +576,11 @@ def _order_expiry(it):
         return (base + days * 86400) if (base and days) else 0
     except Exception:
         return 0
-def add_order(uid, kind, plan_key, plan_name, price):
+def add_order(uid, kind, plan_key, plan_name, price, email=""):
     o = load_orders(); lst = o.setdefault(str(uid), [])
-    lst.append({"id": int(time.time()), "kind": kind, "plan": plan_key, "name": plan_name, "price": price, "status": "pending", "ts": int(time.time())})
+    _rec = {"id": int(time.time()), "kind": kind, "plan": plan_key, "name": plan_name, "price": price, "status": "pending", "ts": int(time.time())}
+    if email: _rec["email"] = email
+    lst.append(_rec)
     save_orders(o)
 def mark_order_sent(uid, link=""):
     o = load_orders(); lst = o.get(str(uid), [])
@@ -1638,6 +1640,13 @@ async def api_buy_spotify(request):
         return web.json_response({"ok": True, "action": "wallet_paid"})
     return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
 
+def _valid_email(s):
+    try:
+        import re as _re
+        return bool(_re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$", s or ""))
+    except Exception:
+        return False
+
 async def api_buy_ai(request):
     data = await request.json()
     uid = data.get("uid"); plan_id = data.get("plan"); method = data.get("method", "wallet")
@@ -1648,6 +1657,9 @@ async def api_buy_ai(request):
     _blk = _plan_block(plan)
     if _blk:
         return web.json_response({"error": _blk}, status=400)
+    email = str(data.get("email") or "").strip()
+    if str(plan.get("brand", "")) == "gemini" and not _valid_email(email):
+        return web.json_response({"error": "📧 ایمیل فعال‌سازی جمنا رو درست وارد کن"}, status=400)
     try: plan = _apply_code(plan, data.get("code"), uid, method, consume=(method != "wallet"))
     except ValueError as _e: return web.json_response({"error": str(_e)}, status=400)
     if method == "wallet":
@@ -1655,13 +1667,15 @@ async def api_buy_ai(request):
             return web.json_response({"error": "موجودی کافی نیست"}, status=400)
         _code_consume(data.get("code"))
         p = load_pending()
-        p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_ai", "user_id": uid, "plan": plan["name"]}
+        p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_ai", "user_id": uid, "plan": plan["name"], "email": email}
         save_pending(p)
-        _notify_admin(f"🤖 **سفارش هوش مصنوعی (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
-        try: add_order(uid, "ai", plan_id, plan["name"], plan["price_int"])
+        _notify_admin(f"🤖 **سفارش هوش مصنوعی (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان"
+                      + (f"\n📧 ایمیل فعال‌سازی: `{email}`" if email else "")
+                      + "\n\n🔗 لینک اشتراک رو بفرستید:")
+        try: add_order(uid, "ai", plan_id, plan["name"], plan["price_int"], email=email)
         except Exception: pass
-        return web.json_response({"ok": True, "action": "wallet_paid"})
-    return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME})
+        return web.json_response({"ok": True, "action": "wallet_paid", "email": email})
+    return web.json_response({"ok": True, "action": "card_payment", "card": CARD_NUMBER, "card_name": CARD_NAME, "email": email})
 
 async def api_wallet_charge(request):
     data = await request.json()
