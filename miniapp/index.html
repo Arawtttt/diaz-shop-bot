@@ -106,6 +106,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .thm{position:absolute;top:50%;left:14px;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:16px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .2s}
 .thm:active{transform:translateY(-50%) scale(.92)}
 body.light .thm{color:#1a102a}
+.mcb{position:absolute;top:50%;left:56px;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:16px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .2s}
+.mcb:active{transform:translateY(-50%) scale(.92)}
+body.light .mcb{color:#1a102a}
 .hback{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:34px;height:34px;display:none;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:17px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .15s}
 .hback:active{transform:translateY(-50%) scale(.92);border-color:rgba(167,139,250,.5)}
 .hdr.sc{box-shadow:0 10px 30px rgba(0,0,0,.5)}
@@ -209,7 +212,7 @@ body.light .thm{color:#1a102a}
         </div>
     </div>
     <div class="app" id="app" style="display:none">
-        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><h1>🕷️ Diaz Shop</h1><p>فروشگاه دیجیتال دیاز</p></div>
+        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><button class="mcb" id="bgmBtn" onclick="toggleBgm()" title="قطع/پخش موزیک">🎵</button><h1>🕷️ Diaz Shop</h1><p>فروشگاه دیجیتال دیاز</p></div>
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
                 <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2>🕷️ Diaz Shop</h2><p>فروشگاه دیجیتال دیاز</p></div></div>
@@ -436,7 +439,28 @@ var bgm = document.getElementById('bgm');
 if (bgm) bgm.volume = 0.5;
 var BGM_TRACKS = ['track1.mp3', 'track2.mp3', 'track3.mp3'];
 var _bgmIdx = -1;
+var _bgmMuted = false;
+try { _bgmMuted = localStorage.getItem('dzMuted') === '1'; } catch(e) {}
+function _applyBgmBtn() {
+    var b = document.getElementById('bgmBtn');
+    if (!b) return;
+    b.textContent = _bgmMuted ? '🔇' : '🎵';
+    b.style.opacity = _bgmMuted ? '.55' : '1';
+}
+function toggleBgm() {
+    _bgmMuted = !_bgmMuted;
+    try { localStorage.setItem('dzMuted', _bgmMuted ? '1' : '0'); } catch(e) {}
+    if (_bgmMuted) {
+        if (bgm) { try { bgm.pause(); bgm.currentTime = 0; } catch(e) {} }
+    } else {
+        bgm && (bgm.volume = 0.5);
+        playBgmRandom(true);
+    }
+    _applyBgmBtn();
+}
+_applyBgmBtn();
 function playBgmRandom(force) {
+    if (_bgmMuted) return;
     if (!bgm || !BGM_TRACKS.length) return;
     if (!force && bgm.src && !bgm.paused) return;
     var i;
