@@ -1423,11 +1423,14 @@ function admOrders(){
         for(var i=0;i<os.length;i++){
             var o = os[i], sent = o.status === 'sent';
             var dt = new Date((o.ts||0)*1000);
+            var kIco = {config:'📦', express:'⚡', deezer:'🎵', music:'🎧', ai:'🤖', special:'🎮'}[o.kind] || '📦';
+            var _left = (o.expires && o.expires > Date.now()/1000) ? Math.ceil((o.expires - Date.now()/1000)/86400) : 0;
             h += '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px">'
-              + '<div style="display:flex;gap:6px;align-items:center"><span style="flex:1;font-weight:700">' + (o.name || o.plan || 'سفارش') + '</span>'
+              + '<div style="display:flex;gap:6px;align-items:center"><span style="flex:1;font-weight:700">' + kIco + ' ' + (o.name || o.plan || 'سفارش') + '</span>'
+              + (sent && _left ? '<span style="color:#4ade80;font-size:11px;font-weight:700">📅 ' + _left + ' روز مانده</span>' : '')
               + '<span style="color:' + (sent ? '#4ade80' : '#fbbf24') + ';font-size:11px">' + (sent ? '✅' : '⏳') + '</span></div>'
               + '<div style="color:var(--dim);font-size:11px;margin-top:3px">👤 ' + o.uid + ' • ' + Number(o.price||0).toLocaleString('fa-IR') + ' تومان • '
-              + dt.toLocaleDateString('fa-IR') + '</div>'
+              + dt.toLocaleDateString('fa-IR') + (sent && o.delivered_ts ? ' • تحویل: ' + new Date(o.delivered_ts*1000).toLocaleDateString('fa-IR') : '') + '</div>'
               + (sent ? '' : '<div style="display:flex;gap:6px;margin-top:7px">'
                   + '<button class="bk" style="padding:6px 9px;font-size:11px;cursor:pointer" onclick="admOrder(\'' + o.uid + '\',' + o.id + ',\'deliver\')">📤 تحویل</button>'
                   + '<button class="bk" style="padding:6px 9px;font-size:11px;cursor:pointer" onclick="admOrder(\'' + o.uid + '\',' + o.id + ',\'reject\')">❌ رد + بازگشت وجه</button>'
@@ -1978,7 +1981,8 @@ function renderUser() {
         for (var i = 0; i < userData.configs.length; i++) {
             var c = userData.configs[i];
             h += '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
-            h += '<div style="font-size:13px;font-weight:600">' + (c.type || '') + ' — ' + (c.data || '') + '</div>';
+            var _ct = {send_config:'📦 کانفیگ VPN', config:'📦 کانفیگ VPN', send_express:'⚡ ExpressVPN', express:'⚡ ExpressVPN', send_deezer:'🎵 Deezer', send_spotify:'🎧 Spotify', send_ai:'🤖 هوش مصنوعی', send_gta:'🎮 GTA VI'};
+            h += '<div style="font-size:13px;font-weight:600">' + (_ct[c.type] || c.type || '') + ' — ' + (c.data || '') + '</div>';
             if (c.link) h += '<div style="font-size:11px;color:var(--red);word-break:break-all;margin-top:4px;font-family:monospace;direction:ltr;text-align:left">' + c.link + '</div>';
             if (c.expires) {
                 var _nowS = Date.now() / 1000;

@@ -579,20 +579,75 @@ def _order_expiry(it):
         return (base + days * 86400) if (base and days) else 0
     except Exception:
         return 0
+_KIND_OF_TYPE = {"config": "config", "express": "express", "deezer": "deezer",
+                 "spotify": "music", "ai": "ai", "gta": "special"}
+
+def _kind_from_type(typ):
+    """نوع درخواست (send_express / config_receipt_name / ...) → kind سفارش."""
+    t = str(typ or "").lower()
+    if "config" in t: return "config"
+    if "express" in t: return "express"
+    if "deezer" in t: return "deezer"
+    if "spotify" in t: return "music"
+    if "gta" in t: return "special"
+    if "ai" in t or "gemini" in t: return "ai"
+    for key, val in _KIND_OF_TYPE.items():
+        if key in t: return val
+    return "config"
+
+def _plan_info(kind, key):
+    """نام و قیمت پلن از روی kind+کلید (برای ثبت سفارشِ بدون اطلاعات قبلی)."""
+    plans = {"config": CONFIG_PLANS, "express": EXPRESS_PLANS, "ai": AI_PLANS,
+             "music": SPOTIFY_PLANS, "spotify": SPOTIFY_PLANS, "deezer": DEEZER_PLANS}.get(kind, {})
+    p = plans.get(str(key)) if isinstance(plans, dict) else None
+    if not isinstance(p, dict): p = {}
+    return (p.get("name") or str(key) or str(kind)), int(p.get("price_int") or 0)
+
+def _ensure_pending_order(uid, typ, plan_key=""):
+    """مسیرهای رسید/کارتی سفارشی ثبت نمی‌کردن → اگه سفارش در انتظاری نیست، الان بسازش
+    تا هم تو پنل ادمین دیده بشه و هم بعد از تحویل، انقضای ۳۰ روزهٔ مشتری درست حساب بشه."""
+    try:
+        kind = _kind_from_type(typ)
+        o = load_orders(); lst = o.setdefault(str(uid), [])
+        pend = [x for x in lst if isinstance(x, dict) and x.get("status") == "pending"]
+        if any(x.get("kind") == kind for x in pend) or (not kind and pend):
+            return None
+        if pend:
+            return None                       # یه سفارش در انتظار دیگه هست؛ همون تحویل داده میشه
+        name, price = _plan_info(kind, plan_key)
+        oid = int(time.time())
+        while any(int(x.get("id", -1)) == oid for x in lst if isinstance(x, dict)):
+            oid += 1
+        rec = {"id": oid, "kind": kind, "plan": str(plan_key or ""), "name": name,
+               "price": price, "status": "pending", "ts": int(time.time())}
+        lst.append(rec); save_orders(o)
+        logger.info(f"ensure order uid={uid} kind={kind} plan={plan_key}")
+        return rec
+    except Exception as e:
+        logger.warning(f"ensure order failed: {e}")
+        return None
+
 def add_order(uid, kind, plan_key, plan_name, price, email=""):
     o = load_orders(); lst = o.setdefault(str(uid), [])
     _rec = {"id": int(time.time()), "kind": kind, "plan": plan_key, "name": plan_name, "price": price, "status": "pending", "ts": int(time.time())}
     if email: _rec["email"] = email
     lst.append(_rec)
     save_orders(o)
-def mark_order_sent(uid, link=""):
+def mark_order_sent(uid, link="", kind=""):
     o = load_orders(); lst = o.get(str(uid), [])
-    for it in reversed(lst):
-        if it.get("status") == "pending":
-            it["status"] = "sent"; it["delivered_ts"] = int(time.time())
-            it["days"] = _plan_days(it.get("kind", ""), it.get("plan", ""))
-            if link: it["link"] = link[:300]
-            break
+    target = None
+    if kind:
+        for it in reversed(lst):
+            if isinstance(it, dict) and it.get("status") == "pending" and it.get("kind") == kind:
+                target = it; break
+    if target is None:
+        for it in reversed(lst):
+            if isinstance(it, dict) and it.get("status") == "pending":
+                target = it; break
+    if target is not None:
+        target["status"] = "sent"; target["delivered_ts"] = int(time.time())
+        target["days"] = _plan_days(target.get("kind", ""), target.get("plan", ""))
+        if link: target["link"] = link[:300]
     save_orders(o)
 def load_wallet(): return _load(WALLET_FILE)
 def save_wallet(d): _save(WALLET_FILE, d)
@@ -1159,9 +1214,11 @@ async def handle_text(update, context):
         del p[key]; save_pending(p)
         configs = load_configs(); k = str(target_user)
         if k not in configs: configs[k] = []
-        configs[k].append({"type": admin_type, "data": state.get("plan", ""), "link": link[:300]})
+        configs[k].append({"type": TYPE_LABELS.get(admin_type, admin_type), "data": state.get("plan", ""), "link": link[:300]})
         save_configs(configs)
-        try: mark_order_sent(str(target_user), link)
+        try: _ensure_pending_order(str(target_user), admin_type, state.get("plan", ""))
+        except Exception: pass
+        try: mark_order_sent(str(target_user), link, kind=_kind_from_type(admin_type))
         except Exception: pass
         await update.message.reply_text(f"✅ اشتراک/ظرفیت برای کاربر {target_user} ارسال شد!")
         try:
@@ -2019,7 +2076,17 @@ async def admin_wallet(request):
 async def admin_orders(request):
     err = _denied(request)
     if err: return err
-    return web.json_response({"orders": _flat_orders()[:200]})
+    out = []
+    now = time.time()
+    for rec in _flat_orders()[:200]:
+        r = dict(rec)
+        try:
+            r["expires"] = _order_expiry(r)
+            r["days_left"] = max(0, int((r["expires"] - now) // 86400)) if r.get("expires") else 0
+        except Exception:
+            r["expires"] = 0; r["days_left"] = 0
+        out.append(r)
+    return web.json_response({"orders": out})
 
 async def admin_discount_delete(request):
     err = _denied(request)
@@ -2823,6 +2890,7 @@ def _receipt_approve(rc):
     p = load_pending()
     p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_express", "user_id": uid, "plan": plan_id}
     save_pending(p)
+    _ensure_pending_order(uid, ptype, plan_id)          # سفارش باید ثبت بشه
     _tg_send(uid, "✅ **پرداخت تایید شد!** به‌زودی لینک اشتراک ارسال می‌شود.")
     for _a in admin_uids():
         _tg_send(_a, f"📝 **لینک ExpressVPN رو بفرست**\n\n👤 {uid}")
@@ -2875,9 +2943,11 @@ async def admin_request_action(request):
             return web.json_response({"error": "لینک لازم"}, status=400)
         del p[key]; save_pending(p)
         configs = load_configs(); configs.setdefault(target, [])
-        configs[target].append({"type": typ, "data": st.get("plan", ""), "link": link})
+        configs[target].append({"type": TYPE_LABELS.get(typ, typ), "data": st.get("plan", ""), "link": link})
         save_configs(configs)
-        try: mark_order_sent(target, link)
+        try: _ensure_pending_order(target, typ, st.get("plan", ""))   # مسیرهای بدون سفارش
+        except Exception: pass
+        try: mark_order_sent(target, link, kind=_kind_from_type(typ))
         except Exception: pass
         label = TYPE_LABELS.get(typ, typ)
         _tg_send(target, f"✅ **سفارش شما تأیید شد!**\n\n📦 **نوع:** {label}\n\n🔑 **اطلاعات:**\n`{link}`\n\nاز پنل کاربری قابل مشاهده است.")
