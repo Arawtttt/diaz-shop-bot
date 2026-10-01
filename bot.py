@@ -110,7 +110,7 @@ SPECIAL_PLANS = {
 }
 
 REFERRAL_TARGET = 1
-REFERRAL_PERCENT = 5  # 🎁 درصد هدیه رفرال از مبلغ خرید دوست
+REFERRAL_PERCENT = 3  # 🎁 درصد هدیه رفرال از مبلغ خرید دوست
 
 async def context_broad_config(uid, info, plan, name):
     """ارسال پیام کانفیگ به کاربر از مسیر مینی‌اپ (بدون دسترسی به bot object)"""
