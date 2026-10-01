@@ -769,7 +769,7 @@ function renderOrders(){
       var _ol=o.expires-Date.now()/1000;
       h+='<div style="font-size:11.5px;margin-top:5px;font-weight:700;color:'+(_ol>0?'#4ade80':'#f87171')+'">📅 انقضا: '+_od+(_ol>0?' — '+Math.ceil(_ol/86400)+' روز مانده':' — منقضی شده')+'</div>';
     }
-    if(sent&&o.link) h+='<div style="font-size:11px;color:var(--dim);margin-top:6px;word-break:break-all">🔗 '+o.link+'</div>';
+    if(sent&&o.link) h+='<div style="font-size:11px;color:var(--dim);margin-top:6px;white-space:pre-wrap;overflow-wrap:break-word;line-height:1.85">🔗 '+o.link+'</div>';
     h+='</div>';
   }
   h+='</div>';
@@ -1244,17 +1244,20 @@ function admTicketOpen(id){
     h += '</div></div>'
       + '<div class="gl" style="padding:12px">'
       + '<div style="display:flex;gap:6px">'
-      + '<input id="tr_' + escH(id) + '" placeholder="جواب رو بنویس..." style="flex:1;min-width:0;' + inp + '">'
+      + '<textarea id="tr_' + escH(id) + '" rows="2" placeholder="جواب رو بنویس...  (Enter = خط بعدی، Ctrl+Enter = ارسال)" style="flex:1;min-width:0;resize:vertical;line-height:1.9;' + inp + '">'
       + '<button class="bk" style="padding:9px 12px;font-size:11.5px;cursor:pointer" onclick="admTicketReply(\'' + escH(id) + '\')">📤</button>'
       + (t.status !== 'closed' ? '<button class="bk" style="padding:9px 12px;font-size:11.5px;cursor:pointer" title="بستن تیکت — چت کاربر پاک میشه" onclick="admTicketClose(\'' + escH(id) + '\')">🔒</button>' : '')
       + '</div>'
-      + '<div style="font-size:10.5px;color:var(--dim);margin-top:9px;text-align:center;line-height:1.9">جواب هم توی تلگرام کاربر میره هم اینجا. با 🔒 تیکت رو ببند تا چتش پاک بشه.</div>'
+      + '<div style="font-size:10.5px;color:var(--dim);margin-top:9px;text-align:center;line-height:1.9">Enter = خط بعدی • Ctrl+Enter = ارسال\nجواب هم توی تلگرام کاربر میره هم اینجا. با 🔒 تیکت رو ببند تا چتش پاک بشه.</div>'
       + '</div>';
     var b = admBox(); if(b) b.innerHTML = h;
     var chat = document.getElementById('admTktChat');
     if(chat){ try{ chat.scrollTop = chat.scrollHeight; }catch(e){} }
     var el = document.getElementById('tr_' + id);
-    if(el) el.addEventListener('keydown', function(ev){ if(ev.key === 'Enter'){ admTicketReply(id); } });
+    if(el) el.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)){ ev.preventDefault(); admTicketReply(id); }
+        else if(ev.key === 'Enter'){ ev.preventDefault(); try{ document.execCommand('insertText', false, '\n'); }catch(e){ el.value += '\n'; } }
+    });
 }
 function admTicketReply(id){
     var el = document.getElementById('tr_' + id);
@@ -1378,7 +1381,7 @@ function admUser(uid){
         var cs = u.configs || [];
         if(!cs.length) h += '<div style="color:var(--dim);font-size:12px">—</div>';
         for(var j=0;j<cs.length;j++)
-            h += '<div style="font-size:11.5px;padding:6px 0;word-break:break-all;direction:ltr;text-align:left;color:var(--dim)">' + (cs[j].link || cs[j].data || '') + '</div>';
+            h += '<div style="font-size:11.5px;padding:6px 0;white-space:pre-wrap;overflow-wrap:break-word;direction:ltr;text-align:left;color:var(--dim);line-height:1.8">' + (cs[j].link || cs[j].data || '') + '</div>';
         h += '</div>';
         h += '<div class="gl" style="padding:16px;margin-bottom:12px" id="admSubs"><div class="st" style="margin-bottom:8px">🔌 کنترل اشتراک‌ها</div><div class="sk" style="width:60%"></div></div>';
         h += '<div style="display:flex;gap:8px"><button class="bk" style="flex:1" onclick="admShow(\'users\')">← لیست کاربران</button>'
@@ -1983,7 +1986,7 @@ function renderUser() {
             h += '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
             var _ct = {send_config:'📦 کانفیگ VPN', config:'📦 کانفیگ VPN', send_express:'⚡ ExpressVPN', express:'⚡ ExpressVPN', send_deezer:'🎵 Deezer', send_spotify:'🎧 Spotify', send_ai:'🤖 هوش مصنوعی', send_gta:'🎮 GTA VI'};
             h += '<div style="font-size:13px;font-weight:600">' + (_ct[c.type] || c.type || '') + ' — ' + (c.data || '') + '</div>';
-            if (c.link) h += '<div style="font-size:11px;color:var(--red);word-break:break-all;margin-top:4px;font-family:monospace;direction:ltr;text-align:left">' + c.link + '</div>';
+            if (c.link) h += '<div style="font-size:11px;color:var(--red);word-break:break-word;white-space:pre-wrap;margin-top:4px;font-family:monospace;direction:ltr;text-align:left;line-height:1.8">' + c.link + '</div>';
             if (c.expires) {
                 var _nowS = Date.now() / 1000;
                 var _ed = new Date(c.expires * 1000).toLocaleDateString('fa-IR', {year:'numeric', month:'long', day:'numeric'});
