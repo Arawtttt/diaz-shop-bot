@@ -110,6 +110,7 @@ SPECIAL_PLANS = {
 }
 
 REFERRAL_TARGET = 1
+REFERRAL_PERCENT = 5  # 🎁 درصد هدیه رفرال از مبلغ خرید دوست
 
 async def context_broad_config(uid, info, plan, name):
     """ارسال پیام کانفیگ به کاربر از مسیر مینی‌اپ (بدون دسترسی به bot object)"""
@@ -615,14 +616,11 @@ def _ensure_pending_order(uid, typ, plan_key=""):
         if pend:
             return None                       # یه سفارش در انتظار دیگه هست؛ همون تحویل داده میشه
         name, price = _plan_info(kind, plan_key)
-        oid = int(time.time())
-        while any(int(x.get("id", -1)) == oid for x in lst if isinstance(x, dict)):
-            oid += 1
-        rec = {"id": oid, "kind": kind, "plan": str(plan_key or ""), "name": name,
-               "price": price, "status": "pending", "ts": int(time.time())}
-        lst.append(rec); save_orders(o)
+        add_order(uid, kind, str(plan_key or ""), name, price)   # از مسیر add_order → هدیه رفرال هم پرداخت بشه
+        rec = [x for x in load_orders().get(str(uid), [])
+               if isinstance(x, dict) and x.get("status") == "pending"]
         logger.info(f"ensure order uid={uid} kind={kind} plan={plan_key}")
-        return rec
+        return rec[-1] if rec else None
     except Exception as e:
         logger.warning(f"ensure order failed: {e}")
         return None
@@ -632,6 +630,12 @@ def add_order(uid, kind, plan_key, plan_name, price, email=""):
     _rec = {"id": int(time.time()), "kind": kind, "plan": plan_key, "name": plan_name, "price": price, "status": "pending", "ts": int(time.time())}
     if email: _rec["email"] = email
     lst.append(_rec)
+    try:
+        _amt, _to = pay_referral(uid, price)
+        if _amt > 0 and _to:
+            _rec["ref_bonus"] = _amt; _rec["ref_to"] = _to
+    except Exception as e:
+        logger.warning(f"referral hook: {e}")
     save_orders(o)
 def mark_order_sent(uid, link="", kind=""):
     o = load_orders(); lst = o.get(str(uid), [])
@@ -668,6 +672,63 @@ def add_balance(uid, amount):
     w[k]["balance"] += amount
     w[k]["history"].append({"amount": amount, "type": "charge", "ts": time.time()})
     save_wallet(w)
+
+def inviter_of(uid):
+    """کسی که این کاربر رو با لینک start=ref دعوت کرده"""
+    u = str(uid)
+    try:
+        for inv, d in load_referrals().items():
+            if str(inv) == u: continue
+            if u in [str(x) for x in (d.get("invited") or [])]:
+                return str(inv)
+    except Exception as e:
+        logger.warning(f"inviter_of: {e}")
+    return None
+
+def referral_earned(uid):
+    """جمع کل هدیه‌های رفرالی که به کیف پول این کاربر رفته"""
+    try:
+        h = load_wallet().get(str(uid), {}).get("history", []) or []
+        return int(sum(int(x.get("amount") or 0) for x in h if x.get("type") == "referral" and int(x.get("amount") or 0) > 0))
+    except Exception:
+        return 0
+
+def pay_referral(uid, price):
+    """۵٪ از مبلغ خرید رو به کیف پول دعوت‌کننده می‌ریزه. خروجی: (مبلغ، کیف)"""
+    try:
+        price = int(price or 0)
+        if price <= 0: return (0, None)
+        inv = inviter_of(uid)
+        if not inv or inv == str(uid): return (0, None)
+        amt = price * REFERRAL_PERCENT // 100
+        if amt <= 0: return (0, None)
+        w = load_wallet()
+        if inv not in w: w[inv] = {"balance": 0, "history": []}
+        w[inv]["balance"] = int(w[inv].get("balance", 0)) + amt
+        w[inv]["history"].append({"amount": amt, "type": "referral", "ts": time.time(),
+                                  "note": f"هدیه رفرال {REFERRAL_PERCENT}٪"})
+        save_wallet(w)
+        _tg_send(int(inv), f"🎁 **هدیه رفرال**\n`{amt:,}` تومان به کیف پولت اضافه شد ({REFERRAL_PERCENT}٪ خرید دوستت).")
+        return (amt, inv)
+    except Exception as e:
+        logger.warning(f"pay_referral: {e}")
+        return (0, None)
+
+def refund_referral(rec):
+    """برگشت هدیه رفرال موقع لغو سفارش"""
+    try:
+        amt = int(rec.get("ref_bonus") or 0); to = rec.get("ref_to")
+        if amt <= 0 or not to: return 0
+        w = load_wallet(); k = str(to)
+        if k in w:
+            w[k]["balance"] = max(0, int(w[k].get("balance", 0)) - amt)
+            w[k]["history"].append({"amount": -amt, "type": "referral", "ts": time.time(),
+                                    "note": "برگشت هدیه (سفارش لغو شد)"})
+            save_wallet(w)
+        return amt
+    except Exception as e:
+        logger.warning(f"refund_referral: {e}")
+        return 0
 
 def spend_balance(uid, amount):
     amount = int(amount or 0)
@@ -1502,6 +1563,7 @@ async def api_user(request):
         "history": load_wallet().get(uid, {}).get("history", [])[-10:],
         "card_number": CARD_NUMBER, "card_name": CARD_NAME,
         "referral_target": REFERRAL_TARGET, "bot_username": "Diazpshopbot",
+        "referral_earned": referral_earned(uid), "referral_percent": REFERRAL_PERCENT,
         "name": _ui.get("first_name", "") or "",
         "username": _ui.get("username", "") or "",
         "is_member": is_member,
@@ -2992,6 +3054,7 @@ async def admin_order_action(request):
         price = int(it.get("price") or 0)
         it["status"] = "rejected"; it["rejected_ts"] = int(time.time())
         save_orders(o)
+        refund_referral(it)
         if price > 0:
             add_balance(int(uid), price)
         _tg_send(uid, f"❌ **سفارش شما لغو شد:** {it.get('name') or it.get('plan')}"
