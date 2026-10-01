@@ -1092,7 +1092,7 @@ async def wallet_history(update, context):
 @require_member
 async def buy_config(update, context):
     q = update.callback_query; await q.answer()
-    kb = [[InlineKeyboardButton(f"📦 {v['name']} — {v['price']}", callback_data=f"config_{k}")] for k,v in CONFIG_PLANS.items()]
+    kb = [[InlineKeyboardButton(f"📦 {v['name']} — {v['price']} 🛡️", callback_data=f"config_{k}")] for k,v in CONFIG_PLANS.items()]
     kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")])
     await q.edit_message_text("📦 **انتخاب پلن:**", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
@@ -1139,7 +1139,7 @@ async def pay_wallet_config(update, context):
 @require_member
 async def buy_express(update, context):
     q = update.callback_query; await q.answer()
-    kb = [[InlineKeyboardButton(f"⏰ {v['name']} — {v['price']}", callback_data=f"express_{k}")] for k,v in EXPRESS_PLANS.items()]
+    kb = [[InlineKeyboardButton(f"⏰ {v['name']} — {v['price']} 🛡️", callback_data=f"express_{k}")] for k,v in EXPRESS_PLANS.items()]
     kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")])
     await q.edit_message_text("🔐 **ExpressVPN**\n\n• Killswitch\n• ۳۰۰ سرور از ۱۰۰ کشور\n• مناسب گیمینگ\n\n**انتخاب پلن:**", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
