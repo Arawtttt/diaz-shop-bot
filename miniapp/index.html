@@ -916,7 +916,7 @@ function buyAI(planId){
     h+='<div style="margin:10px 0 4px"><div style="font-size:12.5px;font-weight:700;margin-bottom:6px">📧 ایمیل فعال‌سازی جمنا</div>'
       +'<input id="gemEmail" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="name@gmail.com" value="'+String(GEM_EMAIL).replace(/"/g,'&quot;')+'" '
       +'oninput="GEM_EMAIL=this.value" '
-      +'onkeydown="if(event.key===\'Enter\'){event.preventDefault();payAIWallet(\''+planId+'\');}" '
+      +'onkeydown="if(event.key===\'Enter\' && !event.isComposing){event.preventDefault();payAIWallet(\''+planId+'\');}" '
       +'style="width:100%;box-sizing:border-box;padding:10px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;direction:ltr;text-align:left;font-family:monospace;font-size:13px">'
       +'<div style="font-size:11px;color:var(--dim);margin-top:6px">حساب جمنای پرو روی همین ایمیل فعال میشه</div></div>';
   }
@@ -971,7 +971,7 @@ function discRow(kind, id, defInt, defStr){
     }
     return '<div class="mi" onclick="discToggle()"><div class="ic">➕</div><div class="tx"><div class="ti">کد تخفیف داری؟</div><div class="sb">اینجا بزن و کد رو وارد کن</div></div><div class="aw">+</div></div>'
       + '<div id="discBox" style="display:none;margin:-4px 0 12px"><div style="display:flex;gap:6px">'
-      + '<input id="discInput" placeholder="کد تخفیف" autocapitalize="off" style="flex:1;min-width:0;box-sizing:border-box;padding:10px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;direction:ltr;text-align:left" onkeydown="if(event.key===\'Enter\'){event.preventDefault();discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ');}">'
+      + '<input id="discInput" placeholder="کد تخفیف" autocapitalize="off" style="flex:1;min-width:0;box-sizing:border-box;padding:10px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;direction:ltr;text-align:left" onkeydown="if(event.key===\'Enter\' && !event.isComposing){event.preventDefault();discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ');}">'
       + '<button class="bk" style="padding:8px 14px;cursor:pointer" onclick="discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ')">تایید</button>'
       + '</div></div>';
 }
@@ -1269,8 +1269,17 @@ function admTicketOpen(id){
     if(chat){ try{ chat.scrollTop = chat.scrollHeight; }catch(e){} }
     var el = document.getElementById('tr_' + id);
     if(el) el.addEventListener('keydown', function(ev){
+        // تایپ فارسی/عربی با کیبوردهای موبایل و ویندوز «composition» داره؛
+        // اگه Enter رو بگیریم کل متنی که داره نوشته میشه پاک میشه.
+        if(ev.isComposing || ev.keyCode === 229) return;
         if(ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)){ ev.preventDefault(); admTicketReply(id); }
-        else if(ev.key === 'Enter'){ ev.preventDefault(); try{ document.execCommand('insertText', false, '\n'); }catch(e){ el.value += '\n'; } }
+        else if(ev.key === 'Enter'){
+            ev.preventDefault();
+            var st = (el.selectionStart != null) ? el.selectionStart : el.value.length;
+            var en = (el.selectionEnd != null) ? el.selectionEnd : el.value.length;
+            el.value = el.value.slice(0, st) + '\n' + el.value.slice(en);
+            try{ el.selectionStart = el.selectionEnd = st + 1; }catch(e){}
+        }
     });
 }
 function admTicketReply(id){
