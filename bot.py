@@ -167,12 +167,31 @@ def save_announce(d): _save(ANNOUNCE_FILE, d)
 
 # ─── تیکت پشتیبانی (جایگزین آیدی شخصی ادمین) ────────────────
 TICKETS_FILE = "tickets.json"
+FAQ_FILE = "faq.json"
 
 def load_tickets():
     d = _load(TICKETS_FILE)
     return d if isinstance(d, dict) else {}
 
 def save_tickets(d): _save(TICKETS_FILE, d)
+
+FAQ_DEFAULT = [
+    "کی سفارشم تحویل داده می‌شه؟",
+    "گارانتی ویژه دیاز شاپ یعنی چی؟",
+    "روش پرداخت چطوریه؟",
+    "اگه اشتراکم مشکل پیدا کرد چیکار کنم؟",
+]
+
+def load_faq():
+    """سوالات پرتکراری که ادمین خودش مدیریتشون می‌کنه"""
+    d = _load(FAQ_FILE)
+    if isinstance(d, dict) and "questions" in d:
+        return [str(x) for x in (d.get("questions") or []) if str(x).strip()]
+    if isinstance(d, list):
+        return [str(x) for x in d if str(x).strip()]
+    return list(FAQ_DEFAULT)
+
+def save_faq(qs): _save(FAQ_FILE, {"questions": qs})
 
 def create_ticket(uid, user, text, source="bot"):
     ts = load_tickets()
@@ -313,6 +332,32 @@ async def ticket_reply_cb(update, context):
         f"💬 {t.get('name', 'کاربر')} ({t.get('uid', '')}):\n{body}")
 
 # ─── endpoint های نوت و تیکت ──────────────────────────────
+async def api_faq(request):
+    """سوالات پرتکرار (برای چیپ‌های بالای کادر پیام پشتیبانی)"""
+    return web.json_response({"questions": load_faq()})
+
+async def admin_faq(request):
+    """افزودن/حذف سوال توسط ادمین"""
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    action = str(data.get("action", ""))
+    qs = load_faq()
+    if action == "add":
+        t = str(data.get("text", "")).strip()[:200]
+        if t and t not in qs: qs.append(t)
+    elif action == "del":
+        try: i = int(data.get("index"))
+        except Exception: return web.json_response({"error": "index نامعتبر"}, status=400)
+        if 0 <= i < len(qs): qs.pop(i)
+    elif action == "save":
+        raw = data.get("questions") or []
+        qs = [str(x).strip()[:200] for x in raw if str(x).strip()][:50]
+    else:
+        return web.json_response({"error": "action نامعتبر"}, status=400)
+    save_faq(qs)
+    return web.json_response({"questions": qs})
+
 async def api_announcement(request):
     try:
         return web.json_response(load_announce())
@@ -430,7 +475,7 @@ def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
             ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
             PLAN_OVERRIDES_FILE, CUSTOM_PLANS_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE,
-            ANNOUNCE_FILE, TICKETS_FILE]
+            ANNOUNCE_FILE, TICKETS_FILE, FAQ_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -2297,6 +2342,8 @@ def create_web_app():
     app.router.add_post("/api/admin/order", admin_order_action)
     app.router.add_post("/api/admin/user_delete", admin_user_delete)
     app.router.add_get("/api/announcement", api_announcement)
+    app.router.add_get("/api/faq", api_faq)
+    app.router.add_post("/api/admin/faq", admin_faq)
     app.router.add_post("/api/ticket", api_ticket_new)
     app.router.add_get("/api/ticket", api_ticket_get)
     app.router.add_post("/api/admin/announcement", admin_announcement_save)
