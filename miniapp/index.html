@@ -2324,6 +2324,9 @@ function annReady(){
     }catch(e){ return true; }
 }
 function loadAnnounce(force){
+    // فقط یک بار در هر نشست — قبلاً دو جا صدا زده میشد و بعد از بستن، مودال دوباره میومد
+    if(!force && window._annFetched) return;
+    window._annFetched = true;
     fetch(API + '/api/announcement').then(function(r){ return r.json(); }).then(function(a){
         if(!a || a.error) return;
         window.SALE_ANN = a;
@@ -2338,10 +2341,21 @@ function loadAnnounce(force){
                 showAnn(a);
             })();
         }
-    }).catch(function(){ buildSaleBar(); });
+    }).catch(function(){ window._annFetched = false; buildSaleBar(); });
 }
+function _annHash(s){ var h = 5381; s = String(s || ''); for(var i = 0; i < s.length; i++){ h = ((h << 5) + h + s.charCodeAt(i)) | 0; } return (h >>> 0).toString(36); }
 function showAnn(a, k){
     if(document.getElementById('annModal')) return;
+    // مودال نباید جلوی کاربر وایسه: وسطِ تایپ، توی بخش تیکت یا پنل ادمین نیاد
+    try{
+        var ae = document.activeElement;
+        if(ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
+        if(typeof _cur !== 'undefined' && (_cur === 'ticket' || _cur === 'admin')) return;
+        var sk = 'dzAnn_' + _annHash(String(a && a.title || '') + '|' + String(a && a.sale_end || ''));
+        var last = Number(localStorage.getItem(sk)) || 0;
+        if(last && (Date.now() - last) < 864e5) return;   // روزی یک بار کافیه
+        localStorage.setItem(sk, String(Date.now()));
+    }catch(e){}
     var m = document.createElement('div');
     m.id = 'annModal';
     m.style.cssText = 'position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:22px;backdrop-filter:blur(5px)';
@@ -2349,7 +2363,7 @@ function showAnn(a, k){
       + 'background:linear-gradient(160deg,#2d0f17,#1b0a12 55%,#12060b);border:1px solid rgba(255,90,0,.5);'
       + 'box-shadow:0 22px 60px rgba(255,60,0,.3)"><div style="position:absolute;top:-19px;left:50%;transform:translateX(-50%);font-size:36px;'
       + 'filter:drop-shadow(0 4px 14px rgba(255,80,0,.75))">🔥</div>'
-      + '<div id="annX" style="position:absolute;top:9px;left:12px;font-size:17px;cursor:pointer;opacity:.55;line-height:1" title="بستن">✖</div>'
+      + '<div id="annX" style="position:absolute;top:4px;left:4px;padding:9px 11px;font-size:19px;cursor:pointer;opacity:.8;line-height:1;z-index:3" title="بستن">✖</div>'
       + '<div style="margin-top:6px;font-size:16.5px;font-weight:800;line-height:1.7;background:linear-gradient(135deg,#ff8a3d,#ffd166);'
       + '-webkit-background-clip:text;background-clip:text;color:transparent">' + escH(a.title || 'تخفیف ویژه') + '</div>'
       + '<div style="margin-top:11px;font-size:13px;line-height:2.1;color:#f3dede;white-space:pre-wrap">' + escH(a.text || '') + '</div>'
