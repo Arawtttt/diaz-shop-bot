@@ -109,6 +109,9 @@ body.light .thm{color:#1a102a}
 .mcb{position:absolute;top:50%;left:56px;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:16px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .2s}
 .mcb:active{transform:translateY(-50%) scale(.92)}
 body.light .mcb{color:#1a102a}
+/* ورودی‌ها داخل کارت‌های روشن: متن باید تیره باشه (ورگرنه سفید روی سفید دیده نمیشه) */
+body.light .gl input,body.light .gl textarea,body.light .mi input,body.light .mi textarea,body.light .pln input,body.light .pln textarea{color:#1a102a !important;background:rgba(255,255,255,.92) !important;border-color:rgba(0,0,0,.16) !important;caret-color:#1a102a}
+body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.light .mi input::placeholder,body.light .mi textarea::placeholder,body.light .pln input::placeholder,body.light .pln textarea::placeholder{color:rgba(26,16,42,.45) !important}
 .hback{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:34px;height:34px;display:none;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:17px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .15s}
 .hback:active{transform:translateY(-50%) scale(.92);border-color:rgba(167,139,250,.5)}
 .hdr.sc{box-shadow:0 10px 30px rgba(0,0,0,.5)}
