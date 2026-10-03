@@ -1258,7 +1258,7 @@ function admTicketOpen(id){
     h += '</div></div>'
       + '<div class="gl" style="padding:12px">'
       + '<div style="display:flex;gap:6px">'
-      + '<textarea id="tr_' + escH(id) + '" rows="2" placeholder="جواب رو بنویس...  (Enter = خط بعدی، Ctrl+Enter = ارسال)" style="flex:1;min-width:0;resize:vertical;line-height:1.9;' + inp + '">'
+      + '<textarea id="tr_' + escH(id) + '" rows="2" placeholder="جواب رو بنویس...  (Enter = خط بعدی، Ctrl+Enter = ارسال)" style="flex:1;min-width:0;resize:vertical;line-height:1.9;' + inp + '"></textarea>'
       + '<button class="bk" style="padding:9px 12px;font-size:11.5px;cursor:pointer" onclick="admTicketReply(\'' + escH(id) + '\')">📤</button>'
       + (t.status !== 'closed' ? '<button class="bk" style="padding:9px 12px;font-size:11.5px;cursor:pointer" title="بستن تیکت — چت کاربر پاک میشه" onclick="admTicketClose(\'' + escH(id) + '\')">🔒</button>' : '')
       + '</div>'
