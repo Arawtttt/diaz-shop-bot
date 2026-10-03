@@ -1525,13 +1525,17 @@ async def serve_index(request):
     now = datetime.now(timezone.utc)
     diff = max(0, (release - now).total_seconds())
     vals = [int(diff // 86400), int((diff % 86400) // 3600), int((diff % 3600) // 60), int(diff % 60)]
-    html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    import hashlib as _hashlib
+    raw = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    build = _hashlib.sha1(raw.encode("utf-8")).hexdigest()[:12]
+    html = raw
     for i, label in enumerate(["روز", "ساعت", "دقیقه", "ثانیه"]):
         pos = html.find(label)
         if pos > 0:
             before = html.rfind(">00</div>", 0, pos)
             if before > 0:
                 html = html[:before + 1] + str(vals[i]).zfill(2) + html[before + 3:]
+    html = html.replace("window.__V='000000000000'", "window.__V='" + build + "'", 1)
     resp = web.Response(text=html, content_type="text/html")
     resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
     resp.headers["Pragma"] = "no-cache"
@@ -2300,9 +2304,15 @@ async def admin_discount_toggle(request):
     save_discounts(ds)
     return web.json_response({"ok": True, "active": ds[code]["active"]})
 
+async def api_build(request):
+    import hashlib as _hashlib
+    raw = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    return web.json_response({"build": _hashlib.sha1(raw.encode("utf-8")).hexdigest()[:12]})
+
 def create_web_app():
     app = web.Application()
     app.router.add_get("/", serve_index)
+    app.router.add_get("/api/build", api_build)
     app.router.add_get("/index.html", serve_index)
     app.router.add_get("/api/user/{uid}", api_user)
     app.router.add_get("/api/debug_channel", api_debug_channel)

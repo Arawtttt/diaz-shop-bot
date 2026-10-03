@@ -414,6 +414,7 @@ var UID = (function() {
     var p = new URLSearchParams(window.location.search);
     return p.get('uid') || '';
 })();
+window.__V='000000000000';
 var BOT = 'Diazpshopbot';
 var API = window.location.origin.indexOf('railway') >= 0 ? window.location.origin : 'https://worker-production-e8dd.up.railway.app';
 var userData = null;
@@ -2531,6 +2532,32 @@ function ticketSend(){
     });
 }
 try{ loadAnnounce(); }catch(e){ setTimeout(function(){ try{ loadAnnounce(); }catch(e2){} }, 1500); }
+
+// ==== تازه‌سازی خودکار صفحهٔ کهنه ====
+// سرور شناسهٔ بیلد رو توی window.__V میذاره؛ اینجا با /api/build مقایسه میکنیم.
+// اگه فرق داشت یعنی وسطِ این نشست یه دیپلوی جدید اومده (یا صفحه از قبل باز مونده) → رفرش.
+function __dzReload(){ location.reload(); }
+function checkBuild(){
+    try{
+        if(!window.__V || !/^[0-9a-f]{12}$/.test(window.__V)) return;
+        if(String(window.__V) === '000000000000') return;
+        fetch(API + '/api/build', { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(d){
+            var cur = d && d.build;
+            if(!cur || !/^[0-9a-f]{12}$/.test(cur) || cur === window.__V) return;
+            var key = 'dzR_' + cur;
+            if(sessionStorage.getItem(key)) return;
+            var ae = document.activeElement;
+            // وسطِ تایپ رفرش نکنیم (متن گم میشه)؛ روی فوکوس بعدی دوباره چک میشه
+            if(ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
+            sessionStorage.setItem(key, '1');
+            try{ showToast('🔄 نسخه جدیدی اومده — صفحه تازه میشه'); }catch(e){}
+            setTimeout(function(){ __dzReload(); }, 1500);
+        }).catch(function(){});
+    }catch(e){}
+}
+setTimeout(checkBuild, 5000);
+document.addEventListener('visibilitychange', function(){ if(!document.hidden) setTimeout(checkBuild, 1500); });
+window.addEventListener('pageshow', function(){ setTimeout(checkBuild, 1500); });
 </script>
 </body>
 </html>
