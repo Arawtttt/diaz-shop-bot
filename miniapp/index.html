@@ -1089,7 +1089,12 @@ function saleRow(kind,id,def,sub){
          + '<b style="color:#ff7a3d">' + faNum(CURINT(kind,id)) + '</b> تومان' + tail + saleTag(kind,id) + gBadge();
 }
 function saleCard(kind,id,def){
-    if(!ONSALE(kind,id)) return escH(P(kind,id,def)) + ' <small>تومان</small>' + gBadge();
+    if(!ONSALE(kind,id)){
+        var raw = String(P(kind,id,def) || '');
+        if(!/[0-9\u06F0-\u06F9]/.test(raw))   // وضعیت (اتمام موجودی / غیرفعال) نه عدد قیمت
+            return '<span style="font-size:11.5px;font-weight:800;color:#fbbf24">' + escH(raw) + '</span>' + gBadge();
+        return escH(raw) + ' <small>تومان</small>' + gBadge();
+    }
     return '<s style="color:rgba(255,255,255,.3);font-size:.85em">' + faNum(OLDINT(kind,id)) + '</s> '
          + '<b style="color:#ff7a3d">' + faNum(CURINT(kind,id)) + '</b> <small>تومان</small>'
          + ' <span style="display:inline-block;background:linear-gradient(135deg,#ff2d00,#ff9100);color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:6px;box-shadow:0 0 8px rgba(255,80,0,.5)">حراج</span>' + gBadge();
