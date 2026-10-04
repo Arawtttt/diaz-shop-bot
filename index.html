@@ -139,9 +139,15 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .mi:active{transform:scale(.985);border-color:rgba(167,139,250,.55)}
 .toast{position:fixed;bottom:100px;left:50%;transform:translate(-50%,16px);background:rgba(15,9,26,.92);backdrop-filter:blur(16px);border:1px solid rgba(167,139,250,.35);box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 20px rgba(124,58,237,.2);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-family:'Vazirmatn';z-index:200;opacity:0;transition:opacity .28s,transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-.modal{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}
-.modal.show{display:flex}
-.modal-box{background:linear-gradient(150deg,rgba(30,20,54,.96),rgba(13,8,26,.98));backdrop-filter:blur(24px);border:1px solid rgba(167,139,250,.3);border-radius:24px;padding:28px 20px;width:90%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(124,58,237,.18)}
+.toast.err{animation:toastShake .42s ease}
+@keyframes toastShake{0%,100%{transform:translate(-50%,0)}25%{transform:translate(calc(-50% - 7px),0)}50%{transform:translate(calc(-50% + 7px),0)}75%{transform:translate(calc(-50% - 4px),0)}}
+.modal{position:fixed;inset:0;z-index:150;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s,visibility 0s .28s}
+.modal.show{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .28s,visibility 0s 0s}
+.modal-box{background:linear-gradient(150deg,rgba(30,20,54,.96),rgba(13,8,26,.98));backdrop-filter:blur(24px);border:1px solid rgba(167,139,250,.3);border-bottom:none;border-radius:26px 26px 0 0;padding:12px 20px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:520px;text-align:center;box-shadow:0 -18px 50px rgba(0,0,0,.55),0 0 40px rgba(124,58,237,.18);transform:translateY(103%);transition:transform .44s cubic-bezier(.22,1,.36,1)}
+.modal.show .modal-box{transform:translateY(0)}
+.modal-box::before{content:'';display:block;width:44px;height:4px;border-radius:4px;background:rgba(255,255,255,.3);margin:0 auto 14px}
+.light .modal-box{background:linear-gradient(150deg,rgba(255,255,255,.97),rgba(246,244,255,.95))}
+.light .modal-box::before{background:rgba(40,25,80,.22)}
 .modal-box h3{font-size:17px;margin-bottom:16px}
 .modal-box input{width:100%;padding:14px;border:1px solid var(--stroke);border-radius:14px;background:rgba(255,255,255,.08);color:#fff;font-family:'Vazirmatn';font-size:15px;text-align:center;outline:none;margin-bottom:16px;transition:border-color .2s,box-shadow .2s}
 .modal-box input:focus{border-color:var(--pur2);box-shadow:0 0 0 3px rgba(124,58,237,.25)}
@@ -156,8 +162,9 @@ body.light .mcb{color:#1a102a}
 /* ورودی‌ها داخل کارت‌های روشن: متن باید تیره باشه (ورگرنه سفید روی سفید دیده نمیشه) */
 body.light .gl input,body.light .gl textarea,body.light .mi input,body.light .mi textarea,body.light .pln input,body.light .pln textarea{color:#1a102a !important;background:rgba(255,255,255,.92) !important;border-color:rgba(0,0,0,.16) !important;caret-color:#1a102a}
 body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.light .mi input::placeholder,body.light .mi textarea::placeholder,body.light .pln input::placeholder,body.light .pln textarea::placeholder{color:rgba(26,16,42,.45) !important}
-.hback{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:34px;height:34px;display:none;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:#fff;font-size:17px;cursor:pointer;font-family:'Vazirmatn';z-index:5;transition:all .15s}
-.hback:active{transform:translateY(-50%) scale(.92);border-color:rgba(167,139,250,.5)}
+.hback{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;transform:none;width:40px;height:40px;display:none;align-items:center;justify-content:center;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(20,12,36,.55);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);color:#fff;font-size:18px;cursor:pointer;font-family:'Vazirmatn';z-index:80;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 8px 22px rgba(0,0,0,.4);transition:transform .15s,box-shadow .2s,border-color .2s}
+.hback:active{transform:scale(.9);border-color:rgba(167,139,250,.75);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 4px 12px rgba(0,0,0,.4)}
+.light .hback{background:rgba(255,255,255,.75);color:#2a1352;border-color:rgba(124,58,237,.3)}
 .hdr.sc{box-shadow:0 10px 30px rgba(0,0,0,.5)}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mgrid .mi{flex-direction:column;align-items:flex-start;gap:9px;margin-bottom:0;padding:14px;min-height:112px}
@@ -642,9 +649,25 @@ function enterApp() {
 }
 
 // === TOAST ===
+function haptic(t){
+    try{
+        var hh = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback;
+        if(!hh) return;
+        if(t === 'ok') hh.notificationOccurred('success');
+        else if(t === 'err') hh.notificationOccurred('error');
+        else hh.impactOccurred(t || 'light');
+    }catch(e){}
+}
 function showToast(msg) {
     var t = document.getElementById('toast');
-    if (t) { t.textContent = msg; t.className = 'toast show'; setTimeout(function() { t.className = 'toast'; }, 2500); }
+    if (t) {
+        var m = String(msg == null ? '' : msg);
+        var isErr = /\u274C|\u26A0\uFE0F|\u062E\u0637\u0627|\u0646\u0627\u0645\u0641\u0642|\u0627\u062A\u0645\u0627\u0645|\u063A\u06CC\u0631\u0641\u0639\u0627\u0644/.test(m);
+        t.textContent = m;
+        t.className = 'toast show' + (isErr ? ' err' : '');
+        haptic(isErr ? 'err' : 'light');
+        setTimeout(function() { t.className = 'toast'; }, 2500);
+    }
 }
 
 // === NAVIGATION ===
@@ -756,7 +779,7 @@ function buySpotify(planId){
   var el=document.getElementById('musicBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
   var h=buyHead(bl('spotify'), p.name, finHTML('spotify', planId, fin)+' تومان');
-  try{ stpSet(1); }catch(e){}
+  try{ stpRender(['طرح','تحویل']); }catch(e){}
   if(bal>=fin.int){
     h+='<div class="mi" onclick="paySpotifyWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
   } else {
@@ -774,6 +797,7 @@ function paySpotifyWallet(planId){
   .then(function(r){return r.json();}).then(function(d){
     if(d.error){showToast('❌ '+d.error);return;}
     discReset();
+    try{ stpDone(); }catch(e){}
     celebrate('سفارش ثبت شد!', function(){ restoreBlock('musicBrands','music'); loadUser(); showSection('home'); });
   }).catch(function(){showToast('❌ خطا');});
 }
@@ -788,7 +812,7 @@ function buyDeezer(planId){
   var el=document.getElementById('musicBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
   var h=buyHead(bl('deezer'), 'Deezer '+p.name, finHTML('deezer', planId, fin)+' تومان');
-  try{ stpSet(1); }catch(e){}
+  try{ stpRender(['طرح','تحویل']); }catch(e){}
   if(bal>=fin.int){
     h+='<div class="mi" onclick="payDeezerWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
   } else {
@@ -806,6 +830,7 @@ function payDeezerWallet(planId){
   .then(function(r){return r.json();}).then(function(d){
     if(d.error){showToast('❌ '+d.error);return;}
     discReset();
+    try{ stpDone(); }catch(e){}
     celebrate('سفارش ثبت شد!', function(){ restoreBlock('musicBrands','music'); loadUser(); showSection('home'); });
   }).catch(function(){showToast('❌ خطا');});
 }
@@ -842,6 +867,7 @@ function renderOrders(){
   el.innerHTML=h;
 }
 function celebrate(msg, cb, sub){
+  haptic('ok');
   if(typeof discReset === 'function') discReset();
   var ov=document.createElement('div');
   ov.id='celebOverlay';
@@ -967,7 +993,7 @@ function buyAI(planId){
   var el=document.getElementById('aiBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
   var h=buyHead(bl(p.brand||'gemini'), p.name, finHTML('ai', planId, fin)+' تومان');
-  try{ stpSet(1); }catch(e){}
+  try{ stpRender(['طرح','تحویل']); }catch(e){}
   if((p.brand||'gemini')==='gemini'){
     h+='<div style="margin:10px 0 4px"><div style="font-size:12.5px;font-weight:700;margin-bottom:6px">📧 ایمیل فعال‌سازی جمنا</div>'
       +'<input id="gemEmail" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="name@gmail.com" value="'+String(GEM_EMAIL).replace(/"/g,'&quot;')+'" '
@@ -1000,6 +1026,7 @@ function payAIWallet(planId){
   .then(function(r){return r.json();}).then(function(d){
     if(d.error){showToast('❌ '+d.error);return;}
     discReset();
+    try{ stpDone(); }catch(e){}
     celebrate('سفارش ثبت شد ✅', function(){ restoreBlock('aiBrands','ai'); loadUser(); showSection('home'); },
       email ? ('📧 ایمیل '+email+' ثبت شد — سفارشت تا بزودی توسط پشتیبانی فعال میشه') : null);
   }).catch(function(){showToast('❌ خطا');});
@@ -2448,7 +2475,7 @@ function buyConfig(planId) {
     var bal = (userData && userData.balance) || 0;
     var canPay = bal >= fin.int;
     var html = buyHead(bl('vpn'), names[planId], finHTML('config', planId, fin) + ' تومان');
-    try{ stpSet(1); }catch(e){}
+    try{ stpRender(['طرح','نام','تحویل']); }catch(e){}
     if (canPay) {
         html += '<div class="mi" onclick="payConfigWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
     } else {
@@ -2461,6 +2488,22 @@ function buyConfig(planId) {
     if (el) { if(!window._origBlocks)window._origBlocks={}; if(!window._origBlocks['sec-config'])window._origBlocks['sec-config']=el.innerHTML; el.innerHTML = html; }
 }
 
+function stpRender(steps){
+    var el=document.getElementById('buySteps'); if(!el) return;
+    window.__STEPS = (steps && steps.length) ? steps : ['طرح','تحویل'];
+    var nums=['۱','۲','۳','۴','۵'], hh='';
+    for(var i=0;i<window.__STEPS.length;i++){
+        if(i) hh+='<div class="stpLn"></div>';
+        hh+='<div class="stpDot'+(i===0?' act':'')+'" data-step="'+(i+1)+'">'+(nums[i]||(i+1))
+          +'<span class="stplb">'+String(window.__STEPS[i])+'</span></div>';
+    }
+    el.innerHTML=hh;
+    stpSet(1);
+}
+function stpDone(){
+    try{ stpSet((window.__STEPS||['طرح','تحویل']).length); }catch(e){}
+    try{ var bs=document.getElementById('buySteps'); if(bs) setTimeout(function(){ bs.style.display='none'; },2500); }catch(e){}
+}
 function stpSet(n){
     var dots=document.querySelectorAll('.stpDot'),lns=document.querySelectorAll('.stpLn'),el=document.getElementById('buySteps');
     if(el)el.style.display='flex';
@@ -2490,7 +2533,7 @@ function buyExpress(planId) {
     var bal = (userData && userData.balance) || 0;
     var canPay = bal >= fin.int;
     var html = buyHead(bl('express'), names[planId], finHTML('express', planId, fin) + ' تومان');
-    try{ stpSet(1); }catch(e){}
+    try{ stpRender(['طرح','تحویل']); }catch(e){}
     if (canPay) {
         html += '<div class="mi" onclick="payExpressWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
     } else {
@@ -2513,6 +2556,7 @@ function payExpressWallet(planId) {
     }).then(function(r) { return r.json(); }).then(function(d) {
         if (d.error) { showToast('❌ ' + d.error); return; }
         discReset();
+        try{ stpDone(); }catch(e){}
         celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); });
     }).catch(function() { showToast('❌ خطا'); });
 }
@@ -2547,11 +2591,11 @@ document.getElementById('nameSubmit').addEventListener('click', function() {
         if (_failed) return;
         if (!d || d.error) {
             // سفارش ثبت شده ولی صدور خودکار کانفیگ شکست خورده → ادمین دستی می‌فرسته
-            if (d && d.error === 'creation failed') { discReset(); stpSet(3); setTimeout(function(){var bs=document.getElementById('buySteps');if(bs)bs.style.display='none';},2500); celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); }); return; }
+            if (d && d.error === 'creation failed') { discReset(); try{ stpDone(); }catch(e){} celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); }); return; }
             showToast('❌ ' + (d && d.error ? d.error : 'خطا در ثبت سفارش')); return;
         }
         discReset();
-        stpSet(3); setTimeout(function(){var bs=document.getElementById('buySteps');if(bs)bs.style.display='none';},2500); celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); });
+        try{ stpDone(); }catch(e){} celebrate('سفارش ثبت شد!', function(){ loadUser(); showSection('home'); });
     }).catch(function() { showToast('❌ خطا'); });
 });
 
