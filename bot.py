@@ -476,7 +476,7 @@ def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
             ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
             PLAN_OVERRIDES_FILE, CUSTOM_PLANS_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE,
-            ANNOUNCE_FILE, TICKETS_FILE, FAQ_FILE]
+            ANNOUNCE_FILE, TICKETS_FILE, FAQ_FILE, UI_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -2314,6 +2314,7 @@ def create_web_app():
     app = web.Application()
     app.router.add_get("/", serve_index)
     app.router.add_get("/api/build", api_build)
+    app.router.add_get("/api/ui", api_ui)
     app.router.add_get("/index.html", serve_index)
     app.router.add_get("/api/user/{uid}", api_user)
     app.router.add_get("/api/debug_channel", api_debug_channel)
@@ -2350,6 +2351,7 @@ def create_web_app():
     app.router.add_post("/api/admin/sub", admin_sub_action)
     app.router.add_get("/api/admin/requests", admin_requests)
     app.router.add_post("/api/admin/request", admin_request_action)
+    app.router.add_post("/api/admin/ui", admin_ui_save)
     app.router.add_post("/api/admin/order", admin_order_action)
     app.router.add_post("/api/admin/user_delete", admin_user_delete)
     app.router.add_get("/api/announcement", api_announcement)
@@ -2789,14 +2791,21 @@ def _pending_items():
                       "label": TYPE_LABELS.get(typ, typ),
                       "user_id": str(st.get("user_id") or key),
                       "plan": st.get("plan") or "", "ts": st.get("ts") or 0})
+    now_ts = int(time.time())
     for rid, rc in load_receipts().items():
-        if not isinstance(rc, dict) or rc.get("status") != "waiting":
+        if not isinstance(rc, dict):
             continue
+        st = str(rc.get("status") or "")
+        if st not in ("waiting", "done", "rejected"):
+            continue
+        if st != "waiting" and (now_ts - int(rc.get("done_ts") or 0)) > 900:
+            continue        # رسید حل‌شده فقط ۱۵ دقیقه برای همه نشون داده میشه
         typ = str(rc.get("ptype") or "")
         items.append({"key": f"receipt:{rid}", "kind": "receipt", "type": typ,
                       "label": TYPE_LABELS.get(typ, "📸 رسید"), "user_id": str(rc.get("uid", "")),
                       "plan": rc.get("plan") or "", "amount": rc.get("amount", 0),
-                      "price": rc.get("price", 0), "ts": rc.get("ts", 0)})
+                      "price": rc.get("price", 0), "ts": rc.get("ts", 0),
+                      "status": st, "by": str(rc.get("by") or "")})
     items.sort(key=lambda x: -x.get("ts", 0))
     return items
 
@@ -3016,12 +3025,70 @@ def _receipt_approve(rc):
         _tg_send(_a, f"📝 **لینک ExpressVPN رو بفرست**\n\n👤 {uid}")
     return "پرداخت تایید شد — لینک رو بفرست"
 
+# ── ظاهر سایت (بنر، تیترها، رنگ‌ها، تم) ──────────────────────
+UI_FILE = "bot_ui.json"
+UI_SECTIONS = ("home", "ai", "vpn", "music", "games", "referral", "ticket", "wallet", "panel", "gtavi")
+UI_DEFAULTS = {
+    "banner_on": True, "banner_icon": "✨",
+    "banner_title": "پلن فمیلی جدید",
+    "banner_sub": "جمنای پرو فمیلی • نامحدود — ۱ ماهه، فقط ۸۰۰,۰۰۰ تومان",
+    "banner_target": "ai",
+    "hero_title": "🕷️ Diaz Shop", "hero_sub": "فروشگاه دیجیتال دیاز",
+    "accent1": "#7c3aed", "accent2": "#e23636",
+    "theme": "dark",
+}
+
+def _hex6(v):
+    v = str(v or "").strip()
+    if len(v) == 7 and v[0] == "#" and all(c in "0123456789abcdefABCDEF" for c in v[1:]):
+        return v.lower()
+    return None
+
+def load_ui():
+    d = _load(UI_FILE)
+    out = dict(UI_DEFAULTS)
+    if isinstance(d, dict):
+        for k in UI_DEFAULTS:
+            if k in d:
+                out[k] = d[k]
+    return out
+
+def save_ui(d):
+    _save(UI_FILE, d)
+
+async def api_ui(request):
+    return web.json_response({"ok": True, "ui": load_ui()})
+
+async def admin_ui_save(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    cur = load_ui()
+    caps = {"banner_icon": 12, "banner_title": 60, "banner_sub": 140,
+            "hero_title": 40, "hero_sub": 60}
+    for k, cap in caps.items():
+        if k in data:
+            cur[k] = str(data.get(k) or "").strip()[:cap]
+    if "banner_on" in data:
+        cur["banner_on"] = bool(data.get("banner_on"))
+    if "banner_target" in data and str(data.get("banner_target")) in UI_SECTIONS:
+        cur["banner_target"] = str(data["banner_target"])
+    if "theme" in data and str(data.get("theme")) in ("dark", "light"):
+        cur["theme"] = str(data["theme"])
+    for k in ("accent1", "accent2"):
+        if k in data:
+            hx = _hex6(data.get(k))
+            if hx:
+                cur[k] = hx
+    save_ui(cur)
+    return web.json_response({"ok": True, "ui": cur})
+
 async def admin_requests(request):
     err = _denied(request)
     if err: return err
     items = _pending_items()
     for it in items:
-        if it["kind"] == "deliver" or it["kind"] == "receipt":
+        if (it["kind"] == "deliver" or it["kind"] == "receipt") and it.get("status", "waiting") == "waiting":
             it["actionable"] = True
     return web.json_response({"items": items})
 
@@ -3037,16 +3104,26 @@ async def admin_request_action(request):
         rid = key.split(":", 1)[1]
         rs = load_receipts(); rc = rs.get(rid)
         if not isinstance(rc, dict) or rc.get("status") != "waiting":
-            return web.json_response({"error": "رسید پیدا نشد یا حل شده"}, status=404)
+            return web.json_response({"error": "رسید قبلاً توسط ادمین دیگه‌ای حل شده"}, status=404)
+        by = str(data.get("by") or "")
+        def _tell_others(txt):
+            # به بقیهٔ ادمین‌ها خبر بده تا دوباره تایید نکنن
+            for _a in admin_uids():
+                if str(_a) != by:
+                    _tg_send(_a, txt)
+        amt = int(rc.get("amount") or 0)
+        who = str(rc.get("uid", ""))
         if action == "reject":
-            rc["status"] = "rejected"; rc["done_ts"] = int(time.time())
+            rc["status"] = "rejected"; rc["done_ts"] = int(time.time()); rc["by"] = by
             save_receipts(rs)
-            _tg_send(str(rc.get("uid", "")), "❌ رسید تایید نشد.\nبا پشتیبانی تماس بگیرید.")
+            _tg_send(who, "❌ رسید تایید نشد.\nبا پشتیبانی تماس بگیرید.")
+            _tell_others(f"❌ **رسید رد شد**\n👤 کاربر {who}\n💰 {amt:,} تومان")
             return web.json_response({"ok": True, "note": "رسید رد شد"})
         if action == "approve":
             note = _receipt_approve(rc)
-            rc["status"] = "done"; rc["done_ts"] = int(time.time())
+            rc["status"] = "done"; rc["done_ts"] = int(time.time()); rc["by"] = by
             save_receipts(rs)
+            _tell_others(f"✅ **رسید تایید شد**\n👤 کاربر {who}\n💰 {amt:,} تومان")
             return web.json_response({"ok": True, "note": note})
         return web.json_response({"error": "عملیات نامعتبر"}, status=400)
 
