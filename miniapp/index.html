@@ -1503,7 +1503,7 @@ function admDiscounts(){
         }
         h += '</div>';
         var b = admBox(); if(b) b.innerHTML = h;
-    }).catch(function(){});
+    }).catch(function(){ showToast('❌ خطا در دریافت کدهای تخفیف'); });
 }
 function admSaveDiscount(){
     var code = (document.getElementById('dcCode').value || '').trim();
@@ -1610,7 +1610,25 @@ function admPlans(){
         }
         h += '</div>';
         var b = admBox(); if(b) b.innerHTML = h;
-    }).catch(function(){});
+        bindPlanInputs(b);
+    }).catch(function(){ showToast('❌ خطا در دریافت پلن‌ها'); });
+}
+function bindPlanInputs(root){
+    // Enter داخل خانه‌های «قیمت» و «قیمت قبل» = ذخیره
+    if(!root || !root.querySelectorAll) return;
+    var ins = root.querySelectorAll('input[id^="pf_"], input[id^="of_"]');
+    for(var q = 0; q < ins.length; q++){
+        (function(inp){
+            inp.addEventListener('keydown', function(ev){
+                if(ev.key !== 'Enter' || ev.isComposing || ev.keyCode === 229) return;
+                ev.preventDefault();
+                var rest = String(inp.id || '').slice(3);
+                var up = rest.indexOf('_');
+                if(up < 1) return;
+                admSavePlan(rest.slice(0, up), rest.slice(up + 1));
+            });
+        })(ins[q]);
+    }
 }
 function admAddPlan(kind){
     var nm = (document.getElementById('ni_'+kind)||{}).value || '';
@@ -1670,6 +1688,15 @@ function admSavePlan(kind, key){
     if(oldChanged){ oldV = parseInt(ofRaw, 10); if(isNaN(oldV) || oldV < 0){ showToast('قیمت قبل نامعتبر'); return; } }
     if(!hasPrice && !iconChanged && !oldChanged){ showToast('قیمت یا قیمت قبل یا لوگو رو وارد کنید'); return; }
     if(el && el.value !== '' && !hasPrice){ showToast('قیمت نامعتبر'); return; }
+    // قیمت فعلی محصول: اگه قیمت جدیدی نداده از placeholder خونده میشه
+    var curNow = hasPrice ? v : parseInt(String((el && el.placeholder) || '0').replace(/[^0-9]/g, ''), 10);
+    if(oldChanged && oldV > 0){
+        if(!curNow || isNaN(curNow)){ showToast('⚠️ قیمت فعلی این محصول پیدا نشد'); return; }
+        if(oldV <= curNow){
+            showToast('⚠️ «قیمت قبل» باید از قیمت فعلی (' + faNum(curNow) + ' تومان) بیشتر باشه تا تخفیف دیده بشه');
+            return;
+        }
+    }
     var body = {kind:kind, key:key};
     if(hasPrice) body.price_int = v;
     if(iconChanged) body.icon = icon;
@@ -1677,8 +1704,11 @@ function admSavePlan(kind, key){
     admFetch('/api/admin/plan', {method:'POST', body:JSON.stringify(body)})
     .then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
-        showToast('✅ ذخیره شد'); admPlans(); _planOvRefresh();
-    }).catch(function(){});
+        if(oldChanged && oldV > 0) showToast('✅ حراج ذخیره شد: ' + faNum(oldV) + ' ← ' + faNum(curNow) + ' تومان 🔥');
+        else if(oldChanged) showToast('✅ حراج برداشته شد');
+        else showToast('✅ ذخیره شد');
+        admPlans(); _planOvRefresh();
+    }).catch(function(){ showToast('❌ خطا در ذخیره‌سازی — دوباره تلاش کن'); });
 }
 function admOutPlan(kind, key, val){
     admFetch('/api/admin/plan', {method:'POST', body:JSON.stringify({kind:kind, key:key, out:val})})
