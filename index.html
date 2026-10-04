@@ -98,7 +98,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .lb2{background:rgba(0,0,0,.4);border:1px solid var(--stroke);border-radius:14px;padding:14px;text-align:center;cursor:pointer}
 .wa{font-size:36px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--gold),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:8px 0}
 .wl{text-align:center;font-size:12px;color:var(--dim);margin-bottom:16px}
-.stp{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px 12px}
+.stp{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;justify-content:center;gap:7px;padding:11px 16px 21px;border-radius:22px;background:linear-gradient(160deg,rgba(20,12,36,.93),rgba(11,6,22,.87));backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px rgba(0,0,0,.5),0 0 24px rgba(124,58,237,.28)}
+.light .stp{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,244,255,.9));border-color:rgba(124,58,237,.26);box-shadow:0 12px 30px rgba(80,60,140,.18)}
 .stpDot{width:28px;height:28px;border-radius:50%;border:2px solid var(--stroke);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--dim);background:var(--glass);transition:all .4s;position:relative}
 .stpDot.act{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 0 16px rgba(124,58,237,.5);transform:scale(1.1)}
 .stpDot.done{background:rgba(74,222,128,.2);border-color:#4ade80;color:#4ade80}
@@ -107,8 +108,37 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .stpDot.done .stplb{color:#4ade80}
 .stpLn{flex:1;max-width:54px;height:2px;background:var(--stroke);transition:background .4s}
 .stpLn.done{background:#4ade80}
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(15,9,26,.92);backdrop-filter:blur(16px);border:1px solid rgba(167,139,250,.35);box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 20px rgba(124,58,237,.2);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-family:'Vazirmatn';z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
-.toast.show{opacity:1}
+.emp{text-align:center;padding:28px 18px 24px;border:1px dashed rgba(167,139,250,.34);border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(124,58,237,.07));margin-bottom:14px;animation:riseIn .5s cubic-bezier(.22,1,.36,1) both}
+.empi{display:inline-flex;align-items:center;justify-content:center;width:66px;height:66px;font-size:31px;border-radius:50%;background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.24),rgba(124,58,237,.16));border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 26px rgba(124,58,237,.26);margin-bottom:12px;animation:stcFloat 3.4s ease-in-out infinite}
+.empt{font-size:14.5px;font-weight:800;margin-bottom:5px}
+.emps{font-size:12px;color:var(--dim);line-height:1.95;margin-bottom:6px}
+.emp .bk{max-width:260px;margin-left:auto;margin-right:auto}
+.light .emp{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(124,58,237,.07));border-color:rgba(124,58,237,.32)}
+.light .empt{color:#2a1352}
+.buyHead{display:flex;align-items:center;gap:12px;padding:14px;border-radius:20px;border:1px solid rgba(167,139,250,.32);background:linear-gradient(140deg,rgba(124,58,237,.24),rgba(255,255,255,.05));backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 10px 26px rgba(124,58,237,.24);margin-bottom:14px;animation:riseIn .45s cubic-bezier(.22,1,.36,1) both}
+.bhLogo{width:52px;height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.24)}
+.bhLogo svg,.buyHead .brlg{width:34px;height:34px;object-fit:contain}
+.bhTx{flex:1;min-width:0}
+.bhT{font-size:15px;font-weight:800;line-height:1.5}
+.bhS{font-size:11px;color:rgba(255,255,255,.7);margin-top:3px}
+.bhP{font-size:15px;font-weight:900;color:#ffb020;white-space:nowrap}
+.bhP small{font-size:10px;color:rgba(255,255,255,.68);font-weight:500}
+.light .buyHead{background:linear-gradient(140deg,rgba(124,58,237,.18),rgba(255,255,255,.85));box-shadow:0 8px 22px rgba(80,60,140,.14)}
+.light .bhT{color:#2a1352}
+.light .bhS{color:rgba(40,25,80,.7)}
+.light .bhP{color:#c2410c}
+.sec.act>*{animation:riseIn .45s cubic-bezier(.22,1,.36,1) both}
+.sec.act>*:nth-child(2){animation-delay:.035s}
+.sec.act>*:nth-child(3){animation-delay:.07s}
+.sec.act>*:nth-child(4){animation-delay:.105s}
+.sec.act>*:nth-child(5){animation-delay:.14s}
+.sec.act>*:nth-child(6){animation-delay:.175s}
+.sec.act>*:nth-child(7){animation-delay:.21s}
+.sec.act>*:nth-child(8){animation-delay:.245s}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.mi:active{transform:scale(.985);border-color:rgba(167,139,250,.55)}
+.toast{position:fixed;bottom:100px;left:50%;transform:translate(-50%,16px);background:rgba(15,9,26,.92);backdrop-filter:blur(16px);border:1px solid rgba(167,139,250,.35);box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 20px rgba(124,58,237,.2);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-family:'Vazirmatn';z-index:200;opacity:0;transition:opacity .28s,transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
 .modal{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}
 .modal.show{display:flex}
 .modal-box{background:linear-gradient(150deg,rgba(30,20,54,.96),rgba(13,8,26,.98));backdrop-filter:blur(24px);border:1px solid rgba(167,139,250,.3);border-radius:24px;padding:28px 20px;width:90%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(124,58,237,.18)}
@@ -629,6 +659,7 @@ function goBack() {
 }
 function _applySection(name) {
     _cur = name;
+    try{ if(typeof stpHide === 'function') stpHide(); }catch(e){}
     var secs = document.querySelectorAll('.sec');
     for (var i = 0; i < secs.length; i++) secs[i].className = 'sec';
     if(name === 'games'){ try{ gtaSheetInit(); }catch(e){} }
@@ -724,7 +755,8 @@ function buySpotify(planId){
   var fin=discPrice('spotify', planId, p.int, p.price);
   var el=document.getElementById('musicBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
-  var h='<div class="st">🎧 '+p.name+' — '+finHTML('spotify', planId, fin)+' تومان</div>';
+  var h=buyHead(bl('spotify'), p.name, finHTML('spotify', planId, fin)+' تومان');
+  try{ stpSet(1); }catch(e){}
   if(bal>=fin.int){
     h+='<div class="mi" onclick="paySpotifyWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
   } else {
@@ -755,7 +787,8 @@ function buyDeezer(planId){
   var fin=discPrice('deezer', planId, p.int, p.price);
   var el=document.getElementById('musicBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
-  var h='<div class="st">🎵 Deezer '+p.name+' — '+finHTML('deezer', planId, fin)+' تومان</div>';
+  var h=buyHead(bl('deezer'), 'Deezer '+p.name, finHTML('deezer', planId, fin)+' تومان');
+  try{ stpSet(1); }catch(e){}
   if(bal>=fin.int){
     h+='<div class="mi" onclick="payDeezerWallet(\''+planId+'\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: '+bal.toLocaleString('fa-IR')+' تومان</div></div><div class="aw">‹</div></div>';
   } else {
@@ -779,7 +812,7 @@ function payDeezerWallet(planId){
 function renderOrders(){
   var el=document.getElementById('uOrders'); if(!el) return;
   var orders=(userData&&userData.orders)||[];
-  if(!orders.length){ el.innerHTML='<div class="gl" style="padding:18px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📭 هنوز سفارشی ثبت نکرده‌اید</p><button class="bk" style="margin-top:10px;justify-content:center" onclick="showSection(\'vpn\')">🚀 اولین سفارشت رو بگیر</button></div>'; return; }
+  if(!orders.length){ el.innerHTML=emptyBox('📭','هنوز سفارشی ثبت نکردی','اولین خریدت رو بکن، همین‌جا لیستش میاد','<button class="bk" onclick="showSection(\'vpn\')">🚀 اولین سفارشت رو بگیر</button>'); return; }
   var kindIcons={config:'📦',express:'⚡',deezer:'🎵',music:'🎧',ai:'🤖',special:'🎮',gta:'🎮'};
   var h='<div class="gl" style="padding:16px;margin-bottom:14px"><div class="st">📋 سفارش‌های من</div>';
   var list=orders.slice().reverse();
@@ -933,7 +966,8 @@ function buyAI(planId){
   var fin=discPrice('ai', planId, p.int, p.price);
   var el=document.getElementById('aiBrands'); if(!el) return;
   var bal=(userData&&userData.balance)||0;
-  var h='<div class="st">🤖 '+p.name+' — '+finHTML('ai', planId, fin)+' تومان</div>';
+  var h=buyHead(bl(p.brand||'gemini'), p.name, finHTML('ai', planId, fin)+' تومان');
+  try{ stpSet(1); }catch(e){}
   if((p.brand||'gemini')==='gemini'){
     h+='<div style="margin:10px 0 4px"><div style="font-size:12.5px;font-weight:700;margin-bottom:6px">📧 ایمیل فعال‌سازی جمنا</div>'
       +'<input id="gemEmail" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="name@gmail.com" value="'+String(GEM_EMAIL).replace(/"/g,'&quot;')+'" '
@@ -1102,6 +1136,20 @@ var BRAND_LOGO = {
 var KIND_LOGO = {config:'vpn', express:'express', spotify:'spotify', deezer:'deezer', ai:'gemini'};
 function bl(k){ return BRAND_LOGO[String(k||'') ] || ''; }
 function rowLogo(kind, brand){ return bl(brand || KIND_LOGO[kind] || '') || '✨'; }
+// === حالت خالی + هدر صفحهٔ خرید ===
+function emptyBox(icon, title, sub, btn){
+    return '<div class="emp"><span class="empi">' + icon + '</span>'
+         + '<div class="empt">' + escH(title) + '</div>'
+         + (sub ? '<div class="emps">' + escH(sub) + '</div>' : '')
+         + (btn || '') + '</div>';
+}
+function buyHead(logo, title, priceHtml, sub){
+    return '<div class="buyHead"><div class="bhLogo">' + (logo || '') + '</div>'
+         + '<div class="bhTx"><div class="bhT">' + escH(title) + '</div>'
+         + '<div class="bhS">' + escH(sub || 'تحویل فوری • پشتیبانی هر روز ۱۴ تا ۲۲') + '</div></div>'
+         + '<div class="bhP">' + priceHtml + '</div></div>';
+}
+function stpHide(){ var bs = document.getElementById('buySteps'); if(bs) bs.style.display = 'none'; }
 function iconHTML(ic, mode){
     ic = String(ic||'').trim(); if(!ic) return '';
     var isUrl = /^(https?:)?\/\//i.test(ic) || /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(ic);
@@ -1343,7 +1391,7 @@ function admTicketList(){
     var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">🎫 تیکت‌های پشتیبانی</div>'
           + '<div style="font-size:11px;color:var(--dim);margin-bottom:13px">روی اسم کاربر بزن تا گفتگوش باز بشه.</div>';
     if(!list.length){
-        h += '<div style="font-size:12.5px;color:var(--dim);text-align:center;padding:16px 6px">هنوز تیکتی ثبت نشده 🎉</div>';
+        h += emptyBox('🎉','هنوز تیکتی نیست','وقتی کاربری پیام بده، اینجا لیست میشه');
     }
     for(var i = 0; i < list.length; i++){
         var t = list[i];
@@ -1672,7 +1720,7 @@ function admUsers(){
     admFetch('/api/admin/users').then(function(d){
         var us = d.users || [];
         var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">👥 کاربران (' + us.length + ')</div>';
-        if(!us.length) h += '<div style="color:var(--dim);font-size:13px">هنوز کاربری نیست</div>';
+        if(!us.length) h += emptyBox('👥','هنوز کاربری نیست','اولین مشتری‌ات خیلی زود میاد');
         for(var i=0;i<us.length;i++){
             var u = us[i];
             h += '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07)">'
@@ -2379,7 +2427,7 @@ function renderUser() {
         h += '</div>';
         uc.innerHTML = h;
     } else if (uc) {
-        uc.innerHTML = '<div class="gl" style="padding:20px;text-align:center;margin-bottom:14px"><p style="color:var(--dim);font-size:13px">📦 هنوز اشتراکی ندارید</p><button class="bk" style="margin-top:10px;justify-content:center" onclick="showSection(\'vpn\')">🚀 بخش VPN</button></div>';
+        uc.innerHTML = emptyBox('🛰️','هنوز اشتراکی نداری','کانفیگ بگیر تا آنی فعال بشه','<button class="bk" onclick="showSection(\'vpn\')">🚀 بخش VPN</button>');
     }
 }
 
@@ -2394,7 +2442,8 @@ function buyConfig(planId) {
     window._SC = function(){ buyConfig(planId); };
     var bal = (userData && userData.balance) || 0;
     var canPay = bal >= fin.int;
-    var html = '<div class="st">📦 ' + names[planId] + ' — ' + finHTML('config', planId, fin) + ' تومان</div>';
+    var html = buyHead(bl('vpn'), names[planId], finHTML('config', planId, fin) + ' تومان');
+    try{ stpSet(1); }catch(e){}
     if (canPay) {
         html += '<div class="mi" onclick="payConfigWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
     } else {
@@ -2435,7 +2484,8 @@ function buyExpress(planId) {
     window._SC = function(){ buyExpress(planId); };
     var bal = (userData && userData.balance) || 0;
     var canPay = bal >= fin.int;
-    var html = '<div class="st">⚡ ' + names[planId] + ' — ' + finHTML('express', planId, fin) + ' تومان</div>';
+    var html = buyHead(bl('express'), names[planId], finHTML('express', planId, fin) + ' تومان');
+    try{ stpSet(1); }catch(e){}
     if (canPay) {
         html += '<div class="mi" onclick="payExpressWallet(\'' + planId + '\')"><div class="ic">💰</div><div class="tx"><div class="ti">پرداخت از کیف پول</div><div class="sb">موجودی: ' + bal.toLocaleString('fa-IR') + ' تومان</div></div><div class="aw">‹</div></div>';
     } else {
@@ -2784,7 +2834,7 @@ function loadChat(){
       .then(function(r){ return r.json(); }).then(function(d){
         var t = d && d.ticket;
         if(!t){
-            box.innerHTML = '<div style="font-size:12.5px;color:var(--dim);text-align:center;padding:18px 6px;line-height:2.2">هنوز گفتگوی بازی نداری.<br>پیامت رو پایین بنویس و بفرست تا ثبت بشه.</div>';
+            box.innerHTML = emptyBox('💬','هنوز گفتگوی بازی نداری','پیامت رو پایین بنویس و بفرست تا ثبت بشه','<button class="bk" onclick="var t=document.getElementById(\'tktText\');if(t){t.focus();t.scrollIntoView({block:\'center\'});}">✍️ نوشتن پیام</button>');
             if(info) info.textContent = 'تا وقتی پشتیبانی بستش نکنه، گفتگو همین‌جا می‌مونه.';
             if(st) st.textContent = '';
             if(_tktTimer){ clearInterval(_tktTimer); _tktTimer = null; }
