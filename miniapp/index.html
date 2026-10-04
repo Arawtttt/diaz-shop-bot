@@ -13,9 +13,11 @@
 :root{--red:#e23636;--rd:#b91c1c;--pur:#7c3aed;--pur2:#a78bfa;--grad:linear-gradient(135deg,#7c3aed,#e23636);--dk:#0b0616;--gold:#fbbf24;--dim:rgba(255,255,255,.55);--dim2:rgba(255,255,255,.74);--glass:rgba(255,255,255,.055);--stroke:rgba(255,255,255,.11)}
 body.light{--red:#c62828;--rd:#8e0000;--pur:#5e35b1;--pur2:#7c4dff;--grad:linear-gradient(135deg,#5e35b1,#c62828);--dk:#f0eff4;--gold:#b45309;--dim:rgba(0,0,0,.65);--dim2:rgba(0,0,0,.74);--glass:rgba(255,255,255,.75);--stroke:rgba(0,0,0,.18);color:#1a102a}
 body.light .gl{background:linear-gradient(150deg,rgba(255,255,255,.88),rgba(255,255,255,.55));box-shadow:0 8px 24px rgba(0,0,0,.08)}
-body.light .hdr,body.light .bnav{background:rgba(240,239,244,.88);border-color:rgba(0,0,0,.08)}
-body.light .nv{color:var(--dim)}
-body.light .nv.act{color:#fff}
+body.light .hdr{background:rgba(240,239,244,.88);border-color:rgba(0,0,0,.08)}
+body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(245,243,253,.95));border-top-color:rgba(0,0,0,.1)}
+body.light .bnav::before{background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent)}
+body.light .nv{color:rgba(56,42,92,.7);background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,255,255,.5));border-color:rgba(255,255,255,.95);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 4px 12px rgba(80,60,140,.1)}
+body.light .nv.act{color:#3b1a8a;background:linear-gradient(160deg,rgba(255,255,255,.99),rgba(255,255,255,.7));border-color:rgba(124,58,237,.3);box-shadow:inset 0 1px 0 #fff,0 8px 20px rgba(124,58,237,.28),0 0 16px rgba(167,139,250,.35);text-shadow:none}
 body.light .mi,.light .pln{background:linear-gradient(150deg,rgba(255,255,255,.88),rgba(255,255,255,.55));box-shadow:0 4px 14px rgba(0,0,0,.06)}
 html,body{height:100%;overflow:hidden}
 body{font-family:'Vazirmatn',sans-serif;background:var(--dk);color:#fff}
@@ -59,6 +61,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .plns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .pln{padding:18px 12px;text-align:center;cursor:pointer;border:1px solid var(--stroke);border-radius:18px;background:linear-gradient(150deg,rgba(255,255,255,.08),rgba(124,58,237,.06));backdrop-filter:blur(14px);position:relative;overflow:hidden;transition:all .18s;box-shadow:0 6px 20px rgba(0,0,0,.28)}
 .pln:active{transform:scale(.95);border-color:rgba(167,139,250,.6);box-shadow:0 0 22px rgba(124,58,237,.35)}
+.pllogo{height:38px;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.pllogo svg{width:30px;height:30px}
 .pln .nm{font-size:28px;font-weight:900;line-height:1}
 .pln .un{font-size:11px;color:var(--dim);margin:4px 0 10px}
 .pln .pr{font-size:14px;font-weight:700;color:var(--red)}
@@ -71,14 +75,23 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .mi .ic svg{width:30px;height:30px}
 .mi .tx{flex:1}.mi .ti{font-size:14px;font-weight:600}.mi .sb{font-size:11px;color:var(--dim);margin-top:2px}
 .mi .aw{color:var(--dim);font-size:20px;transition:transform .2s}.mi:active .aw{transform:translateX(-4px)}
-.mi.ch{background:linear-gradient(135deg,rgba(226,54,54,.2),rgba(124,58,237,.1));border-color:rgba(226,54,54,.3)}
+.mi.ch{background:linear-gradient(150deg,rgba(255,255,255,.075),rgba(124,58,237,.05));border-color:var(--stroke)}
+.mgrid .mi .ic{background:linear-gradient(145deg,rgba(124,58,237,.22),rgba(226,54,54,.14));border:1px solid rgba(255,255,255,.1)}
 .bk{display:flex;align-items:center;justify-content:center;padding:13px;margin-top:12px;border:1px solid var(--stroke);border-radius:15px;background:var(--glass);backdrop-filter:blur(12px);color:rgba(255,255,255,.75);font-family:'Vazirmatn';font-size:13px;cursor:pointer;transition:all .15s}
 .bk:active{transform:scale(.97);border-color:rgba(167,139,250,.5);color:#fff}
-.bnav{flex-shrink:0;display:flex;padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom));gap:2px;background:rgba(11,6,22,.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,.08);position:relative}
+.bnav{flex-shrink:0;display:flex;padding:9px;padding-bottom:max(9px,env(safe-area-inset-bottom));gap:6px;background:linear-gradient(180deg,rgba(11,6,22,.4),rgba(11,6,22,.94));backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);border-top:1px solid rgba(255,255,255,.1);position:relative}
+.bnav::before{content:'';position:absolute;left:50%;top:0;transform:translateX(-50%);width:62%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);pointer-events:none;z-index:2}
+.bnav::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 55%);pointer-events:none}
 .bnav::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,58,237,.6),rgba(226,54,54,.6),transparent)}
-.nv{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 2px;border-radius:14px;cursor:pointer;font-size:10px;color:var(--dim);gap:3px;border:none;background:none;font-family:'Vazirmatn';transition:all .2s}
-.nv .ni{font-size:21px;transition:transform .2s}
-.nv.act{color:#fff;background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(226,54,54,.22));box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 4px 14px rgba(124,58,237,.25)}.nv.act .ni{transform:scale(1.14)}
+.nv{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px 7px;border-radius:17px;cursor:pointer;font-size:9.5px;color:rgba(255,255,255,.6);gap:4px;border:1px solid rgba(255,255,255,.1);font-family:'Vazirmatn';transition:transform .2s,border-color .25s,box-shadow .25s,color .25s;position:relative;overflow:hidden;background:linear-gradient(160deg,rgba(255,255,255,.11),rgba(255,255,255,.035));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 5px 14px rgba(0,0,0,.3)}
+.nv::after{content:'';position:absolute;left:1px;right:1px;top:1px;height:46%;background:linear-gradient(180deg,rgba(255,255,255,.16),transparent);border-radius:16px 16px 45% 45%;pointer-events:none}
+.nv .ni{display:block;height:22px;line-height:0;transition:transform .25s;position:relative;z-index:1}
+.nv .ni svg{width:21px;height:21px;display:block;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nv>span:last-child{position:relative;z-index:1;font-weight:500}
+.nv:active{transform:scale(.93)}
+.nv.act{color:#fff;border-color:rgba(255,255,255,.36);background:linear-gradient(160deg,rgba(255,255,255,.3),rgba(255,255,255,.09));box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -10px 16px rgba(124,58,237,.16),0 8px 22px rgba(124,58,237,.4),0 0 24px rgba(167,139,250,.34);text-shadow:0 1px 5px rgba(0,0,0,.55)}
+.nv.act .ni{transform:translateY(-1px) scale(1.12)}
+.nv.act::after{background:linear-gradient(180deg,rgba(255,255,255,.4),transparent)}
 .rc{font-size:44px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:12px 0 4px}
 .rs{text-align:center;font-size:13px;color:var(--dim);margin-bottom:14px}
 .lb2{background:rgba(0,0,0,.4);border:1px solid var(--stroke);border-radius:14px;padding:14px;text-align:center;cursor:pointer}
@@ -401,11 +414,11 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
             </div>
         </div>
         <div class="bnav">
-            <button class="nv act" onclick="navTo('home')" data-n="home"><span class="ni">🏠</span><span>خانه</span></button>
-            <button class="nv" onclick="navTo('vpn')" data-n="vpn"><span class="ni">🛡️</span><span>VPN</span></button>
-            <button class="nv" onclick="navTo('music')" data-n="music"><span class="ni">🎵</span><span>موزیک</span></button>
-            <button class="nv" onclick="navTo('ai')" data-n="ai"><span class="ni">🤖</span><span>AI</span></button>
-            <button class="nv" onclick="navTo('panel')" data-n="panel"><span class="ni">👤</span><span>پنل</span></button>
+            <button class="nv act" onclick="navTo('home')" data-n="home"><span class="ni"><svg viewBox="0 0 24 24"><path d="M3.2 10.7 12 3.4l8.8 7.3"/><path d="M5.6 9.6V19a1.6 1.6 0 0 0 1.6 1.6h2.9V16h3.8v4.6h2.9A1.6 1.6 0 0 0 18.4 19V9.6"/></svg></span><span>خانه</span></button>
+            <button class="nv" onclick="navTo('vpn')" data-n="vpn"><span class="ni"><svg viewBox="0 0 24 24"><path d="M12 3.2 5.6 5.8v5.4c0 4.5 2.7 8.1 6.4 9.6 3.7-1.5 6.4-5.1 6.4-9.6V5.8Z"/><path d="m9.1 11.9 2.2 2.2 4-4.3"/></svg></span><span>VPN</span></button>
+            <button class="nv" onclick="navTo('music')" data-n="music"><span class="ni"><svg viewBox="0 0 24 24"><path d="M9.2 17.6V5.6l10.2-2v12"/><ellipse cx="6.6" cy="17.8" rx="2.7" ry="2.4"/><ellipse cx="16.8" cy="15.8" rx="2.7" ry="2.4"/></svg></span><span>موزیک</span></button>
+            <button class="nv" onclick="navTo('ai')" data-n="ai"><span class="ni"><svg viewBox="0 0 24 24"><rect x="4.2" y="8.4" width="15.6" height="11.8" rx="4.2"/><path d="M12 8.4V5.6"/><circle cx="12" cy="4.1" r="1.5"/><path d="M9.2 13.4h.02M14.8 13.4h.02"/><path d="M9.6 16.6h4.8"/></svg></span><span>AI</span></button>
+            <button class="nv" onclick="navTo('panel')" data-n="panel"><span class="ni"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.3" r="3.7"/><path d="M4.8 20.4c1.4-3.7 4.1-5.6 7.2-5.6s5.8 1.9 7.2 5.6"/></svg></span><span>پنل</span></button>
         </div>
     </div>
 
@@ -687,15 +700,15 @@ function openMusic(brand){
   }
   if(brand==='spotify'){
     var h='<div class="st">🎧 Spotify Premium — اشتراک یک‌ماهه</div>';
-    h+='<div class="mi" onclick="buySpotify(\'spotify1m\')"><div class="ic">🎧</div><div class="tx"><div class="ti">اختصاصی • نامحدود</div><div class="sb">' + saleRow('spotify','spotify1m','۱,۳۵۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buySpotify(\'spotify1m\')"><div class="ic">' + bl('spotify') + '</div><div class="tx"><div class="ti">اختصاصی • نامحدود</div><div class="sb">' + saleRow('spotify','spotify1m','۱,۳۵۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
     h+=extraRows('spotify','buySpotify');
     h+='<button class="bk" onclick="restoreBlock(\'musicBrands\',\'music\')">← بازگشت</button>';
     el.innerHTML=h;
     return;
   }
   var h='<div class="st">🎵 Deezer — اشتراک یک‌ماهه</div>';
-  h+='<div class="mi" onclick="buyDeezer(\'family\')"><div class="ic">👨‍👩‍👧</div><div class="tx"><div class="ti">فمیلی</div><div class="sb">' + saleRow('deezer','family','۱۳۵,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
-  h+='<div class="mi" onclick="buyDeezer(\'personal\')"><div class="ic">👤</div><div class="tx"><div class="ti">شخصی</div><div class="sb">' + saleRow('deezer','personal','۲۰۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
+  h+='<div class="mi" onclick="buyDeezer(\'family\')"><div class="ic">' + bl('deezer') + '</div><div class="tx"><div class="ti">فمیلی</div><div class="sb">' + saleRow('deezer','family','۱۳۵,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
+  h+='<div class="mi" onclick="buyDeezer(\'personal\')"><div class="ic">' + bl('deezer') + '</div><div class="tx"><div class="ti">شخصی</div><div class="sb">' + saleRow('deezer','personal','۲۰۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
   h+=extraRows('deezer','buyDeezer');
   h+='<button class="bk" onclick="restoreBlock(\'musicBrands\',\'music\')">← بازگشت</button>';
   el.innerHTML=h;
@@ -884,18 +897,18 @@ function openAI(brand){
   var h='';
   if(brand==='chatgpt'){
     h='<div class="st">🤖 ChatGPT — اشتراک یک‌ماهه</div>';
-    h+='<div class="mi" onclick="buyAI(\'gpt_go\')"><div class="ic">🟢</div><div class="tx"><div class="ti">Go یک‌ماهه</div><div class="sb">' + saleRow('ai','gpt_go','۲,۳۰۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
-    h+='<div class="mi" onclick="buyAI(\'gpt_plus\')"><div class="ic">✦</div><div class="tx"><div class="ti">پلاس آماده یک‌ماهه</div><div class="sb">' + saleRow('ai','gpt_plus','۴,۲۵۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buyAI(\'gpt_go\')"><div class="ic">' + bl('chatgpt') + '</div><div class="tx"><div class="ti">Go یک‌ماهه</div><div class="sb">' + saleRow('ai','gpt_go','۲,۳۰۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buyAI(\'gpt_plus\')"><div class="ic">' + bl('chatgpt') + '</div><div class="tx"><div class="ti">پلاس آماده یک‌ماهه</div><div class="sb">' + saleRow('ai','gpt_plus','۴,۲۵۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
   } else if(brand==='claude'){
     h='<div class="st">🤖 Claude — اشتراک یک‌ماهه</div>';
-    h+='<div class="mi" onclick="buyAI(\'claudepro\')"><div class="ic">✳️</div><div class="tx"><div class="ti">Claude Pro یک‌ماهه</div><div class="sb">' + saleRow('ai','claudepro','۵,۸۵۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
+    h+='<div class="mi" onclick="buyAI(\'claudepro\')"><div class="ic">' + bl('claude') + '</div><div class="tx"><div class="ti">Claude Pro یک‌ماهه</div><div class="sb">' + saleRow('ai','claudepro','۵,۸۵۰,۰۰۰','یک ماهه') + '</div></div><div class="aw">‹</div></div>';
   } else {
     h='<div class="st">🤖 Gemini — اشتراک نامحدود</div>';
-    h+=aiRow('gemini18m','💎','جمنای ۱۸ ماهه پرو • نامحدود','۳,۲۵۰,۰۰۰','۱۸ ماهه');
-    h+=aiRow('gemfam1m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۱ ماهه','۸۰۰,۰۰۰','۱ ماهه');
-    h+=aiRow('gemfam3m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۳ ماهه','۱,۱۵۰,۰۰۰','۳ ماهه');
-    h+=aiRow('gemfam6m','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۶ ماهه','۱,۸۰۰,۰۰۰','۶ ماهه');
-    h+=aiRow('gemfam1y','👨‍👩‍👧‍👦','پرو فمیلی • نامحدود — ۱ ساله','۲,۵۰۰,۰۰۰','۱ ساله');
+    h+=aiRow('gemini18m',bl('gemini'),'جمنای ۱۸ ماهه پرو • نامحدود','۳,۲۵۰,۰۰۰','۱۸ ماهه');
+    h+=aiRow('gemfam1m',bl('gemini'),'پرو فمیلی • نامحدود — ۱ ماهه','۸۰۰,۰۰۰','۱ ماهه');
+    h+=aiRow('gemfam3m',bl('gemini'),'پرو فمیلی • نامحدود — ۳ ماهه','۱,۱۵۰,۰۰۰','۳ ماهه');
+    h+=aiRow('gemfam6m',bl('gemini'),'پرو فمیلی • نامحدود — ۶ ماهه','۱,۸۰۰,۰۰۰','۶ ماهه');
+    h+=aiRow('gemfam1y',bl('gemini'),'پرو فمیلی • نامحدود — ۱ ساله','۲,۵۰۰,۰۰۰','۱ ساله');
   }
   h+=extraRows('ai','buyAI',brand);
   h+='<button class="bk" onclick="restoreBlock(\'aiBrands\',\'ai\')">← بازگشت</button>';
@@ -1073,6 +1086,21 @@ function CATS(kind){
     return out;
 }
 // لوگو: لینک عکس → <img>، وگرنه ایموجی/متن خام
+// === لوگوی برندها (یکدست روی کارت‌های محصول) ===
+var BRAND_LOGO = {
+    apple: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#FA243C"/><path fill="#fff" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>',
+    spotify: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><circle cx="12" cy="12" r="12" fill="#1DB954"/><path d="M6.4 9.2c3.9-1.2 8.4-.8 11.3 1.3M7.3 12.5c3.2-1 6.8-.6 9.4 1.1M8.1 15.6c2.6-.8 5.4-.5 7.6.9" stroke="#0a0a12" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>',
+    deezer: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#A238FF"/><g fill="#fff"><rect x="3.4" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="6.8" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="6.8" width="3.7" height="3.2" rx="0.8"/></g></svg>',
+    chatgpt: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4.25" y="4.1" width="15.5" height="15.75" viewBox="0 0 256 260"><path fill="#0a0a0a" d="M239.184 106.203a64.72 64.72 0 0 0-5.576-53.103C219.452 28.459 191 15.784 163.213 21.74A65.586 65.586 0 0 0 52.096 45.22a64.72 64.72 0 0 0-43.23 31.36c-14.31 24.602-11.061 55.634 8.033 76.74a64.67 64.67 0 0 0 5.525 53.102c14.174 24.65 42.644 37.324 70.446 31.36a64.72 64.72 0 0 0 48.754 21.744c28.481.025 53.714-18.361 62.414-45.481a64.77 64.77 0 0 0 43.229-31.36c14.137-24.558 10.875-55.423-8.083-76.483m-97.56 136.338a48.4 48.4 0 0 1-31.105-11.255l1.535-.87l51.67-29.825a8.6 8.6 0 0 0 4.247-7.367v-72.85l21.845 12.636c.218.111.37.32.409.563v60.367c-.056 26.818-21.783 48.545-48.601 48.601M37.158 197.93a48.35 48.35 0 0 1-5.781-32.589l1.534.921l51.722 29.826a8.34 8.34 0 0 0 8.441 0l63.181-36.425v25.221a.87.87 0 0 1-.358.665l-52.335 30.184c-23.257 13.398-52.97 5.431-66.404-17.803M23.549 85.38a48.5 48.5 0 0 1 25.58-21.333v61.39a8.29 8.29 0 0 0 4.195 7.316l62.874 36.272l-21.845 12.636a.82.82 0 0 1-.767 0L41.353 151.53c-23.211-13.454-31.171-43.144-17.804-66.405zm179.466 41.695l-63.08-36.63L161.73 77.86a.82.82 0 0 1 .768 0l52.233 30.184a48.6 48.6 0 0 1-7.316 87.635v-61.391a8.54 8.54 0 0 0-4.4-7.213m21.742-32.69l-1.535-.922l-51.619-30.081a8.39 8.39 0 0 0-8.492 0L99.98 99.808V74.587a.72.72 0 0 1 .307-.665l52.233-30.133a48.652 48.652 0 0 1 72.236 50.391zM88.061 139.097l-21.845-12.585a.87.87 0 0 1-.41-.614V65.685a48.652 48.652 0 0 1 79.757-37.346l-1.535.87l-51.67 29.825a8.6 8.6 0 0 0-4.246 7.367zm11.868-25.58L128.067 97.3l28.188 16.218v32.434l-28.086 16.218l-28.188-16.218z"/></svg></svg>',
+    claude: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#D97757"/><svg x="4.5" y="4.5" width="15" height="15" viewBox="0 0 24 24"><path fill="#fff" d="M17.304 3.541h-3.672l6.696 16.918H24Zm-10.608 0L0 20.459h3.744l1.37-3.553h7.005l1.369 3.553h3.744L10.536 3.541Zm-.371 10.223L8.616 7.82l2.291 5.945Z"/></svg></svg>',
+    grok: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#0a0a0a" stroke="rgba(255,255,255,.3)" stroke-width="0.7"/><svg x="4" y="4.65" width="16" height="14.67" viewBox="0 0 205 188"><path fill="#ffffff" d="M446.35 142.018V46.44h15.11v63.078l31.955-36.707h18.317l-28.746 31.458L512 142.019h-18.05l-23.5-32.437l-8.99-.064v32.5zm-45.818 1.607c-22.462 0-34.629-15.93-34.629-36.277c0-20.481 12.167-36.277 34.63-36.277c22.595 0 34.628 15.796 34.628 36.277c0 20.347-12.033 36.277-34.629 36.277m-18.852-36.277c0 15.796 8.557 23.693 18.852 23.693c10.43 0 18.853-7.897 18.853-23.693S410.96 83.52 400.532 83.52c-10.295 0-18.852 8.032-18.852 23.828m-57.827 34.67v-58.23l12.702-10.977h27.008v12.85h-24.6v56.357zm-57.77 1.768c-28.797 0-45.967-20.91-45.967-49.423c0-28.78 17.783-50.199 46.529-50.199c22.462 0 38.908 11.512 42.786 32.93h-17.248c-2.54-12.181-12.702-19.008-25.538-19.008c-20.724 0-29.816 17.938-29.816 36.277s9.092 36.143 29.816 36.143c19.788 0 28.48-14.323 29.147-26.237h-29.815v-13.86h45.058l-.074 7.246c0 26.929-10.974 46.131-44.878 46.131M48.759 43.42c20.982-20.99 51.664-26.632 77.695-16.705l1.767.7c5.84 2.173 10.93 5.263 14.901 8.137L121.08 45.743c-20.525-8.62-44.036-2.757-58.387 11.611c-19.407 19.413-23.328 53.077-.584 74.83L0 187.734c3.282-4.525 7.224-8.841 11.267-13.122l4.442-4.683l1.992-2.12c11.864-12.721 22.008-25.795 15.657-43.318l-.585-1.513c-11.147-27.115-4.656-58.891 15.986-79.557m119.894-16.489L195.553 0l-7.737 10.747c-16.113 22.7-23.265 36.99-16.126 67.724l-.05-.05c5.524 23.473-.383 49.502-19.457 68.598c-24.045 24.091-62.525 29.454-94.213 7.769l22.093-10.242c20.224 7.953 42.351 4.46 58.253-11.46c15.903-15.922 19.474-39.11 11.481-58.407c-1.518-3.659-6.074-4.578-9.261-2.222l-65.012 48.048l93.129-93.657z"/></svg></svg>',
+    gemini: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0%" stop-color="#4285F4"/><stop offset="55%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4" y="4" width="16" height="16" viewBox="312 0 73 73"><path fill="url(#gg)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></svg>',
+    vpn: '<svg width="30" height="30" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#2563eb"/><path fill="#fff" d="M12 4.6 6.6 6.9v4.6c0 3.7 2.2 6.7 5.4 8 3.2-1.3 5.4-4.3 5.4-8V6.9Z"/><path fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="m9.6 11.9 1.9 1.9 3.4-3.6"/></svg>',
+    express: '<svg width="30" height="30" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#da3940"/><path fill="#fff" d="M7.6 6.4h9v2.7h-5.9v2.6h5.4v2.6h-5.4v3.3h6v2.7h-9.1Z"/></svg>'
+};
+var KIND_LOGO = {config:'vpn', express:'express', spotify:'spotify', deezer:'deezer', ai:'gemini'};
+function bl(k){ return BRAND_LOGO[String(k||'') ] || ''; }
+function rowLogo(kind, brand){ return bl(brand || KIND_LOGO[kind] || '') || '✨'; }
 function iconHTML(ic, mode){
     ic = String(ic||'').trim(); if(!ic) return '';
     var isUrl = /^(https?:)?\/\//i.test(ic) || /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(ic);
@@ -1090,7 +1118,7 @@ function extraRows(kind, fn, brand){
     for(var i=0;i<list.length;i++){
         var it=list[i];
         if(brand && (it.brand||'gemini')!==brand) continue;
-        out += '<div class="mi" onclick="' + fn + '(\'' + it.id + '\')"><div class="ic">' + (iconHTML(it.icon, 'box') || '✨') + '</div><div class="tx"><div class="ti">' + escH(it.name) + '</div><div class="sb">' + escH(it.price) + ' تومان' + gBadge() + '</div></div><div class="aw">‹</div></div>';
+        out += '<div class="mi" onclick="' + fn + '(\'' + it.id + '\')"><div class="ic">' + (iconHTML(it.icon, 'box') || rowLogo(kind, brand)) + '</div><div class="tx"><div class="ti">' + escH(it.name) + '</div><div class="sb">' + escH(it.price) + ' تومان' + gBadge() + '</div></div><div class="aw">‹</div></div>';
     }
     return out;
 }
@@ -2197,7 +2225,7 @@ function renderPlans() {
             var d = document.createElement('div');
             d.className = 'pln';
             d.setAttribute('data-plan', p.id);
-            d.innerHTML = (p.icon ? '<div style="height:38px;display:flex;align-items:center;justify-content:center;margin-bottom:6px">' + iconHTML(p.icon,'card') + '</div>' : '') + '<div class="pn">' + escH(p.name) + '</div><div class="pp">' + saleCard('config', p.id, p.price) + '</div>';
+            d.innerHTML = '<div class="pllogo">' + (iconHTML(p.icon,'card') || bl('vpn')) + '</div>' + '<div class="pn">' + escH(p.name) + '</div><div class="pp">' + saleCard('config', p.id, p.price) + '</div>';
             d.setAttribute('onclick', "buyConfig(this.getAttribute('data-plan'))");
             cp.appendChild(d);
         }
@@ -2210,7 +2238,7 @@ function renderPlans() {
             var d2 = document.createElement('div');
             d2.className = (q.id === '1m') ? 'pln best' : 'pln';
             d2.setAttribute('data-plan', q.id);
-            d2.innerHTML = (q.icon ? '<div style="height:38px;display:flex;align-items:center;justify-content:center;margin-bottom:6px">' + iconHTML(q.icon,'card') + '</div>' : '') + '<div class="pn">' + escH(q.name) + '</div><div class="pp">' + saleCard('express', q.id, q.price) + '</div>';
+            d2.innerHTML = '<div class="pllogo">' + (iconHTML(q.icon,'card') || bl('express')) + '</div>' + '<div class="pn">' + escH(q.name) + '</div><div class="pp">' + saleCard('express', q.id, q.price) + '</div>';
             d2.setAttribute('onclick', "buyExpress(this.getAttribute('data-plan'))");
             ep.appendChild(d2);
         }
