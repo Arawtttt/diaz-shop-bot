@@ -1128,7 +1128,7 @@ function applySlide(n, cfg, defTarget){
     var sb = document.getElementById('banSub' + suf);
     var art = document.getElementById('banArt' + suf);
     var ic = String(cfg.icon || '').trim();
-    if(t) t.textContent = (ic ? ic + ' ' : '') + String(cfg.title || '').trim();
+    if(t) t.textContent = ((n === 1 && ic) ? ic + ' ' : '') + String(cfg.title || '').trim();
     if(sb && String(cfg.sub || '').trim()) sb.textContent = cfg.sub;
     if(art && n !== 1 && cfg.icon != null) art.textContent = ic;
     var img = uiImgUrl(cfg.img);
