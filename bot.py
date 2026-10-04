@@ -73,36 +73,37 @@ async def bpb_create_user(name: str, limit_gb: int, days: int) -> dict:
         return {"sub": sub_link, "page": page_link, "configs": raw.strip()}
 
 CONFIG_PLANS = {
-    "10gb": {"name": "۱۰ گیگ", "price": "۱۰,۰۰۰", "data": "10GB", "duration": "۱ ماه", "price_int": 10000, "old_price_int": 12000, "limit_gb": 10, "days": 30},
-    "20gb": {"name": "۲۰ گیگ", "price": "۲۶,۰۰۰", "data": "20GB", "duration": "۱ ماه", "price_int": 26000, "old_price_int": 30000, "limit_gb": 20, "days": 30},
-    "50gb": {"name": "۵۰ گیگ", "price": "۶۲,۰۰۰", "data": "50GB", "duration": "۱ ماه", "price_int": 62000, "old_price_int": 70000, "limit_gb": 50, "days": 30},
-    "80gb": {"name": "۸۰ گیگ", "price": "۹۸,۰۰۰", "data": "80GB", "duration": "۱ ماه", "price_int": 98000, "old_price_int": 110000, "limit_gb": 80, "days": 30},
+    "10gb": {"name": "۱۰ گیگ", "price": "۱۰,۰۰۰", "data": "10GB", "duration": "۱ ماه", "price_int": 10000, "limit_gb": 10, "days": 30},
+    "20gb": {"name": "۲۰ گیگ", "price": "۲۶,۰۰۰", "data": "20GB", "duration": "۱ ماه", "price_int": 26000, "limit_gb": 20, "days": 30},
+    "50gb": {"name": "۵۰ گیگ", "price": "۶۲,۰۰۰", "data": "50GB", "duration": "۱ ماه", "price_int": 62000, "limit_gb": 50, "days": 30},
+    "80gb": {"name": "۸۰ گیگ", "price": "۹۸,۰۰۰", "data": "80GB", "duration": "۱ ماه", "price_int": 98000, "limit_gb": 80, "days": 30},
 }
 
 EXPRESS_PLANS = {
-    "1m": {"name": "۱ ماهه", "price": "۱۹۰,۰۰۰", "price_int": 190000, "old_price_int": 220000, "days": 30},
-    "3m": {"name": "۳ ماهه", "price": "۳۰۰,۰۰۰", "price_int": 300000, "old_price_int": 330000, "days": 90},
-    "6m": {"name": "۶ ماهه", "price": "۴۶۰,۰۰۰", "price_int": 460000, "old_price_int": 490000, "days": 180},
-    "1y": {"name": "۱ ساله", "price": "۹۰۰,۰۰۰", "price_int": 900000, "old_price_int": 950000, "days": 365},
+    "1m": {"name": "۱ ماهه", "price": "۱۹۰,۰۰۰", "price_int": 190000, "days": 30},
+    "3m": {"name": "۳ ماهه", "price": "۳۰۰,۰۰۰", "price_int": 300000, "days": 90},
+    "6m": {"name": "۶ ماهه", "price": "۴۶۰,۰۰۰", "price_int": 460000, "days": 180},
+    "1y": {"name": "۱ ساله", "price": "۹۰۰,۰۰۰", "price_int": 900000, "days": 365},
 }
 
 DEEZER_PLANS = {
-    "family": {"name": "فمیلی یک‌ماهه", "price": "۱۳۵,۰۰۰", "price_int": 135000, "old_price_int": 150000},
-    "personal": {"name": "شخصی یک‌ماهه", "price": "۲۰۰,۰۰۰", "price_int": 200000, "old_price_int": 220000},
+    "family": {"name": "فمیلی یک‌ماهه", "price": "۱۳۵,۰۰۰", "price_int": 135000},
+    "personal": {"name": "شخصی یک‌ماهه", "price": "۲۰۰,۰۰۰", "price_int": 200000},
 }
 
 AI_PLANS = {
-    "gemini18m": {"name": "جمنای ۱۸ ماهه پرو • نامحدود", "price": "۳,۲۵۰,۰۰۰", "price_int": 3250000, "old_price_int": 3500000, "days": 548, "brand": "gemini"},
-    "gemfam3m": {"name": "جمنای پرو فمیلی • نامحدود — ۳ ماهه", "price": "۱,۱۵۰,۰۰۰", "price_int": 1150000, "old_price_int": 1350000, "days": 90, "brand": "gemini"},
-    "gemfam6m": {"name": "جمنای پرو فمیلی • نامحدود — ۶ ماهه", "price": "۱,۸۰۰,۰۰۰", "price_int": 1800000, "old_price_int": 2000000, "days": 180, "brand": "gemini"},
-    "gemfam1y": {"name": "جمنای پرو فمیلی • نامحدود — ۱ ساله", "price": "۲,۵۰۰,۰۰۰", "price_int": 2500000, "old_price_int": 2800000, "days": 365, "brand": "gemini"},
-    "claudepro": {"name": "Claude Pro یک‌ماهه", "price": "۵,۸۵۰,۰۰۰", "price_int": 5850000, "old_price_int": 6500000, "days": 30},
-    "gpt_go": {"name": "ChatGPT Go یک‌ماهه", "price": "۲,۳۰۰,۰۰۰", "price_int": 2300000, "old_price_int": 2550000, "days": 30},
-    "gpt_plus": {"name": "ChatGPT پلاس آماده یک‌ماهه", "price": "۴,۲۵۰,۰۰۰", "price_int": 4250000, "old_price_int": 4700000, "days": 30},
+    "gemini18m": {"name": "جمنای ۱۸ ماهه پرو • نامحدود", "price": "۳,۲۵۰,۰۰۰", "price_int": 3250000, "days": 548, "brand": "gemini"},
+    "gemfam1m": {"name": "جمنای پرو فمیلی • نامحدود — ۱ ماهه", "price": "۸۰۰,۰۰۰", "price_int": 800000, "days": 30, "brand": "gemini"},
+    "gemfam3m": {"name": "جمنای پرو فمیلی • نامحدود — ۳ ماهه", "price": "۱,۱۵۰,۰۰۰", "price_int": 1150000, "days": 90, "brand": "gemini"},
+    "gemfam6m": {"name": "جمنای پرو فمیلی • نامحدود — ۶ ماهه", "price": "۱,۸۰۰,۰۰۰", "price_int": 1800000, "days": 180, "brand": "gemini"},
+    "gemfam1y": {"name": "جمنای پرو فمیلی • نامحدود — ۱ ساله", "price": "۲,۵۰۰,۰۰۰", "price_int": 2500000, "days": 365, "brand": "gemini"},
+    "claudepro": {"name": "Claude Pro یک‌ماهه", "price": "۵,۸۵۰,۰۰۰", "price_int": 5850000, "days": 30},
+    "gpt_go": {"name": "ChatGPT Go یک‌ماهه", "price": "۲,۳۰۰,۰۰۰", "price_int": 2300000, "days": 30},
+    "gpt_plus": {"name": "ChatGPT پلاس آماده یک‌ماهه", "price": "۴,۲۵۰,۰۰۰", "price_int": 4250000, "days": 30},
 }
 
 SPOTIFY_PLANS = {
-    "spotify1m": {"name": "Spotify اختصاصی یک‌ماهه (نامحدود)", "price": "۱,۳۵۰,۰۰۰", "price_int": 1350000, "old_price_int": 1500000, "days": 30},
+    "spotify1m": {"name": "Spotify اختصاصی یک‌ماهه (نامحدود)", "price": "۱,۳۵۰,۰۰۰", "price_int": 1350000, "days": 30},
 }
 
 SPECIAL_PLANS = {
@@ -151,10 +152,10 @@ _KV_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko)
 # ─── نوت بازگشایی فروشگاه (اطلاعیهٔ روی صفحه) ──────────────
 ANNOUNCE_FILE = "announcement.json"
 DEFAULT_ANNOUNCE = {
-    "enabled": True,
+    "enabled": False,  # نوت برای مشتری‌ها خاموشه — ادمین از پنل روشنش میکنه
     "title": "🎉 به مناسب بازگشایی فروشگاه",
     "text": "رو همهٔ محصولات تخفیف ویژه زدیم 🔥\nتا پایان شمارش معکوس فرصت داری!",
-    "sale_end": "2026-10-06T23:59:00+03:30",
+    "sale_end": "",  # حراج تموم شده — تایمر خالی = نوار بالای صفحه نمیاد
 }
 
 def load_announce():
