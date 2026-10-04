@@ -218,15 +218,15 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
         <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><button class="mcb" id="bgmBtn" onclick="toggleBgm()" title="قطع/پخش موزیک">🎵</button><h1 id="heroTitle">🕷️ Diaz Shop</h1><p id="heroSub">فروشگاه دیجیتال دیاز</p></div>
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
-                <div class="gl hero"><img src="spider-bg.jpg" alt=""><div class="hero-ov"><h2 id="heroTitle2">🕷️ Diaz Shop</h2><p id="heroSub2">فروشگاه دیجیتال دیاز</p></div></div>
+                <div class="gl hero"><img id="heroImg" src="spider-bg.jpg" alt=""><div class="hero-ov"><h2 id="heroTitle2">🕷️ Diaz Shop</h2><p id="heroSub2">فروشگاه دیجیتال دیاز</p></div></div>
                 <div class="gl" id="homeSummary" style="padding:14px 16px;margin-bottom:12px">
                     <div class="sk" style="width:55%;height:16px"></div>
                     <div class="sk" style="width:35%;height:12px"></div>
                 </div>
                 <div class="banslider" id="banslider">
-                    <div class="banslide bs-ai act" id="banSlide" onclick="showSection('ai')"><div class="bstx"><b id="banTitle">✨ پلن فمیلی جدید</b><i id="banSub">جمنای پرو فمیلی • نامحدود — ۱ ماهه، فقط ۸۰۰,۰۰۰ تومان</i></div><span class="bsart"><svg width="46" height="46" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
-                    <div class="banslide bs-gta" onclick="showSection('gtavi')"><div class="bstx"><b>GTA VI پیش‌فروش</b><i>Ultimate Edition — ظرفیت هوم</i></div><span class="bsart gtaart">VI</span></div>
-                    <div class="banslide bs-ref" onclick="showSection('referral')"><div class="bstx"><b>رفرال و هدیه</b><i>با هر خرید دوستت ۵٪ هدیه بگیر</i></div><span class="bsart refart">🎁</span></div>
+                    <div class="banslide bs-ai act" id="banSlide" onclick="showSection('ai')"><div class="bstx"><b id="banTitle">✨ پلن فمیلی جدید</b><i id="banSub">جمنای پرو فمیلی • نامحدود — ۱ ماهه، فقط ۸۰۰,۰۰۰ تومان</i></div><span class="bsart" id="banArt"><svg width="46" height="46" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
+                    <div class="banslide bs-gta" id="banSlide2" onclick="showSection('gtavi')"><div class="bstx"><b id="banTitle2">GTA VI پیش‌فروش</b><i id="banSub2">Ultimate Edition — ظرفیت هوم</i></div><span class="bsart gtaart" id="banArt2">VI</span></div>
+                    <div class="banslide bs-ref" id="banSlide3" onclick="showSection('referral')"><div class="bstx"><b id="banTitle3">رفرال و هدیه</b><i id="banSub3">با هر خرید دوستت ۵٪ هدیه بگیر</i></div><span class="bsart refart" id="banArt3">🎁</span></div>
                     <div class="bandots"><span class="bd act"></span><span class="bd"></span><span class="bd"></span></div>
                 </div>
                 <div class="mgrid">
@@ -1113,6 +1113,38 @@ loadPlanOverrides();
 // === ظاهر سایت (بنر، تیترها، رنگ‌ها) — از پنل ادمین ===
 var UI = null;
 function setTxt(id, v){ var e = document.getElementById(id); if(e && v) e.textContent = v; }
+function uiImgUrl(v){
+    v = String(v || '').trim();
+    if(!v) return '';
+    v = v.replace(/['"<>\\]/g, '');
+    return v;
+}
+function applySlide(n, cfg, defTarget){
+    var suf = (n === 1) ? '' : String(n);
+    var sl = document.getElementById('banSlide' + suf);
+    if(!sl) return;
+    sl.style.display = (cfg.on === false) ? 'none' : '';
+    var t = document.getElementById('banTitle' + suf);
+    var sb = document.getElementById('banSub' + suf);
+    var art = document.getElementById('banArt' + suf);
+    var ic = String(cfg.icon || '').trim();
+    if(t) t.textContent = (ic ? ic + ' ' : '') + String(cfg.title || '').trim();
+    if(sb && String(cfg.sub || '').trim()) sb.textContent = cfg.sub;
+    if(art && n !== 1 && cfg.icon != null) art.textContent = ic;
+    var img = uiImgUrl(cfg.img);
+    if(img){
+        sl.style.backgroundImage = 'linear-gradient(rgba(11,6,22,.52),rgba(11,6,22,.52)), url("' + img + '")';
+        sl.style.backgroundSize = 'cover';
+        sl.style.backgroundPosition = 'center';
+        if(art) art.style.display = 'none';
+    } else {
+        sl.style.backgroundImage = '';
+        sl.style.backgroundSize = '';
+        sl.style.backgroundPosition = '';
+        if(art) art.style.display = '';
+    }
+    try{ sl.setAttribute('onclick', "showSection('" + (cfg.target || defTarget) + "')"); }catch(e){}
+}
 function applyUi(){
     if(!UI) return;
     var a1 = UI.accent1 || '#7c3aed', a2 = UI.accent2 || '#e23636';
@@ -1139,17 +1171,26 @@ function applyUi(){
         if(g3) el.style.setProperty('--glow3', g3);
         if(banBg) el.style.setProperty('--banBg', banBg);
     }
-    var sl = document.getElementById('banSlide');
-    if(sl){
-        var off = (UI.banner_on === false);
-        sl.style.display = off ? 'none' : '';
-        var dots = document.querySelectorAll('.bandots .bd');
-        if(dots[0]) dots[0].style.display = off ? 'none' : '';
-        var el1 = document.getElementById('banTitle'), el2 = document.getElementById('banSub');
-        var ic = String(UI.banner_icon || '').trim();
-        if(el1) el1.textContent = (ic ? ic + ' ' : '') + String(UI.banner_title || '').trim();
-        if(el2 && String(UI.banner_sub || '').trim()) el2.textContent = UI.banner_sub;
-        try{ sl.setAttribute('onclick', "showSection('" + (UI.banner_target || 'ai') + "')"); }catch(e){}
+    // سه بنر وسط صفحهٔ خانه
+    var T = function(v, d){ return (v === undefined || v === null || v === '') ? d : v; };
+    applySlide(1, {on:T(UI.banner_on, true), icon:T(UI.banner_icon, '✨'), title:T(UI.banner_title, 'پلن فمیلی جدید'),
+                   sub:T(UI.banner_sub, 'جمنای پرو فمیلی • نامحدود — ۱ ماهه، فقط ۸۰۰,۰۰۰ تومان'),
+                   target:T(UI.banner_target, 'ai'), img:UI.banner_img || ''}, 'ai');
+    applySlide(2, {on:T(UI.gta_on, true), icon:T(UI.gta_icon, 'VI'), title:T(UI.gta_title, 'GTA VI پیش‌فروش'),
+                   sub:T(UI.gta_sub, 'Ultimate Edition — ظرفیت هوم'),
+                   target:T(UI.gta_target, 'gtavi'), img:UI.gta_img || ''}, 'gtavi');
+    applySlide(3, {on:T(UI.ref_on, true), icon:T(UI.ref_icon, '🎁'), title:T(UI.ref_title, 'رفرال و هدیه'),
+                   sub:T(UI.ref_sub, 'با هر خرید دوستت ۵٪ هدیه بگیر'),
+                   target:T(UI.ref_target, 'referral'), img:UI.ref_img || ''}, 'referral');
+    var sls = document.querySelectorAll('.banslide'), dots = document.querySelectorAll('.bandots .bd');
+    for(var k = 0; k < sls.length; k++){
+        if(dots[k]) dots[k].style.display = (sls[k].style.display === 'none') ? 'none' : '';
+    }
+    // عکس صفحهٔ خانه
+    var hi = document.getElementById('heroImg');
+    if(hi){
+        var him = uiImgUrl(UI.hero_img);
+        hi.src = him ? him : 'spider-bg.jpg';
     }
     setTxt('heroTitle', UI.hero_title); setTxt('heroSub', UI.hero_sub);
     setTxt('heroTitle2', UI.hero_title); setTxt('heroSub2', UI.hero_sub);
@@ -1160,10 +1201,19 @@ function applyUi(){
         }
     }catch(e){}
 }
-function loadUi(){
+function loadUiFull(cb){
     fetch(API + '/api/ui').then(function(r){ return r.json(); }).then(function(d){
-        if(d && d.ui){ UI = d.ui; applyUi(); }
-    }).catch(function(){});
+        var u = (d && d.ui) || {};
+        var hi = u.has_img || [];
+        if(!hi.length){ cb(u); return; }
+        fetch(API + '/api/ui_img').then(function(r){ return r.json(); }).then(function(x){
+            if(x && x.imgs){ for(var k in x.imgs){ u[k] = x.imgs[k]; } }
+            cb(u);
+        }).catch(function(){ cb(u); });
+    }).catch(function(){ cb({}); });
+}
+function loadUi(){
+    loadUiFull(function(u){ if(u && (u.banner_title !== undefined || u.has_img)){ UI = u; applyUi(); } });
 }
 loadUi();
 document.addEventListener('DOMContentLoaded', function(){ if(window.UI) applyUi(); });
@@ -1403,53 +1453,159 @@ function admAnnounceSave(){
         try{ loadAnnounce(true); }catch(err){}
     }).catch(function(){ showToast('خطا در ذخیره‌سازی'); });
 }
+function _uiImgRow(label, urlId, fileId, cur){
+    var inp = 'width:100%;padding:9px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;box-sizing:border-box;font-family:inherit';
+    var s = '<label style="display:block;font-size:12px;color:var(--dim);margin:11px 0 4px">' + label + '</label>'
+          + '<input id="' + urlId + '" value="' + escH(cur || '') + '" placeholder="لینک عکس (https://...)" style="' + inp + '">'
+          + '<input type="file" accept="image/*" id="' + fileId + '" style="display:block;width:100%;margin-top:6px;font-size:11px;color:var(--dim)">'
+          + '<div style="font-size:10px;color:var(--dim);margin-top:4px">یا از گوشی/کامپیوتر انتخاب کن (خودش فشرده میشه). برای حذف عکس: لینک رو خالی کن و ذخیره بزن.</div>';
+    if(cur) s += '<img src="' + escH(cur) + '" style="width:100%;max-height:76px;object-fit:cover;border-radius:9px;margin-top:7px;border:1px solid rgba(255,255,255,.12)">';
+    return s;
+}
+function uiImgData(file, cb){
+    try{
+        var fr = new FileReader();
+        fr.onload = function(){
+            var im = new Image();
+            im.onload = function(){
+                var max = 900, w = im.width, h = im.height;
+                if(w > max && w > 0){ h = Math.round(h * max / w); w = max; }
+                var c = document.createElement('canvas');
+                c.width = Math.max(1, w); c.height = Math.max(1, h);
+                var cx = null;
+                try{ cx = c.getContext('2d'); }catch(e){}
+                if(!cx){ cb(String(fr.result || '')); return; }
+                try{ cx.drawImage(im, 0, 0, c.width, c.height); }catch(e){ cb(String(fr.result || '')); return; }
+                var out = '';
+                try{ out = c.toDataURL('image/jpeg', 0.72); }catch(e){}
+                cb(out || String(fr.result || ''));
+            };
+            im.onerror = function(){ cb(null); };
+            im.src = String(fr.result || '');
+        };
+        fr.onerror = function(){ cb(null); };
+        fr.readAsDataURL(file);
+    }catch(e){ cb(null); }
+}
 function admUi(){
-    fetch(API + '/api/ui').then(function(r){ return r.json(); }).then(function(d){
-        var u = (d && d.ui) || {};
+    loadUiFull(function(u){
         var secs = [['home','🏠 خانه'],['ai','🤖 هوش مصنوعی'],['vpn','📦 کانفیگ VPN'],['music','🎵 موزیک'],
                     ['games','🎮 بازی'],['gtavi','🕹 GTA VI'],['referral','🎁 رفرال'],['ticket','🎫 تیکت'],
                     ['wallet','💳 کیف پول'],['panel','👤 پنل کاربری']];
         var inp = 'width:100%;padding:9px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;box-sizing:border-box;font-family:inherit';
-        var lbl = 'font-size:12px;color:var(--dim);display:block;margin:10px 0 4px';
+        var lbl = 'display:block;font-size:12px;color:var(--dim);margin:10px 0 4px';
+        var chk = 'display:flex;gap:7px;align-items:center;font-size:12.5px;margin-top:9px';
+        var box = function(inner){
+            return '<div style="border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:12px;margin-top:12px;background:rgba(255,255,255,.03)">' + inner + '</div>';
+        };
+        var secSel = function(id, cur){
+            var o = '';
+            for(var i = 0; i < secs.length; i++){
+                o += '<option value="' + secs[i][0] + '"' + (String(cur) === secs[i][0] ? ' selected' : '') + '>' + secs[i][1] + '</option>';
+            }
+            return '<label style="' + lbl + '">با زدن روش بره کجا؟</label><select id="' + id + '" style="' + inp + '">' + o + '</select>';
+        };
+        var chkRow = function(id, on, txt){
+            return '<label style="' + chk + '"><input type="checkbox" id="' + id + '"' + (on === false ? '' : ' checked') + '> ' + txt + '</label>';
+        };
         var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">🎨 ظاهر سایت</div>'
-              + '<div style="font-size:11px;color:var(--dim);margin-bottom:8px">بنر صفحهٔ خانه، تیترها، رنگ‌ها و تم پیش‌فرض مشتری — هر وقت خواستی از همین‌جا عوض کن.</div>'
-              + '<label style="font-size:12.5px;display:flex;gap:7px;align-items:center;margin-top:6px"><input type="checkbox" id="uiBanOn" ' + (u.banner_on !== false ? 'checked' : '') + '> بنر ویژهٔ صفحهٔ خانه نشون داده بشه</label>'
-              + '<label style="' + lbl + '">آیکن بنر (ایموجی)</label><input id="uiBanIcon" maxlength="12" value="' + escH(u.banner_icon || '') + '" style="' + inp + '">'
-              + '<label style="' + lbl + '">عنوان بنر</label><input id="uiBanTitle" maxlength="60" value="' + escH(u.banner_title || '') + '" style="' + inp + '">'
-              + '<label style="' + lbl + '">متن زیرِ عنوان بنر</label><input id="uiBanSub" maxlength="140" value="' + escH(u.banner_sub || '') + '" style="' + inp + '">'
-              + '<label style="' + lbl + '">با زدن روی بنر کجا بره؟</label><select id="uiBanTarget" style="' + inp + '">';
-        for(var i = 0; i < secs.length; i++){
-            h += '<option value="' + secs[i][0] + '"' + (String(u.banner_target || 'ai') === secs[i][0] ? ' selected' : '') + '>' + secs[i][1] + '</option>';
-        }
-        h += '</select>'
-           + '<label style="' + lbl + '">تیتر صفحهٔ خانه</label><input id="uiHeroTitle" maxlength="40" value="' + escH(u.hero_title || '') + '" style="' + inp + '">'
-           + '<label style="' + lbl + '">زیرتیتر صفحهٔ خانه</label><input id="uiHeroSub" maxlength="60" value="' + escH(u.hero_sub || '') + '" style="' + inp + '">'
-           + '<div style="display:flex;gap:12px;margin-top:12px">'
-           + '<div style="flex:1"><label style="' + lbl + '">رنگ اصلی</label><input type="color" id="uiA1" value="' + escH(u.accent1 || '#7c3aed') + '" style="width:100%;height:40px;border:none;background:none;cursor:pointer"></div>'
-           + '<div style="flex:1"><label style="' + lbl + '">رنگ دوم</label><input type="color" id="uiA2" value="' + escH(u.accent2 || '#e23636') + '" style="width:100%;height:40px;border:none;background:none;cursor:pointer"></div>'
-           + '</div>'
-           + '<label style="' + lbl + '">تم پیش‌فرض مشتری‌ها</label><select id="uiTheme" style="' + inp + '">'
-           + '<option value="dark"' + (u.theme === 'light' ? '' : ' selected') + '>🌙 تاریک</option>'
-           + '<option value="light"' + (u.theme === 'light' ? ' selected' : '') + '>☀️ روشن</option></select>'
-           + '<button class="bk" style="width:100%;margin-top:14px;padding:11px;font-weight:800;cursor:pointer;background:var(--grad);color:#fff;border:none" onclick="admUiSave()">💾 ذخیرهٔ ظاهر</button>'
+              + '<div style="font-size:11px;color:var(--dim);margin-bottom:4px">سه بنر وسطِ صفحهٔ خانه، تیترها، عکس‌ها، رنگ‌ها و تم — هر وقت خواستی از همین‌جا عوض کن.</div>';
+
+        // ── بنر ۱
+        h += box('<div style="font-size:13px;font-weight:900">✨ بنر اول (ویژه)</div>'
+            + chkRow('uiBanOn', u.banner_on, 'نمایش داده بشه')
+            + '<label style="' + lbl + '">آیکن (ایموجی کوچیک)</label><input id="uiBanIcon" maxlength="12" value="' + escH(u.banner_icon || '') + '" style="' + inp + '">'
+            + '<label style="' + lbl + '">عنوان</label><input id="uiBanTitle" maxlength="60" value="' + escH(u.banner_title || '') + '" style="' + inp + '">'
+            + '<label style="' + lbl + '">متن زیر عنوان</label><input id="uiBanSub" maxlength="140" value="' + escH(u.banner_sub || '') + '" style="' + inp + '">'
+            + secSel('uiBanTarget', u.banner_target || 'ai')
+            + _uiImgRow('عکس بنر', 'uiBanImgU', 'uiBanImgF', u.banner_img || ''));
+
+        // ── بنر ۲ (GTA)
+        h += box('<div style="font-size:13px;font-weight:900">🕹 بنر دوم (GTA)</div>'
+            + chkRow('uiGtaOn', u.gta_on, 'نمایش داده بشه')
+            + '<label style="' + lbl + '">نشانِ کنارش (متن کوتاه، مثلاً VI)</label><input id="uiGtaIcon" maxlength="8" value="' + escH(u.gta_icon || '') + '" style="' + inp + '">'
+            + '<label style="' + lbl + '">عنوان</label><input id="uiGtaTitle" maxlength="60" value="' + escH(u.gta_title || '') + '" style="' + inp + '">'
+            + '<label style="' + lbl + '">متن زیر عنوان</label><input id="uiGtaSub" maxlength="140" value="' + escH(u.gta_sub || '') + '" style="' + inp + '">'
+            + secSel('uiGtaTarget', u.gta_target || 'gtavi')
+            + _uiImgRow('عکس بنر', 'uiGtaImgU', 'uiGtaImgF', u.gta_img || ''));
+
+        // ── بنر ۳ (رفرال)
+        h += box('<div style="font-size:13px;font-weight:900">🎁 بنر سوم (رفرال)</div>'
+            + chkRow('uiRefOn', u.ref_on, 'نمایش داده بشه')
+            + '<label style="' + lbl + '">آیکن</label><input id="uiRefIcon" maxlength="8" value="' + escH(u.ref_icon || '') + '" style="' + inp + '">'
+            + '<label style="' + lbl + '">عنوان</label><input id="uiRefTitle" maxlength="60" value="' + escH(u.ref_title || '') + '" style="' + inp + '">'
+            + '<label style="' + lbl + '">متن زیر عنوان</label><input id="uiRefSub" maxlength="140" value="' + escH(u.ref_sub || '') + '" style="' + inp + '">'
+            + secSel('uiRefTarget', u.ref_target || 'referral')
+            + _uiImgRow('عکس بنر', 'uiRefImgU', 'uiRefImgF', u.ref_img || ''));
+
+        // ── صفحهٔ خانه
+        h += box('<div style="font-size:13px;font-weight:900">🏠 صفحهٔ خانه</div>'
+            + '<label style="' + lbl + '">تیتر</label><input id="uiHeroTitle" maxlength="40" value="' + escH(u.hero_title || '') + '" style="' + inp + '">'
+            + '<label style="' + lbl + '">زیرتیتر</label><input id="uiHeroSub" maxlength="60" value="' + escH(u.hero_sub || '') + '" style="' + inp + '">'
+            + _uiImgRow('عکس بزرگ بالای صفحه', 'uiHeroImgU', 'uiHeroImgF', u.hero_img || ''));
+
+        // ── رنگ و تم
+        h += box('<div style="font-size:13px;font-weight:900">🎨 رنگ‌بندی و تم</div>'
+            + '<div style="display:flex;gap:12px;margin-top:8px">'
+            + '<div style="flex:1"><label style="' + lbl + '">رنگ اصلی</label><input type="color" id="uiA1" value="' + escH(u.accent1 || '#7c3aed') + '" style="width:100%;height:42px;border:none;background:none;cursor:pointer"></div>'
+            + '<div style="flex:1"><label style="' + lbl + '">رنگ دوم</label><input type="color" id="uiA2" value="' + escH(u.accent2 || '#e23636') + '" style="width:100%;height:42px;border:none;background:none;cursor:pointer"></div>'
+            + '</div>'
+            + '<label style="' + lbl + '">تم پیش‌فرض مشتری‌ها</label><select id="uiTheme" style="' + inp + '">'
+            + '<option value="dark"' + (u.theme === 'light' ? '' : ' selected') + '>🌙 تاریک</option>'
+            + '<option value="light"' + (u.theme === 'light' ? ' selected' : '') + '>☀️ روشن</option></select>');
+
+        h += '<button class="bk" style="width:100%;margin-top:15px;padding:12px;font-weight:800;cursor:pointer;background:var(--grad);color:#fff;border:none" onclick="admUiSave()">💾 ذخیرهٔ ظاهر</button>'
+           + '<div style="font-size:10.5px;color:var(--dim);margin-top:8px;text-align:center;line-height:1.9">تغییرات بلافاصله روی صفحهٔ خودت اعمال میشه؛ مشتری‌ها موقع باز کردن اپ می‌بیننش.</div>'
            + '</div>';
         var b = admBox(); if(b) b.innerHTML = h;
-    }).catch(function(){ showToast('❌ خطا در دریافت ظاهر'); });
+    });
 }
 function admUiSave(){
     var g = function(id){ var e = document.getElementById(id); return e ? String(e.value || '') : ''; };
-    var onEl = document.getElementById('uiBanOn');
+    var on = function(id){ var e = document.getElementById(id); return !e || e.checked; };
     var body = {
-        banner_on: !onEl || onEl.checked,
-        banner_icon: g('uiBanIcon'), banner_title: g('uiBanTitle'), banner_sub: g('uiBanSub'),
-        banner_target: g('uiBanTarget'),
+        banner_on: on('uiBanOn'), banner_icon: g('uiBanIcon'), banner_title: g('uiBanTitle'),
+        banner_sub: g('uiBanSub'), banner_target: g('uiBanTarget'),
+        gta_on: on('uiGtaOn'), gta_icon: g('uiGtaIcon'), gta_title: g('uiGtaTitle'),
+        gta_sub: g('uiGtaSub'), gta_target: g('uiGtaTarget'),
+        ref_on: on('uiRefOn'), ref_icon: g('uiRefIcon'), ref_title: g('uiRefTitle'),
+        ref_sub: g('uiRefSub'), ref_target: g('uiRefTarget'),
         hero_title: g('uiHeroTitle'), hero_sub: g('uiHeroSub'),
+        banner_img: g('uiBanImgU'), gta_img: g('uiGtaImgU'),
+        ref_img: g('uiRefImgU'), hero_img: g('uiHeroImgU'),
         accent1: g('uiA1'), accent2: g('uiA2'), theme: g('uiTheme')
     };
+    var files = [['uiBanImgF','banner_img'], ['uiGtaImgF','gta_img'],
+                 ['uiRefImgF','ref_img'], ['uiHeroImgF','hero_img']];
+    var queue = files.slice();
+    var step = function(){
+        if(!queue.length){ _admUiPost(body); return; }
+        var it = queue.shift();
+        var fi = document.getElementById(it[0]);
+        var f = fi && fi.files && fi.files[0];
+        if(!f){ step(); return; }
+        uiImgData(f, function(d){
+            if(d === null){ showToast('❌ خوندن عکس شکست خورد — دوباره تلاش کن'); return; }
+            if(String(d).length > 600000){ showToast('❌ عکس خیلی بزرگه — عکس کوچیک‌تری انتخاب کن'); return; }
+            body[it[1]] = d;
+            try{ fi.value = ''; }catch(e){}
+            step();
+        });
+    };
+    step();
+}
+function _admUiPost(body){
     admFetch('/api/admin/ui', {method:'POST', body:JSON.stringify(body)})
     .then(function(d){
         if(d.error){ showToast('❌ ' + d.error); return; }
-        UI = d.ui || UI; applyUi();
+        UI = d.ui || UI;
+        // عکس‌هایی که سرور برگردونده رو هم بگیر تا پیش‌نمایش درست بشه
+        if(UI && (UI.has_img || []).length){
+            fetch(API + '/api/ui_img').then(function(r){ return r.json(); }).then(function(x){
+                if(x && x.imgs){ for(var k in x.imgs){ UI[k] = x.imgs[k]; } }
+                applyUi(); admUi();
+            }).catch(function(){ applyUi(); admUi(); });
+        } else { applyUi(); admUi(); }
         showToast('✅ ظاهر ذخیره شد — روی صفحهٔ مشتری هم اعمال شد');
     }).catch(function(){ showToast('❌ خطا در ذخیره‌سازی'); });
 }

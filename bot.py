@@ -2315,6 +2315,7 @@ def create_web_app():
     app.router.add_get("/", serve_index)
     app.router.add_get("/api/build", api_build)
     app.router.add_get("/api/ui", api_ui)
+    app.router.add_get("/api/ui_img", api_ui_img)
     app.router.add_get("/index.html", serve_index)
     app.router.add_get("/api/user/{uid}", api_user)
     app.router.add_get("/api/debug_channel", api_debug_channel)
@@ -3032,11 +3033,31 @@ UI_DEFAULTS = {
     "banner_on": True, "banner_icon": "✨",
     "banner_title": "پلن فمیلی جدید",
     "banner_sub": "جمنای پرو فمیلی • نامحدود — ۱ ماهه، فقط ۸۰۰,۰۰۰ تومان",
-    "banner_target": "ai",
-    "hero_title": "🕷️ Diaz Shop", "hero_sub": "فروشگاه دیجیتال دیاز",
+    "banner_target": "ai", "banner_img": "",
+    "gta_on": True, "gta_icon": "VI",
+    "gta_title": "GTA VI پیش‌فروش", "gta_sub": "Ultimate Edition — ظرفیت هوم",
+    "gta_target": "gtavi", "gta_img": "",
+    "ref_on": True, "ref_icon": "🎁",
+    "ref_title": "رفرال و هدیه", "ref_sub": "با هر خرید دوستت ۵٪ هدیه بگیر",
+    "ref_target": "referral", "ref_img": "",
+    "hero_title": "🕷️ Diaz Shop", "hero_sub": "فروشگاه دیجیتال دیاز", "hero_img": "",
     "accent1": "#7c3aed", "accent2": "#e23636",
     "theme": "dark",
 }
+IMG_KEYS = ("banner_img", "gta_img", "ref_img", "hero_img")
+UI_IMG_CAP = 600000          # حداکثر طول data-URI عکس (بعد از فشرده‌سازی سمت مرورگر)
+UI_ON_KEYS = ("banner_on", "gta_on", "ref_on")
+
+def _img_ok(v):
+    """خالی، لینک http(s)، یا data:image/...base64 — بقیه رد میشن."""
+    v = str(v or "").strip()
+    if v == "":
+        return ""
+    if v.startswith("data:image/") and ";base64," in v and len(v) <= UI_IMG_CAP:
+        return v
+    if v.startswith(("http://", "https://")) and len(v) <= 400:
+        return v
+    return None
 
 def _hex6(v):
     v = str(v or "").strip()
@@ -3057,22 +3078,39 @@ def save_ui(d):
     _save(UI_FILE, d)
 
 async def api_ui(request):
-    return web.json_response({"ok": True, "ui": load_ui()})
+    # عکس‌ها جدا فرستاده میشن تا بار صفحهٔ مشتری سبک بمونه
+    u = load_ui()
+    small = {k: v for k, v in u.items() if k not in IMG_KEYS}
+    small["has_img"] = sorted([k for k in IMG_KEYS if u.get(k)])
+    return web.json_response({"ok": True, "ui": small})
+
+async def api_ui_img(request):
+    u = load_ui()
+    return web.json_response({"ok": True, "imgs": {k: u.get(k, "") for k in IMG_KEYS if u.get(k)}})
 
 async def admin_ui_save(request):
     err = _denied(request)
     if err: return err
     data = await request.json()
     cur = load_ui()
-    caps = {"banner_icon": 12, "banner_title": 60, "banner_sub": 140,
-            "hero_title": 40, "hero_sub": 60}
+    caps = {"banner_icon": 12, "gta_icon": 8, "ref_icon": 8,
+            "banner_title": 60, "gta_title": 60, "ref_title": 60, "hero_title": 40,
+            "banner_sub": 140, "gta_sub": 140, "ref_sub": 140, "hero_sub": 60}
     for k, cap in caps.items():
         if k in data:
             cur[k] = str(data.get(k) or "").strip()[:cap]
-    if "banner_on" in data:
-        cur["banner_on"] = bool(data.get("banner_on"))
-    if "banner_target" in data and str(data.get("banner_target")) in UI_SECTIONS:
-        cur["banner_target"] = str(data["banner_target"])
+    for k in UI_ON_KEYS:
+        if k in data:
+            cur[k] = bool(data.get(k))
+    for k in IMG_KEYS:
+        if k in data:
+            ok_v = _img_ok(data.get(k))
+            if ok_v is None:
+                return web.json_response({"error": "عکس نامعتبره (لینک http یا عکس انتخاب‌شده لازمه)"}, status=400)
+            cur[k] = ok_v
+    for tgt in ("banner_target", "gta_target", "ref_target"):
+        if tgt in data and str(data.get(tgt)) in UI_SECTIONS:
+            cur[tgt] = str(data[tgt])
     if "theme" in data and str(data.get("theme")) in ("dark", "light"):
         cur["theme"] = str(data["theme"])
     for k in ("accent1", "accent2"):
@@ -3081,7 +3119,9 @@ async def admin_ui_save(request):
             if hx:
                 cur[k] = hx
     save_ui(cur)
-    return web.json_response({"ok": True, "ui": cur})
+    out = dict(cur)
+    out["has_img"] = sorted([k for k in IMG_KEYS if out.get(k)])
+    return web.json_response({"ok": True, "ui": out})
 
 async def admin_requests(request):
     err = _denied(request)
