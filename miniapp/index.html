@@ -40,10 +40,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .sbtn:active{transform:scale(.95)}
 .sskip{margin-top:14px;font-size:12px;color:var(--dim);cursor:pointer;border:none;background:none;font-family:'Vazirmatn'}
 .app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column}
-.hdr{padding:14px 20px 11px;text-align:center;flex-shrink:0;background:rgba(11,6,22,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07);position:relative}
+.hdr{padding:14px 20px 11px;text-align:center;flex-shrink:0;background:rgba(11,6,22,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07);position:relative;transition:padding .3s cubic-bezier(.22,1,.36,1),background .3s}
 .hdr::after{content:'';position:absolute;bottom:-1px;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.55),rgba(226,54,54,.5),transparent)}
 .hdr h1{font-size:20px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 14px rgba(124,58,237,.35))}
-.hdr p{font-size:11px;color:var(--dim);margin-top:2px}
+.hdr p{font-size:11px;color:var(--dim);margin-top:2px;max-height:24px;overflow:hidden;transition:opacity .24s,max-height .3s,margin-top .3s}
 .ct{flex:1;overflow-y:auto;padding:14px 16px 20px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .ct::-webkit-scrollbar{width:0;height:0}
 ::selection{background:rgba(124,58,237,.5);color:#fff}
@@ -98,6 +98,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .lb2{background:rgba(0,0,0,.4);border:1px solid var(--stroke);border-radius:14px;padding:14px;text-align:center;cursor:pointer}
 .wa{font-size:36px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--gold),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:8px 0}
 .wl{text-align:center;font-size:12px;color:var(--dim);margin-bottom:16px}
+.fcta{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:55;display:none;align-items:center;justify-content:center}
+.fcta.show{display:flex}
+.fctab{padding:13px 30px;border-radius:24px;border:1px solid rgba(255,255,255,.2);background:linear-gradient(140deg,rgba(124,58,237,.85),rgba(217,70,239,.8));color:#fff;font-family:'Vazirmatn';font-size:14px;font-weight:800;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 12px 28px rgba(124,58,237,.42),0 0 24px rgba(124,58,237,.3);backdrop-filter:blur(16px) saturate(160%);transition:transform .14s,box-shadow .2s;white-space:nowrap}
+.fctab:active{transform:scale(.955);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 16px rgba(124,58,237,.4)}
+.light .fctab{background:linear-gradient(140deg,rgba(124,58,237,.95),rgba(217,70,239,.9));color:#fff}
 .stp{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;justify-content:center;gap:7px;padding:11px 16px 21px;border-radius:22px;background:linear-gradient(160deg,rgba(20,12,36,.93),rgba(11,6,22,.87));backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px rgba(0,0,0,.5),0 0 24px rgba(124,58,237,.28)}
 .light .stp{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,244,255,.9));border-color:rgba(124,58,237,.26);box-shadow:0 12px 30px rgba(80,60,140,.18)}
 .stpDot{width:28px;height:28px;border-radius:50%;border:2px solid var(--stroke);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--dim);background:var(--glass);transition:all .4s;position:relative}
@@ -165,7 +170,10 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
 .hback{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;transform:none;width:40px;height:40px;display:none;align-items:center;justify-content:center;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(20,12,36,.55);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);color:#fff;font-size:18px;cursor:pointer;font-family:'Vazirmatn';z-index:80;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 8px 22px rgba(0,0,0,.4);transition:transform .15s,box-shadow .2s,border-color .2s}
 .hback:active{transform:scale(.9);border-color:rgba(167,139,250,.75);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 4px 12px rgba(0,0,0,.4)}
 .light .hback{background:rgba(255,255,255,.75);color:#2a1352;border-color:rgba(124,58,237,.3)}
-.hdr.sc{box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.hdr.sc{padding-top:7px;padding-bottom:7px;background:rgba(11,6,22,.88);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.light .hdr.sc{background:rgba(255,255,255,.92)}
+.hdr.sc p{opacity:0;max-height:0;margin-top:0}
+.hdr.sc h1{font-size:16.5px;filter:drop-shadow(0 0 9px rgba(124,58,237,.3))}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mgrid .mi{flex-direction:column;align-items:flex-start;gap:9px;margin-bottom:0;padding:14px;min-height:112px}
 .mgrid .mi .aw{position:absolute;top:12px;left:12px;font-size:15px}
@@ -232,6 +240,10 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
 .pln .pn{font-size:15px;font-weight:900;margin-bottom:8px}
 .pln .pp{font-size:18px;font-weight:900;color:var(--red);line-height:1.2}
 .pln .pp small{font-size:10px;font-weight:500;color:var(--dim)}
+.plcv{position:absolute;left:-20px;bottom:-26px;width:124px;height:124px;display:flex;align-items:center;justify-content:center;opacity:.10;pointer-events:none;transform:rotate(-8deg);transition:opacity .3s,transform .3s;user-select:none}
+.plcv svg,.plcv img{width:124px;height:124px;object-fit:contain}
+.pln:hover .plcv,.pln:active .plcv{opacity:.17;transform:rotate(-4deg) scale(1.05)}
+.pln.best .plcv{opacity:.14}
 .pln.best{border-color:rgba(167,139,250,.55);box-shadow:0 0 20px rgba(124,58,237,.3);padding-top:36px}
 .pln.best::after{content:'محبوب‌ترین';position:absolute;top:9px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--grad);color:#fff;white-space:nowrap;box-shadow:0 4px 12px rgba(124,58,237,.4)}
 .cardnum{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;font-weight:700;direction:ltr;flex:1;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -252,6 +264,7 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
     </div>
     <audio id="bgm" preload="auto"></audio>
     <div id="toast" class="toast"></div>
+    <div class="fcta" id="fcta"></div>
     <div class="stp" id="buySteps" style="display:none">
   <div class="stpDot act" data-step="1">۱<span class="stplb">طرح</span></div><div class="stpLn"></div>
   <div class="stpDot" data-step="2">۲<span class="stplb">نام</span></div><div class="stpLn"></div>
@@ -683,6 +696,7 @@ function goBack() {
 function _applySection(name) {
     _cur = name;
     try{ if(typeof stpHide === 'function') stpHide(); }catch(e){}
+    try{ if(typeof fctaUpdate === 'function') fctaUpdate(name); }catch(e){}
     var secs = document.querySelectorAll('.sec');
     for (var i = 0; i < secs.length; i++) secs[i].className = 'sec';
     if(name === 'games'){ try{ gtaSheetInit(); }catch(e){} }
@@ -732,10 +746,11 @@ function renderSummary(){
         }
     }
     el.innerHTML='<div class="sumrow">'+
-        '<div class="sumcell" onclick="showSection(\'wallet\')"><div class="sumic">💰</div><div class="sumv">'+bal.toLocaleString('fa-IR')+'</div><div class="suml">تومان کیف پول</div></div>'+
+        '<div class="sumcell" onclick="showSection(\'wallet\')"><div class="sumic">💰</div><div class="sumv" id="sumBal">'+bal.toLocaleString('fa-IR')+'</div><div class="suml">تومان کیف پول</div></div>'+
         '<div class="sumdiv"></div>'+
         '<div class="sumcell" onclick="showSection(\'panel\')"><div class="sumic">⏳</div><div class="sumv">'+(minLeft!==null?minLeft.toLocaleString('fa-IR'):'—')+'</div><div class="suml">'+(minLeft!==null?'روز تا تمدید نزدیک‌ترین اشتراک':'اشتراک فعالی نداری')+'</div></div>'+
     '</div>';
+    try{ var sb=document.getElementById('sumBal'); if(sb){ sb.setAttribute('data-v','0'); animNum(sb, bal, ''); } }catch(e){}
 }
 function fallbackCopy(v){var ta=document.createElement('textarea');ta.value=v;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('✅ شماره کارت کپی شد');}catch(e){showToast('❌ کپی نشد');}ta.remove();}
 function copyCard(){
@@ -2306,7 +2321,8 @@ function renderPlans() {
             var d = document.createElement('div');
             d.className = 'pln';
             d.setAttribute('data-plan', p.id);
-            d.innerHTML = '<div class="pllogo">' + (iconHTML(p.icon,'card') || bl('vpn')) + '</div>' + '<div class="pn">' + escH(p.name) + '</div><div class="pp">' + saleCard('config', p.id, p.price) + '</div>';
+            var _cv = iconHTML(p.icon,'card') || bl('vpn');
+            d.innerHTML = plcv(_cv) + '<div class="pllogo">' + _cv + '</div>' + '<div class="pn">' + escH(p.name) + '</div><div class="pp">' + saleCard('config', p.id, p.price) + '</div>';
             d.setAttribute('onclick', "buyConfig(this.getAttribute('data-plan'))");
             cp.appendChild(d);
         }
@@ -2319,7 +2335,8 @@ function renderPlans() {
             var d2 = document.createElement('div');
             d2.className = (q.id === '1m') ? 'pln best' : 'pln';
             d2.setAttribute('data-plan', q.id);
-            d2.innerHTML = '<div class="pllogo">' + (iconHTML(q.icon,'card') || bl('express')) + '</div>' + '<div class="pn">' + escH(q.name) + '</div><div class="pp">' + saleCard('express', q.id, q.price) + '</div>';
+            var _cv2 = iconHTML(q.icon,'card') || bl('express');
+            d2.innerHTML = plcv(_cv2) + '<div class="pllogo">' + _cv2 + '</div>' + '<div class="pn">' + escH(q.name) + '</div><div class="pp">' + saleCard('express', q.id, q.price) + '</div>';
             d2.setAttribute('onclick', "buyExpress(this.getAttribute('data-plan'))");
             ep.appendChild(d2);
         }
@@ -2488,8 +2505,26 @@ function buyConfig(planId) {
     if (el) { if(!window._origBlocks)window._origBlocks={}; if(!window._origBlocks['sec-config'])window._origBlocks['sec-config']=el.innerHTML; el.innerHTML = html; }
 }
 
+var FCTA_MAP = {
+    home: ['🛒 شروع خرید', "showSection('vpn')"],
+    vpn: ['⚡ ExpressVPN', "fctaScroll('exPlans')"],
+    music: ['🎥 اشتراک موزیک', "fctaScroll('musicBrands')"],
+    ai: ['💎 جمینای پرو', "fctaScroll('aiBrands')"],
+    wallet: ['💳 شارژ کیف پول', 'goChargeWallet()'],
+    panel: ['🎫 پشتیبانی', "showSection('ticket')"]
+};
+function fctaScroll(id){ try{ var e=document.getElementById(id); if(e) e.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} }
+function fctaUpdate(name){
+    var f=document.getElementById('fcta'); if(!f) return;
+    var it=FCTA_MAP[name];
+    if(!it){ f.className='fcta'; f.innerHTML=''; return; }
+    f.innerHTML='<button class="fctab" onclick="'+it[1]+'">'+it[0]+'</button>';
+    f.className='fcta show';
+}
+function plcv(logo){ return '<span class="plcv" aria-hidden="true">'+(logo||'')+'</span>'; }
 function stpRender(steps){
     var el=document.getElementById('buySteps'); if(!el) return;
+    try{ var fc0=document.getElementById('fcta'); if(fc0) fc0.className='fcta'; }catch(e){}
     window.__STEPS = (steps && steps.length) ? steps : ['طرح','تحویل'];
     var nums=['۱','۲','۳','۴','۵'], hh='';
     for(var i=0;i<window.__STEPS.length;i++){
