@@ -130,6 +130,18 @@ body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(25
 .bnav .nv{z-index:1}
 @keyframes glassSweep{0%{background-position:200% 0}60%{background-position:-100% 0}100%{background-position:-100% 0}}
 @media (prefers-reduced-motion:reduce){.bnav::before{animation:none;opacity:.35}}
+
+/* نوار روی محتوا (مثل تلگرام): محتوا زیر شیشه اسکرول میشه */
+.bnav{position:fixed;left:0;right:0;bottom:calc(8px + env(safe-area-inset-bottom));width:calc(100% - 24px);max-width:352px;margin:0 auto;z-index:58;padding:6px;gap:4px;
+  background:linear-gradient(180deg,rgba(34,22,58,.6),rgba(13,8,26,.72));
+  backdrop-filter:blur(34px) saturate(220%);-webkit-backdrop-filter:blur(34px) saturate(220%)}
+.nv{padding:6px 4px 5px;gap:3px;font-size:9.5px}
+.nv > span:not(.ni){display:block}
+.nv .ni{height:20px}
+.ct{padding:14px 16px 78px}
+.stp{bottom:calc(76px + env(safe-area-inset-bottom))}
+body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(255,255,255,.52))}
+@supports not (backdrop-filter:blur(1px)){.bnav{background:linear-gradient(180deg,rgba(30,20,54,.95),rgba(13,8,26,.97))}body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(246,244,255,.95))}}
 .stp{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;justify-content:center;gap:7px;padding:11px 16px 21px;border-radius:22px;background:linear-gradient(160deg,rgba(20,12,36,.93),rgba(11,6,22,.87));backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px rgba(0,0,0,.5),0 0 24px rgba(124,58,237,.28)}
 .light .stp{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,244,255,.9));border-color:rgba(124,58,237,.26);box-shadow:0 12px 30px rgba(80,60,140,.18)}
 .stpDot{width:28px;height:28px;border-radius:50%;border:2px solid var(--stroke);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--dim);background:var(--glass);transition:all .4s;position:relative}
