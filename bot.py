@@ -3042,7 +3042,7 @@ UI_DEFAULTS = {
     "ref_target": "referral", "ref_img": "",
     "hero_title": "🕷️ Diaz Shop", "hero_sub": "فروشگاه دیجیتال دیاز", "hero_img": "",
     "accent1": "#7c3aed", "accent2": "#e23636",
-    "theme": "dark",
+    "theme": "dark", "glass": 70,
 }
 IMG_KEYS = ("banner_img", "gta_img", "ref_img", "hero_img")
 UI_IMG_CAP = 600000          # حداکثر طول data-URI عکس (بعد از فشرده‌سازی سمت مرورگر)
@@ -3113,6 +3113,12 @@ async def admin_ui_save(request):
             cur[tgt] = str(data[tgt])
     if "theme" in data and str(data.get("theme")) in ("dark", "light"):
         cur["theme"] = str(data["theme"])
+    if "glass" in data:
+        try:
+            gv = int(round(float(data.get("glass"))))
+        except Exception:
+            gv = 70
+        cur["glass"] = max(0, min(100, gv))
     for k in ("accent1", "accent2"):
         if k in data:
             hx = _hex6(data.get(k))
