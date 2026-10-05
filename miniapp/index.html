@@ -138,7 +138,7 @@ body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(25
 .nv{padding:6px 4px 5px;gap:3px;font-size:9.5px;color:rgba(255,255,255,.82);text-shadow:0 1px 4px rgba(0,0,0,.55)}
 .nv > span:not(.ni){display:block}
 .nv .ni{height:20px}
-.ct{padding:14px 16px 78px}
+.ct{padding:14px 16px 96px}
 .stp{bottom:calc(76px + env(safe-area-inset-bottom))}
 body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(255,255,255,.52))}
 @supports not (backdrop-filter:blur(1px)){.bnav{background:linear-gradient(180deg,rgba(30,20,54,.95),rgba(13,8,26,.97))}body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(246,244,255,.95))}}
@@ -155,7 +155,7 @@ body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,calc(.12 + (
  box-shadow:inset 0 -1.4px 0 rgba(255,255,255,calc(var(--gv) * .5)),inset 0 1.4px 0 rgba(255,255,255,calc(var(--gv) * .3)),0 10px 26px rgba(0,0,0,calc(.3 - var(--gv) * .15))}
 
 /* ۳) کارت‌ها */
-.gl{background:linear-gradient(150deg,rgba(255,255,255,calc(var(--gv) * .16)),rgba(124,58,237,calc(var(--gv) * .1)) 45%,rgba(255,255,255,calc(var(--gv) * .07))),linear-gradient(150deg,rgba(20,13,38,calc(.72 - var(--gv) * .52)),rgba(12,7,24,calc(.64 - var(--gv) * .44)));
+.gl{position:relative;background:linear-gradient(150deg,rgba(255,255,255,calc(var(--gv) * .16)),rgba(124,58,237,calc(var(--gv) * .1)) 45%,rgba(255,255,255,calc(var(--gv) * .07))),linear-gradient(150deg,rgba(20,13,38,calc(.72 - var(--gv) * .52)),rgba(12,7,24,calc(.64 - var(--gv) * .44)));
  border-color:rgba(255,255,255,calc(.11 + var(--gv) * .34));
  box-shadow:inset 0 1.4px 0 rgba(255,255,255,calc(.12 + var(--gv) * .55)),inset 0 -1.4px 0 rgba(255,255,255,calc(.04 + var(--gv) * .3)),inset 0 0 calc(10px + var(--gv) * 22px) rgba(255,255,255,calc(var(--gv) * .1)),0 14px 34px rgba(0,0,0,calc(.34 - var(--gv) * .14))}
 
@@ -165,7 +165,7 @@ body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,calc(.12 + (
  box-shadow:inset 0 1.2px 0 rgba(255,255,255,calc(.1 + var(--gv) * .5)),inset 0 -1.2px 0 rgba(255,255,255,calc(.03 + var(--gv) * .26)),inset 0 0 calc(8px + var(--gv) * 16px) rgba(255,255,255,calc(var(--gv) * .08))}
 
 /* ۵) دکمه‌ها */
-.bk,.hback,.thm,.mbtn{position:relative;background:linear-gradient(150deg,rgba(255,255,255,calc(var(--gv) * .2)),rgba(255,255,255,calc(var(--gv) * .07)) 50%,rgba(255,255,255,calc(var(--gv) * .15))),linear-gradient(150deg,rgba(24,16,44,calc(.8 - var(--gv) * .57)),rgba(13,8,26,calc(.72 - var(--gv) * .52)));
+.bk,.mbtn{position:relative;background:linear-gradient(150deg,rgba(255,255,255,calc(var(--gv) * .2)),rgba(255,255,255,calc(var(--gv) * .07)) 50%,rgba(255,255,255,calc(var(--gv) * .15))),linear-gradient(150deg,rgba(24,16,44,calc(.8 - var(--gv) * .57)),rgba(13,8,26,calc(.72 - var(--gv) * .52)));
  border-color:rgba(255,255,255,calc(.11 + var(--gv) * .4));
  box-shadow:inset 0 1.4px 0 rgba(255,255,255,calc(.22 + var(--gv) * .6)),inset 0 -1.6px 0 rgba(255,255,255,calc(.06 + var(--gv) * .35)),inset 0 0 calc(8px + var(--gv) * 14px) rgba(255,255,255,calc(var(--gv) * .1)),0 8px 20px rgba(0,0,0,calc(.3 - var(--gv) * .12))}
 
@@ -194,6 +194,23 @@ body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,calc(.12 + (
 body.light .hdr{background:linear-gradient(180deg,rgba(255,255,255,calc(.35 + var(--gv) * .55)),rgba(255,255,255,calc(.2 + var(--gv) * .6)));border-bottom-color:rgba(0,0,0,calc(.06 + var(--gv) * .1))}
 body.light .gl,body.light .mi,body.light .bk,body.light .modal-box{background:linear-gradient(160deg,rgba(255,255,255,calc(.42 + var(--gv) * .5)),rgba(255,255,255,calc(.26 + var(--gv) * .54)));border-color:rgba(0,0,0,calc(.07 + var(--gv) * .1));box-shadow:inset 0 1.4px 0 rgba(255,255,255,calc(.6 + var(--gv) * .4)),inset 0 -1.4px 0 rgba(0,0,0,calc(.05 + var(--gv) * .06))}
 body.light .nv{background:linear-gradient(160deg,rgba(255,255,255,calc(.2 + var(--gv) * .6)),rgba(255,255,255,calc(.1 + var(--gv) * .5)));border-color:rgba(0,0,0,calc(.05 + var(--gv) * .12))}
+
+/* ۱۲) هدر روی محتوا سوار میشه تا محتوا زیرش رد بشه و شیشه واقعی باشه */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:56}
+.ct{padding-top:calc(85px + env(safe-area-inset-top,0px))}
+.hdr.sc{background:linear-gradient(180deg,rgba(255,255,255,calc(var(--gv) * .16)),rgba(255,255,255,calc(var(--gv) * .07))),linear-gradient(180deg,rgba(11,6,22,calc(.9 - var(--gv) * .66)),rgba(11,6,22,calc(.94 - var(--gv) * .7)));
+ box-shadow:inset 0 -1.4px 0 rgba(255,255,255,calc(var(--gv) * .55)),0 14px 34px rgba(0,0,0,calc(.5 - var(--gv) * .2))}
+body.light .hdr.sc{background:linear-gradient(180deg,rgba(255,255,255,calc(.5 + var(--gv) * .48)),rgba(255,255,255,calc(.35 + var(--gv) * .58)))}
+
+/* ۱۳) دکمهٔ بازگشت/تم شناور */
+.hback,.thm{background:linear-gradient(150deg,rgba(255,255,255,calc(var(--gv) * .22)),rgba(255,255,255,calc(var(--gv) * .07))),linear-gradient(150deg,rgba(24,16,44,calc(.85 - var(--gv) * .6)),rgba(13,8,26,calc(.8 - var(--gv) * .58)));border-color:rgba(255,255,255,calc(.2 + var(--gv) * .45));backdrop-filter:blur(calc(var(--gv) * 16px)) saturate(calc(1 + var(--gv) * 1.5));-webkit-backdrop-filter:blur(calc(var(--gv) * 16px)) saturate(calc(1 + var(--gv) * 1.5));box-shadow:inset 0 1.4px 0 rgba(255,255,255,calc(var(--gv) * .6)),inset 0 -1.4px 0 rgba(255,255,255,calc(var(--gv) * .3)),0 8px 20px rgba(0,0,0,.4)}
+
+/* ۱۴) بازتاب‌های نامتفاوت تا تکراری و مصنوعی به نشن */
+.mi:nth-child(2n)::after{background:linear-gradient(75deg,transparent 28%,rgba(255,255,255,calc(var(--gv) * .3)) 45%,rgba(255,255,255,calc(var(--gv) * .06)) 55%,transparent 70%)}
+.mi:nth-child(3n)::after{background:linear-gradient(140deg,transparent 30%,rgba(255,255,255,calc(var(--gv) * .26)) 50%,transparent 72%)}
+.bk:nth-child(2n)::after{background:linear-gradient(75deg,transparent 26%,rgba(255,255,255,calc(var(--gv) * .3)) 44%,transparent 66%)}
+.gl:nth-child(odd)::after{background:linear-gradient(135deg,transparent 32%,rgba(255,255,255,calc(var(--gv) * .22)) 52%,transparent 74%)}
+
 
 .stp{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;justify-content:center;gap:7px;padding:11px 16px 21px;border-radius:22px;background:linear-gradient(160deg,rgba(20,12,36,.93),rgba(11,6,22,.87));backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px rgba(0,0,0,.5),0 0 24px rgba(124,58,237,.28)}
 .light .stp{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,244,255,.9));border-color:rgba(124,58,237,.26);box-shadow:0 12px 30px rgba(80,60,140,.18)}
