@@ -144,6 +144,57 @@ body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(25
 @supports not (backdrop-filter:blur(1px)){.bnav{background:linear-gradient(180deg,rgba(30,20,54,.95),rgba(13,8,26,.97))}body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(246,244,255,.95))}}
 body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,calc(.12 + (1 - var(--gv)) * .84)),rgba(255,255,255,calc(.08 + (1 - var(--gv)) * .86)))}
 .stp{background:linear-gradient(160deg,rgba(20,12,36,calc(.5 + (1 - var(--gv)) * .47)),rgba(11,6,22,calc(.45 + (1 - var(--gv)) * .47)));backdrop-filter:blur(calc(6px + var(--gv) * 26px)) saturate(calc(1 + var(--gv) * 1.2))}
+
+/* ═══════════ LIQUID GLASS SYSTEM — کل تم با یک اسلایدر (--gv = ۰ تا ۱) ═══════════ */
+/* ۱) بلور واقعی پس‌زمینه فقط روی سطح‌های بزرگ (عملکرد روی موبایل) */
+.hdr,.gl,.stp,.modal-box,.bk,.hback,.thm{backdrop-filter:blur(calc(var(--gv) * 24px)) saturate(calc(1 + var(--gv) * 1.5)) brightness(1.05);-webkit-backdrop-filter:blur(calc(var(--gv) * 24px)) saturate(calc(1 + var(--gv) * 1.5)) brightness(1.05)}
+
+/* ۲) هدر بالا */
+.hdr{background:linear-gradient(180deg,rgba(255,255,255,calc(var(--gv) * .14)),rgba(255,255,255,calc(var(--gv) * .05))),linear-gradient(180deg,rgba(11,6,22,calc(.84 - var(--gv) * .58)),rgba(11,6,22,calc(.9 - var(--gv) * .62)));
+ border-bottom-color:rgba(255,255,255,calc(.07 + var(--gv) * .38));
+ box-shadow:inset 0 -1.4px 0 rgba(255,255,255,calc(var(--gv) * .5)),inset 0 1.4px 0 rgba(255,255,255,calc(var(--gv) * .3)),0 10px 26px rgba(0,0,0,calc(.3 - var(--gv) * .15))}
+
+/* ۳) کارت‌ها */
+.gl{background:linear-gradient(150deg,rgba(255,255,255,calc(var(--gv) * .16)),rgba(124,58,237,calc(var(--gv) * .1)) 45%,rgba(255,255,255,calc(var(--gv) * .07))),linear-gradient(150deg,rgba(20,13,38,calc(.72 - var(--gv) * .52)),rgba(12,7,24,calc(.64 - var(--gv) * .44)));
+ border-color:rgba(255,255,255,calc(.11 + var(--gv) * .34));
+ box-shadow:inset 0 1.4px 0 rgba(255,255,255,calc(.12 + var(--gv) * .55)),inset 0 -1.4px 0 rgba(255,255,255,calc(.04 + var(--gv) * .3)),inset 0 0 calc(10px + var(--gv) * 22px) rgba(255,255,255,calc(var(--gv) * .1)),0 14px 34px rgba(0,0,0,calc(.34 - var(--gv) * .14))}
+
+/* ۴) ردیف‌های منو / پنل کاربری */
+.mi{position:relative;background:linear-gradient(150deg,rgba(255,255,255,calc(var(--gv) * .14)),rgba(124,58,237,calc(var(--gv) * .09)) 45%,rgba(255,255,255,calc(var(--gv) * .06))),linear-gradient(150deg,rgba(18,12,34,calc(.74 - var(--gv) * .52)),rgba(11,6,22,calc(.68 - var(--gv) * .46)));
+ border-color:rgba(255,255,255,calc(.1 + var(--gv) * .32));
+ box-shadow:inset 0 1.2px 0 rgba(255,255,255,calc(.1 + var(--gv) * .5)),inset 0 -1.2px 0 rgba(255,255,255,calc(.03 + var(--gv) * .26)),inset 0 0 calc(8px + var(--gv) * 16px) rgba(255,255,255,calc(var(--gv) * .08))}
+
+/* ۵) دکمه‌ها */
+.bk,.hback,.thm,.mbtn{position:relative;background:linear-gradient(150deg,rgba(255,255,255,calc(var(--gv) * .2)),rgba(255,255,255,calc(var(--gv) * .07)) 50%,rgba(255,255,255,calc(var(--gv) * .15))),linear-gradient(150deg,rgba(24,16,44,calc(.8 - var(--gv) * .57)),rgba(13,8,26,calc(.72 - var(--gv) * .52)));
+ border-color:rgba(255,255,255,calc(.11 + var(--gv) * .4));
+ box-shadow:inset 0 1.4px 0 rgba(255,255,255,calc(.22 + var(--gv) * .6)),inset 0 -1.6px 0 rgba(255,255,255,calc(.06 + var(--gv) * .35)),inset 0 0 calc(8px + var(--gv) * 14px) rgba(255,255,255,calc(var(--gv) * .1)),0 8px 20px rgba(0,0,0,calc(.3 - var(--gv) * .12))}
+
+/* ۶) چیپ‌های نوار پایین — خود آیکون‌ها روی شیشه */
+.nv{background:linear-gradient(160deg,rgba(255,255,255,calc(var(--gv) * .18)),rgba(255,255,255,calc(var(--gv) * .05)) 55%,rgba(255,255,255,calc(var(--gv) * .13)));
+ border-color:rgba(255,255,255,calc(.03 + var(--gv) * .26));
+ box-shadow:inset 0 1.2px 0 rgba(255,255,255,calc(var(--gv) * .6)),inset 0 -1.2px 0 rgba(255,255,255,calc(var(--gv) * .25)),inset 0 0 calc(var(--gv) * 10px) rgba(255,255,255,calc(var(--gv) * .12))}
+.nv.act{background:linear-gradient(160deg,rgba(255,255,255,calc(.26 + var(--gv) * .3)),rgba(255,255,255,calc(.11 + var(--gv) * .22)) 60%,rgba(255,255,255,calc(.2 + var(--gv) * .26)));
+ box-shadow:inset 0 1.4px 0 rgba(255,255,255,calc(.42 + var(--gv) * .48)),inset 0 -1.4px 0 rgba(255,255,255,calc(.12 + var(--gv) * .38)),inset 0 0 calc(10px + var(--gv) * 14px) rgba(255,255,255,calc(.1 + var(--gv) * .2)),0 6px 16px rgba(0,0,0,calc(.35 - var(--gv) * .15))}
+
+/* ۷) مودال/شیت پایین */
+.modal-box{position:relative;background:linear-gradient(160deg,rgba(255,255,255,calc(var(--gv) * .16)),rgba(255,255,255,calc(var(--gv) * .05)) 50%,rgba(255,255,255,calc(var(--gv) * .12))),linear-gradient(160deg,rgba(19,12,36,calc(.94 - var(--gv) * .7)),rgba(11,6,22,calc(.96 - var(--gv) * .74)));
+ border-color:rgba(255,255,255,calc(.1 + var(--gv) * .35));
+ box-shadow:inset 0 1.6px 0 rgba(255,255,255,calc(.2 + var(--gv) * .6)),inset 0 -1.6px 0 rgba(255,255,255,calc(.05 + var(--gv) * .3)),0 -20px 60px rgba(0,0,0,calc(.5 - var(--gv) * .2))}
+
+/* ۸) بازتاب نور مورب روی دکمه‌ها و ردیف‌ها (استاتیک، بی‌هزینه) */
+.bk::after,.hback::after,.thm::after,.mi::after,.stp::after,.modal-box::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 25%,rgba(255,255,255,calc(var(--gv) * .32)) 42%,rgba(255,255,255,calc(var(--gv) * .07)) 53%,transparent 68%);mix-blend-mode:screen}
+
+/* ۹) هالهٔ نور دور آیکون‌ها */
+.nv .ni,.mi .ic{filter:drop-shadow(0 1px 1px rgba(0,0,0,.45)) drop-shadow(0 0 calc(var(--gv) * 5px) rgba(255,255,255,calc(var(--gv) * .3)))}
+
+/* ۱۰) حس فشار */
+.bk:active,.mi:active,.nv:active{transform:scale(.975)}
+
+/* ۱۱) تم روشن */
+body.light .hdr{background:linear-gradient(180deg,rgba(255,255,255,calc(.35 + var(--gv) * .55)),rgba(255,255,255,calc(.2 + var(--gv) * .6)));border-bottom-color:rgba(0,0,0,calc(.06 + var(--gv) * .1))}
+body.light .gl,body.light .mi,body.light .bk,body.light .modal-box{background:linear-gradient(160deg,rgba(255,255,255,calc(.42 + var(--gv) * .5)),rgba(255,255,255,calc(.26 + var(--gv) * .54)));border-color:rgba(0,0,0,calc(.07 + var(--gv) * .1));box-shadow:inset 0 1.4px 0 rgba(255,255,255,calc(.6 + var(--gv) * .4)),inset 0 -1.4px 0 rgba(0,0,0,calc(.05 + var(--gv) * .06))}
+body.light .nv{background:linear-gradient(160deg,rgba(255,255,255,calc(.2 + var(--gv) * .6)),rgba(255,255,255,calc(.1 + var(--gv) * .5)));border-color:rgba(0,0,0,calc(.05 + var(--gv) * .12))}
+
 .stp{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;justify-content:center;gap:7px;padding:11px 16px 21px;border-radius:22px;background:linear-gradient(160deg,rgba(20,12,36,.93),rgba(11,6,22,.87));backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px rgba(0,0,0,.5),0 0 24px rgba(124,58,237,.28)}
 .light .stp{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,244,255,.9));border-color:rgba(124,58,237,.26);box-shadow:0 12px 30px rgba(80,60,140,.18)}
 .stpDot{width:28px;height:28px;border-radius:50%;border:2px solid var(--stroke);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--dim);background:var(--glass);transition:all .4s;position:relative}
@@ -1720,10 +1771,10 @@ function admUi(){
             + '<option value="dark"' + (u.theme === 'light' ? '' : ' selected') + '>🌙 تاریک</option>'
             + '<option value="light"' + (u.theme === 'light' ? ' selected' : '') + '>☀️ روشن</option></select>'
             + '<div style="display:flex;align-items:center;gap:10px;margin-top:14px">'
-            + '<label style="' + lbl + ';flex:1;margin:0">💧 شفافیت لیکوئید گلس</label>'
+            + '<label style="' + lbl + ';flex:1;margin:0">💧 شیشه‌ای بودن کل تم</label>'
             + '<span id="uiGlassV" style="font-size:12px;font-weight:900;color:var(--pur2)">' + (u.glass == null ? 70 : u.glass) + '٪</span></div>'
             + '<input type="range" id="uiGlass" min="0" max="100" value="' + escH(String(u.glass == null ? 70 : u.glass)) + '" oninput="uiGlassLive(this)" style="width:100%;accent-color:var(--pur2);cursor:pointer">'
-            + '<div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--dim);margin-top:3px"><span>۰ — کاملاً مات</span><span>۱۰۰ — کاملاً شیشه‌ای</span></div>');
+            + '<div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--dim);margin-top:3px"><span>۰ — شیشه خاموش (مات)</span><span>۱۰۰ — شیشهٔ کامل</span></div>');
 
         h += '<button class="bk" style="width:100%;margin-top:15px;padding:12px;font-weight:800;cursor:pointer;background:var(--grad);color:#fff;border:none" onclick="admUiSave()">💾 ذخیرهٔ ظاهر</button>'
            + '<div style="font-size:10.5px;color:var(--dim);margin-top:8px;text-align:center;line-height:1.9">تغییرات بلافاصله روی صفحهٔ خودت اعمال میشه؛ مشتری‌ها موقع باز کردن اپ می‌بیننش.</div>'
