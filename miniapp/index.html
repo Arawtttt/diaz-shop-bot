@@ -100,6 +100,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .wl{text-align:center;font-size:12px;color:var(--dim);margin-bottom:16px}
 .fcta{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:55;display:none;align-items:center;justify-content:center}
 .fcta.show{display:flex}
+body.fcta-on .ct{padding-bottom:82px}
 .fctab{padding:13px 30px;border-radius:24px;border:1px solid rgba(255,255,255,.2);background:linear-gradient(140deg,rgba(124,58,237,.85),rgba(217,70,239,.8));color:#fff;font-family:'Vazirmatn';font-size:14px;font-weight:800;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 12px 28px rgba(124,58,237,.42),0 0 24px rgba(124,58,237,.3);backdrop-filter:blur(16px) saturate(160%);transition:transform .14s,box-shadow .2s;white-space:nowrap}
 .fctab:active{transform:scale(.955);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 16px rgba(124,58,237,.4)}
 .light .fctab{background:linear-gradient(140deg,rgba(124,58,237,.95),rgba(217,70,239,.9));color:#fff}
@@ -2517,9 +2518,10 @@ function fctaScroll(id){ try{ var e=document.getElementById(id); if(e) e.scrollI
 function fctaUpdate(name){
     var f=document.getElementById('fcta'); if(!f) return;
     var it=FCTA_MAP[name];
-    if(!it){ f.className='fcta'; f.innerHTML=''; return; }
+    if(!it){ f.className='fcta'; f.innerHTML=''; try{ document.body.classList.remove('fcta-on'); }catch(e){} return; }
     f.innerHTML='<button class="fctab" onclick="'+it[1]+'">'+it[0]+'</button>';
     f.className='fcta show';
+    try{ document.body.classList.toggle('fcta-on', true); }catch(e){}
 }
 function plcv(logo){ return '<span class="plcv" aria-hidden="true">'+(logo||'')+'</span>'; }
 function stpRender(steps){
