@@ -98,12 +98,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .lb2{background:rgba(0,0,0,.4);border:1px solid var(--stroke);border-radius:14px;padding:14px;text-align:center;cursor:pointer}
 .wa{font-size:36px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--gold),#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:8px 0}
 .wl{text-align:center;font-size:12px;color:var(--dim);margin-bottom:16px}
-.fcta{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:55;display:none;align-items:center;justify-content:center}
-.fcta.show{display:flex}
-body.fcta-on .ct{padding-bottom:96px}
-.fctab{padding:13px 30px;border-radius:24px;border:1px solid rgba(255,255,255,.2);background:linear-gradient(140deg,rgba(124,58,237,.85),rgba(217,70,239,.8));color:#fff;font-family:'Vazirmatn';font-size:14px;font-weight:800;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 12px 28px rgba(124,58,237,.42),0 0 24px rgba(124,58,237,.3);backdrop-filter:blur(16px) saturate(160%);transition:transform .14s,box-shadow .2s;white-space:nowrap}
-.fctab:active{transform:scale(.955);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 16px rgba(124,58,237,.4)}
-.light .fctab{background:linear-gradient(140deg,rgba(124,58,237,.95),rgba(217,70,239,.9));color:#fff}
 
 /* ── لیکوئید گلس (سبک آیفون) ── */
 .bnav{margin:0 8px 8px;padding:7px;padding-bottom:max(7px,env(safe-area-inset-bottom));gap:4px;border-radius:999px;border:1px solid rgba(255,255,255,.28);border-top-color:rgba(255,255,255,.62);background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.06) 48%,rgba(255,255,255,.12));backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.65),inset 0 -14px 26px rgba(0,0,0,.3),0 24px 48px rgba(0,0,0,.55),0 3px 8px rgba(0,0,0,.4)}
@@ -113,14 +107,20 @@ body.fcta-on .ct{padding-bottom:96px}
 .nv.act{color:#fff;border-color:rgba(255,255,255,.55);background:linear-gradient(160deg,rgba(255,255,255,.44),rgba(255,255,255,.16));box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 -9px 16px rgba(0,0,0,.22),0 8px 20px rgba(0,0,0,.38),0 0 22px rgba(167,139,250,.42);text-shadow:none}
 .nv.act .ni{transform:translateY(-1px) scale(1.14);filter:drop-shadow(0 0 8px rgba(167,139,250,.75))}
 .nv.act::after{display:none}
-.fctab{padding:13px 30px;border-radius:999px;border:1px solid rgba(255,255,255,.36);border-top-color:rgba(255,255,255,.72);background:linear-gradient(160deg,rgba(255,255,255,.3),rgba(255,255,255,.1) 52%,rgba(255,255,255,.18));color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);font-family:'Vazirmatn';font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.75),inset 0 -10px 20px rgba(0,0,0,.25),0 18px 38px rgba(0,0,0,.5),0 0 26px rgba(167,139,250,.35);transition:transform .14s,box-shadow .2s}
-.fctab:active{transform:translateY(1px) scale(.955);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.6),inset 0 -6px 14px rgba(0,0,0,.3),0 10px 22px rgba(0,0,0,.5)}
 body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.45));border-color:rgba(255,255,255,.95);box-shadow:inset 0 1.5px 0 rgba(255,255,255,1),0 20px 40px rgba(90,70,150,.22)}
 body.light .nv{color:rgba(56,42,92,.75)}
 body.light .nv.act{color:#3b1a8a;background:linear-gradient(160deg,rgba(255,255,255,.98),rgba(255,255,255,.68));border-color:rgba(124,58,237,.35);box-shadow:inset 0 1.5px 0 #fff,0 8px 18px rgba(124,58,237,.25)}
 body.light .nv.act .ni{filter:none}
-.light .fctab, body.light .fctab{background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(255,255,255,.62));color:#3b1a8a;border-color:rgba(255,255,255,.98);text-shadow:none;box-shadow:inset 0 1.5px 0 #fff,0 16px 32px rgba(90,70,150,.25)}
-.stp{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;justify-content:center;gap:7px;padding:11px 16px 21px;border-radius:22px;background:linear-gradient(160deg,rgba(20,12,36,.93),rgba(11,6,22,.87));backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px rgba(0,0,0,.5),0 0 24px rgba(124,58,237,.28)}
+
+/* ── نوار جمع‌وجور سبک آیفون ── */
+.bnav{margin:0 auto 6px;width:calc(100% - 26px);max-width:344px;padding:5px;padding-bottom:max(5px,env(safe-area-inset-bottom));gap:3px;border-radius:999px;border:1px solid rgba(255,255,255,.34);border-top-color:rgba(255,255,255,.78);background:linear-gradient(180deg,rgba(255,255,255,.27),rgba(255,255,255,.08) 46%,rgba(255,255,255,.17));backdrop-filter:blur(46px) saturate(250%);-webkit-backdrop-filter:blur(46px) saturate(250%);box-shadow:inset 0 1.6px 0 rgba(255,255,255,.9),inset 0 -2px 0 rgba(255,255,255,.22),inset 0 -18px 32px rgba(0,0,0,.36),0 22px 46px rgba(0,0,0,.6),0 2px 7px rgba(0,0,0,.45)}
+.nv{padding:6px 2px 5px;gap:0;font-size:9px}
+.nv .ni{height:20px}
+.nv > span:not(.ni){display:none}
+.nv.act{border-color:rgba(255,255,255,.62);background:linear-gradient(160deg,rgba(255,255,255,.5),rgba(255,255,255,.18));box-shadow:inset 0 1.6px 0 rgba(255,255,255,.95),inset 0 -8px 14px rgba(0,0,0,.2),0 6px 16px rgba(0,0,0,.35),0 0 20px rgba(167,139,250,.45)}
+.nv:active{transform:scale(.9)}
+body.light .bnav{background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.52));box-shadow:inset 0 1.6px 0 rgba(255,255,255,1),0 18px 36px rgba(90,70,150,.24)}
+.stp{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;justify-content:center;gap:7px;padding:11px 16px 21px;border-radius:22px;background:linear-gradient(160deg,rgba(20,12,36,.93),rgba(11,6,22,.87));backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px rgba(0,0,0,.5),0 0 24px rgba(124,58,237,.28)}
 .light .stp{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,244,255,.9));border-color:rgba(124,58,237,.26);box-shadow:0 12px 30px rgba(80,60,140,.18)}
 .stpDot{width:28px;height:28px;border-radius:50%;border:2px solid var(--stroke);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--dim);background:var(--glass);transition:all .4s;position:relative}
 .stpDot.act{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 0 16px rgba(124,58,237,.5);transform:scale(1.1)}
@@ -281,7 +281,6 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
     </div>
     <audio id="bgm" preload="auto"></audio>
     <div id="toast" class="toast"></div>
-    <div class="fcta" id="fcta"></div>
     <div class="stp" id="buySteps" style="display:none">
   <div class="stpDot act" data-step="1">۱<span class="stplb">طرح</span></div><div class="stpLn"></div>
   <div class="stpDot" data-step="2">۲<span class="stplb">نام</span></div><div class="stpLn"></div>
@@ -713,7 +712,6 @@ function goBack() {
 function _applySection(name) {
     _cur = name;
     try{ if(typeof stpHide === 'function') stpHide(); }catch(e){}
-    try{ if(typeof fctaUpdate === 'function') fctaUpdate(name); }catch(e){}
     var secs = document.querySelectorAll('.sec');
     for (var i = 0; i < secs.length; i++) secs[i].className = 'sec';
     if(name === 'games'){ try{ gtaSheetInit(); }catch(e){} }
@@ -2522,27 +2520,9 @@ function buyConfig(planId) {
     if (el) { if(!window._origBlocks)window._origBlocks={}; if(!window._origBlocks['sec-config'])window._origBlocks['sec-config']=el.innerHTML; el.innerHTML = html; }
 }
 
-var FCTA_MAP = {
-    home: ['🛒 شروع خرید', "showSection('vpn')"],
-    vpn: ['⚡ ExpressVPN', "fctaScroll('exPlans')"],
-    music: ['🎥 اشتراک موزیک', "fctaScroll('musicBrands')"],
-    ai: ['💎 جمینای پرو', "fctaScroll('aiBrands')"],
-    wallet: ['💳 شارژ کیف پول', 'goChargeWallet()'],
-    panel: ['🎫 پشتیبانی', "showSection('ticket')"]
-};
-function fctaScroll(id){ try{ var e=document.getElementById(id); if(e) e.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} }
-function fctaUpdate(name){
-    var f=document.getElementById('fcta'); if(!f) return;
-    var it=FCTA_MAP[name];
-    if(!it){ f.className='fcta'; f.innerHTML=''; try{ document.body.classList.remove('fcta-on'); }catch(e){} return; }
-    f.innerHTML='<button class="fctab" onclick="'+it[1]+'">'+it[0]+'</button>';
-    f.className='fcta show';
-    try{ document.body.classList.toggle('fcta-on', true); }catch(e){}
-}
 function plcv(logo){ return '<span class="plcv" aria-hidden="true">'+(logo||'')+'</span>'; }
 function stpRender(steps){
     var el=document.getElementById('buySteps'); if(!el) return;
-    try{ var fc0=document.getElementById('fcta'); if(fc0) fc0.className='fcta'; }catch(e){}
     window.__STEPS = (steps && steps.length) ? steps : ['طرح','تحویل'];
     var nums=['۱','۲','۳','۴','۵'], hh='';
     for(var i=0;i<window.__STEPS.length;i++){
