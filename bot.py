@@ -732,7 +732,7 @@ def inviter_of(uid):
     return None
 
 def referral_earned(uid):
-    """جمع کل هدیه‌های رفرالی که به کیف پول این کاربر رفته"""
+    """جمع کل کش‌بک‌های رفرالی که به کیف پول این کاربر رفته"""
     try:
         h = load_wallet().get(str(uid), {}).get("history", []) or []
         return int(sum(int(x.get("amount") or 0) for x in h if x.get("type") == "referral" and int(x.get("amount") or 0) > 0))
@@ -752,9 +752,9 @@ def pay_referral(uid, price):
         if inv not in w: w[inv] = {"balance": 0, "history": []}
         w[inv]["balance"] = int(w[inv].get("balance", 0)) + amt
         w[inv]["history"].append({"amount": amt, "type": "referral", "ts": time.time(),
-                                  "note": f"هدیه رفرال {REFERRAL_PERCENT}٪"})
+                                  "note": f"کش‌بک رفرال {REFERRAL_PERCENT}٪"})
         save_wallet(w)
-        _tg_send(int(inv), f"🎁 **هدیه رفرال**\n`{amt:,}` تومان به کیف پولت اضافه شد ({REFERRAL_PERCENT}٪ خرید دوستت).")
+        _tg_send(int(inv), f"💰 **کش‌بک رفرال**\n`{amt:,}` تومان به کیف پولت اضافه شد ({REFERRAL_PERCENT}٪ خرید دوستت).")
         return (amt, inv)
     except Exception as e:
         logger.warning(f"pay_referral: {e}")
@@ -769,7 +769,7 @@ def refund_referral(rec):
         if k in w:
             w[k]["balance"] = max(0, int(w[k].get("balance", 0)) - amt)
             w[k]["history"].append({"amount": -amt, "type": "referral", "ts": time.time(),
-                                    "note": "برگشت هدیه (سفارش لغو شد)"})
+                                    "note": "برگشت کش‌بک (سفارش لغو شد)"})
             save_wallet(w)
         return amt
     except Exception as e:
@@ -891,7 +891,7 @@ def main_menu_kb(uid=0):
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
-        [InlineKeyboardButton("🎁 اشتراک رایگان", callback_data="free_sub")],
+        [InlineKeyboardButton("🎁 رفرال و کش‌بک", callback_data="ref_menu")],
         [InlineKeyboardButton("🎫 پشتیبانی", web_app=WebAppInfo(url=support_url(uid)))],
     ])
 
@@ -902,8 +902,10 @@ async def _process_referral(context, inviter_id, invited_id):
         mark_free_given(inviter_id)
         try:
             await context.bot.send_message(chat_id=inviter_id,
-                text="🎉 <b>تبریک!</b>\n\nشما یک نفر رو دعوت کردید!\n\nروی دکمه زیر کلیک کنید 👇",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🎁 دریافت", callback_data="claim_free_sub")]]),
+                text=f"🎁 <b>کش‌بک رفرال فعال شد!</b>\n\n"
+                     f"{REFERRAL_PERCENT}٪ از مبلغ خرید هر دوستت به کیف پولت اضافه میشه (خودکار).\n\n"
+                     f"📊 دعوت‌شده: <b>{count}</b>",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")]]),
                 parse_mode="HTML")
         except: pass
 
@@ -1055,33 +1057,28 @@ async def back_main(update, context):
     await q.edit_message_text(WELCOME_TEXT, reply_markup=main_menu_kb(uid=q.from_user.id))
 
 @require_member
-async def free_sub_menu(update, context):
+async def ref_menu(update, context):
     q = update.callback_query; await q.answer()
-    uid = q.from_user.id; count = get_referral_count(uid); done = has_free_sub(uid)
-    if done: text = "🎁 <b>اشتراک رایگان</b>\n\nشما قبلاً دریافت کرده‌اید! ✅"
-    elif count >= REFERRAL_TARGET: text = f"🎉 <b>تبریک!</b>\n\nشما {count} نفر را دعوت کرده‌اید!"
-    else:
-        un = context.bot.username
-        text = (f"🎁 <b>اشتراک رایگان</b>\n\nبا دعوت یک نفر، اشتراک رایگان بگیرید!\n\n"
-                f"📊 تعداد دعوت‌شده: <b>{count}/{REFERRAL_TARGET}</b>\n"
-                f"🔗 لینک دعوت:\n<code>https://t.me/{un}?start=ref{uid}</code>")
-    kb = []
-    if count >= REFERRAL_TARGET and not done: kb.append([InlineKeyboardButton("🎁 دریافت", callback_data="claim_free_sub")])
-    kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")])
+    uid = q.from_user.id
+    count = get_referral_count(uid); earned = referral_earned(uid)
+    un = context.bot.username
+    text = ("🎁 <b>رفرال و کش‌بک</b>\n\n"
+            f"با هر خرید دوستت <b>{REFERRAL_PERCENT}٪</b> از مبلغش به کیف پولت اضافه میشه (خودکار).\n\n"
+            f"📊 تعداد دعوت‌شده: <b>{count}</b>\n"
+            f"💰 دریافتی کل: <b>{earned:,}</b> تومان\n\n"
+            f"🔗 لینک دعوت:\n<code>https://t.me/{un}?start=ref{uid}</code>")
+    kb = [[InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
+          [InlineKeyboardButton("🔙 بازگشت", callback_data="back_main")]]
     await q.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="HTML")
 
 @require_member
 async def claim_free_sub(update, context):
-    q = update.callback_query; await q.answer(); uid = q.from_user.id
-    if get_referral_count(uid) < REFERRAL_TARGET:
-        await q.edit_message_text(f"❌ هنوز {REFERRAL_TARGET - get_referral_count(uid)} نفر لازم دارید."); return
-    account = get_next_account()
-    if not account:
-        await q.edit_message_text("❌ اشتراک رایگان تمام شده!"); return
+    # ❌ اشتراک هدیه حذف شد — دکمه‌های قدیمی فقط به کش‌بک رفرال هدایت میشن
+    q = update.callback_query; await q.answer()
     await q.edit_message_text(
-        f"🎉 <b>اشتراک رایگان فعال شد!</b>\n\n📧 <code>{account['email']}</code>\n🔑 <code>{account['password']}</code>\n\n⏰ {account['days_left']} روز",
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🏠 بازگشت", callback_data="back_main")]]), parse_mode="HTML")
-    mark_free_given(uid)
+        "🎁 <b>این بخش حذف شده</b>\n\nکش‌بک رفرال خودکار به کیف پولت واریز میشه.",
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")]]),
+        parse_mode="HTML")
 
 @require_member
 async def wallet_menu(update, context):
@@ -3038,7 +3035,7 @@ UI_DEFAULTS = {
     "gta_title": "GTA VI پیش‌فروش", "gta_sub": "Ultimate Edition — ظرفیت هوم",
     "gta_target": "gtavi", "gta_img": "",
     "ref_on": True, "ref_icon": "🎁",
-    "ref_title": "رفرال و هدیه", "ref_sub": "با هر خرید دوستت ۵٪ هدیه بگیر",
+    "ref_title": "رفرال و کش‌بک", "ref_sub": "با هر خرید دوستت ۵٪ کش‌بک بگیر",
     "ref_target": "referral", "ref_img": "",
     "hero_title": "🕷️ Diaz Shop", "hero_sub": "فروشگاه دیجیتال دیاز", "hero_img": "",
     "accent1": "#7c3aed", "accent2": "#e23636",
@@ -3072,6 +3069,11 @@ def load_ui():
         for k in UI_DEFAULTS:
             if k in d:
                 out[k] = d[k]
+    # مهاجرت: متن‌های قدیمی «هدیه» که با پیش‌فرض قبلی ذخیره شدن
+    if out.get("ref_title") == "رفرال و هدیه":
+        out["ref_title"] = UI_DEFAULTS["ref_title"]
+    if out.get("ref_sub") == "با هر خرید دوستت ۵٪ هدیه بگیر":
+        out["ref_sub"] = UI_DEFAULTS["ref_sub"]
     return out
 
 def save_ui(d):
@@ -3303,7 +3305,7 @@ def main():
     app.add_handler(CallbackQueryHandler(pay_express, pattern="^pay_express_"))
     app.add_handler(CallbackQueryHandler(pay_wallet_express, pattern="^pay_wallet_express_"))
     app.add_handler(CallbackQueryHandler(receipt_express_received, pattern="^receipt_express_"))
-    app.add_handler(CallbackQueryHandler(free_sub_menu, pattern="^free_sub$"))
+    app.add_handler(CallbackQueryHandler(ref_menu, pattern="^(ref_menu|free_sub)$"))
     app.add_handler(CallbackQueryHandler(claim_free_sub, pattern="^claim_free_sub$"))
     app.add_handler(CallbackQueryHandler(wallet_menu, pattern="^wallet_menu$"))
     app.add_handler(CallbackQueryHandler(charge_wallet, pattern="^charge_wallet$"))
