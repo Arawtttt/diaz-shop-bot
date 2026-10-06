@@ -511,7 +511,7 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
                 <div class="lb2" onclick="copyLink()"><div style="font-size:11px;color:var(--dim);margin-bottom:6px">🔗 لینک دعوت — بفرستش برای دوستات</div><div style="font-size:12px;color:var(--red);word-break:break-all;font-family:monospace" id="refLink">—</div></div>
                 <div class="gl" style="padding:16px 14px;margin-top:14px;margin-bottom:14px">
                     <div style="display:flex;gap:10px;text-align:center;align-items:flex-start">
-                        <div style="flex:1"><div class="rc" id="refCount">—</div><div class="rs">تعداد دعوت‌شده</div></div>
+                        <div style="flex:1"><div class="rc" id="refCount">—</div><div class="rs">تعداد دوستات</div></div>
                         <div style="width:1px;align-self:stretch;background:rgba(255,255,255,.1)"></div>
                         <div style="flex:1"><div class="rc" id="refEarned">۰</div><div class="rs">کش‌بک دریافتی (تومان)</div></div>
                     </div>
@@ -2533,7 +2533,7 @@ function renderUser() {
     var we = document.getElementById('walletBal');
     if (we) animNum(we, bal, '');
     var rc = document.getElementById('refCount');
-    if (rc) rc.textContent = (userData.referral_count || 0) + '/' + (userData.referral_target || 3);
+    if (rc) rc.textContent = userData.referral_count || 0;
     var re = document.getElementById('refEarned');
     if (re) re.textContent = String(userData.referral_earned || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     var rp = document.getElementById('refPct');

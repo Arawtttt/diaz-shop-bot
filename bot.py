@@ -1064,7 +1064,7 @@ async def ref_menu(update, context):
     un = context.bot.username
     text = ("🎁 <b>رفرال و کش‌بک</b>\n\n"
             f"با هر خرید دوستت <b>{REFERRAL_PERCENT}٪</b> از مبلغش به کیف پولت اضافه میشه (خودکار).\n\n"
-            f"📊 تعداد دعوت‌شده: <b>{count}</b>\n"
+            f"👥 تعداد دوستات: <b>{count}</b>\n"
             f"💰 دریافتی کل: <b>{earned:,}</b> تومان\n\n"
             f"🔗 لینک دعوت:\n<code>https://t.me/{un}?start=ref{uid}</code>")
     kb = [[InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
