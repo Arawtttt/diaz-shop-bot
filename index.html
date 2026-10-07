@@ -372,7 +372,7 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
 .pcSub{font-size:11px;color:var(--dim);margin-top:5px;position:relative;z-index:1}
 body.light .pcard{background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(255,255,255,.62));box-shadow:0 6px 18px rgba(0,0,0,.07)}
 #sec-pdp{padding-bottom:6px}
-.pdpHero{position:relative;text-align:center;padding:22px 14px 16px;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid var(--stroke);margin-top:8px;overflow:hidden}
+.pdpHero{position:relative;text-align:center;padding:22px 14px 16px;border-radius:22px;background:linear-gradient(160deg,rgba(22,14,44,.94),rgba(14,9,28,.88));border:1px solid rgba(255,255,255,.1);margin-top:8px;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.35)}
 .pdpHalo{position:absolute;top:-70px;left:50%;transform:translateX(-50%);width:230px;height:170px;background:radial-gradient(closest-side,rgba(124,58,237,.55),transparent);filter:blur(4px);pointer-events:none}
 .pdpLogo{position:relative;display:flex;align-items:center;justify-content:center;height:86px;margin-bottom:6px}
 .pdpLogo svg,.pdpLogo img{width:74px;height:74px;object-fit:contain;filter:drop-shadow(0 8px 22px rgba(124,58,237,.45))}
@@ -383,7 +383,7 @@ body.light .pcard{background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(2
 .pdpPick{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:13px 15px;border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(124,58,237,.42);cursor:pointer;user-select:none}
 .pdpPick b{font-size:14px}
 .pdpPickCap{display:block;font-size:10.5px;color:var(--dim);margin-bottom:3px}
-.pdpCaret{font-size:15px;color:var(--pur2);transition:transform .25s}
+.pdpCaret{font-size:18px;color:#b28cff;transition:transform .25s;font-weight:900}
 .pdpPick.on .pdpCaret{transform:rotate(180deg)}
 .pdpOpts{max-height:0;overflow:hidden;transition:max-height .3s ease}
 .pdpOpts.on{max-height:560px;padding-top:8px}
@@ -1445,6 +1445,7 @@ v2ray:{nav:'vpn',kind:'config',title:'v2rayNG',sub:'کانفیگ اختصاصی 
             {id:'50gb',label:'۵۰ گیگ',price:'۶۲,۰۰۰',int:62000},{id:'80gb',label:'۸۰ گیگ',price:'۹۸,۰۰۰',int:98000}],
   desc:[{h:'v2rayNG — کانفیگ اختصاصی پرسرعت',b:['لینک ساب اختصاصی که مستقیم توی v2rayNG ایمپورت میشه','اتصال پایدار، بدون قطعی و بدون افت سرعت','سازگار با v2rayNG / v2rayN / NekoBox و هسته‌های xray','خرید بر اساس حجم مصرفی — از ۱۰ تا ۸۰ گیگ','بدون نیاز به تنظیمات پیچیده؛ فقط لینک ساب رو کپی کن','گارانتی و پشتیبانی تا پایان حجم']}]},
 gemini:{nav:'ai',kind:'ai',brand:'gemini',title:'Google Gemini',sub:'Gemini Advanced + Google One AI Premium',logo:'gemini',
+   bigLogo:'<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ggPdp" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0%" stop-color="#4285F4"/><stop offset="55%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="#ffffff"/><g transform="translate(4 4) scale(0.21918) translate(-312 0)"><path fill="url(#ggPdp)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></g></svg>',
   pay:'payAIWallet',email:true,def:'gemfam1m',
   chips:['⚡ دسترسی نامحدود','🧠 قوی‌ترین مدل‌های گوگل','📦 ۲ ترابایت فضای ابری','🧩 داخل Gmail و Docs','🎓 NotebookLM'],
   variants:[{id:'gemfam1m',label:'پرو فمیلی • ۱ ماهه',price:'۸۰۰,۰۰۰',int:800000},
@@ -1572,8 +1573,9 @@ function pdpRefresh(){
   // قیمت
   h+='<div class="pdpPriceBox">';
   if(act){
-    h+='<div class="pdpPrice"><span>'+finHTML(it.kind,v.id,fin)+'</span><small>\u062a\u0648\u0645\u0627\u0646</small></div>';
-    if(ONSALE(it.kind,v.id)) h+='<div class="pdpOld">'+faNum(OLDINT(it.kind,v.id))+' \u062a\u0648\u0645\u0627\u0646</div>';
+    var _fh = finHTML(it.kind,v.id,fin);
+    h+='<div class="pdpPrice"><span>'+_fh+'</span><small>\u062a\u0648\u0645\u0627\u0646</small></div>';
+    if(_fh.indexOf('<s') < 0 && ONSALE(it.kind,v.id)) h+='<div class="pdpOld">'+faNum(OLDINT(it.kind,v.id))+' \u062a\u0648\u0645\u0627\u0646</div>';
   } else {
     h+='<div class="pdpStatus">'+escH(PMSG(it.kind,v.id))+'</div>';
   }
