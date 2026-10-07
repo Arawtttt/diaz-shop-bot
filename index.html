@@ -1273,6 +1273,8 @@ function discToggle(sid){
     if(!b) return;
     var show = b.style.display === 'none';
     b.style.display = show ? 'block' : 'none';
+    var row = b.previousElementSibling;
+    if(row && row.querySelector){ var aw = row.querySelector('.aw'); if(aw) aw.textContent = show ? '−' : '+'; }
     if(show){ var i = (b.querySelector && b.querySelector('input')) || document.getElementById('discInput'); if(i) i.focus(); }
 }
 function discClear(){ discReset(); if(typeof window._SC === 'function') window._SC(); }
