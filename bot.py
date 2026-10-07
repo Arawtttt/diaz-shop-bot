@@ -104,6 +104,7 @@ AI_PLANS = {
 
 SPOTIFY_PLANS = {
     "spotify1m": {"name": "Spotify اختصاصی یک‌ماهه (نامحدود)", "price": "۱,۳۵۰,۰۰۰", "price_int": 1350000, "days": 30},
+    "ytpremium1m": {"name": "YouTube Premium یک‌ماهه — اکانت آماده و اختصاصی", "price": "۳۵۰,۰۰۰", "price_int": 350000, "days": 30},
 }
 
 SPECIAL_PLANS = {
@@ -1803,7 +1804,7 @@ async def api_buy_spotify(request):
         p = load_pending()
         p[str(OWNER_ID)] = {"waiting_admin": True, "type": "send_spotify", "user_id": uid, "plan": plan["name"]}
         save_pending(p)
-        _notify_admin(f"🎧 **سفارش Spotify (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
+        _notify_admin(f"🎧 **سفارش مدیا (مینی‌اپ)**\n\n👤 کاربر: {uid}\n📦 پلن: {plan['name']}\n💰 {plan['price']} تومان\n\n🔗 لینک اشتراک رو بفرستید:")
         try: add_order(uid, "music", plan_id, plan["name"], plan["price_int"])
         except Exception: pass
         return web.json_response({"ok": True, "action": "wallet_paid"})
@@ -1873,7 +1874,7 @@ async def api_debug_channel(request):
 
 _status_cache = {"ts": 0, "ok": False, "ms": 0}
 
-BUILD_TAG = "2026-09-30-jobs"   # تگ نسخهٔ دیپلوی — از /api/status خوانده میشه
+BUILD_TAG = "2026-10-07-pdp"   # تگ نسخهٔ دیپلوی — از /api/status خوانده میشه
 
 async def api_status(request):
     if time.time() - _status_cache["ts"] > 60:

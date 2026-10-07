@@ -360,6 +360,61 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
 .copybtn:active{transform:scale(.95);border-color:rgba(167,139,250,.5)}
 @keyframes pop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
 @keyframes fall{to{transform:translateY(108vh) rotate(760deg);opacity:0}}
+
+/* === PDP: صفحهٔ محصول === */
+.pdpGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.pcard{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border:1px solid var(--stroke);border-radius:18px;padding:18px 12px 16px;text-align:center;cursor:pointer;transition:transform .18s,box-shadow .18s;overflow:hidden}
+.pcard:active{transform:scale(.97)}
+.pcard::after{content:'';position:absolute;inset:0;background:radial-gradient(120% 60% at 50% -10%,rgba(124,58,237,.3),transparent 70%);pointer-events:none}
+.pcLogo{height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative;z-index:1}
+.pcLogo svg,.pcLogo img,.pcLogo .brlg{width:52px;height:52px;object-fit:contain}
+.pcName{font-size:15px;font-weight:900;position:relative;z-index:1}
+.pcSub{font-size:11px;color:var(--dim);margin-top:5px;position:relative;z-index:1}
+body.light .pcard{background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(255,255,255,.62));box-shadow:0 6px 18px rgba(0,0,0,.07)}
+#sec-pdp{padding-bottom:6px}
+.pdpHero{position:relative;text-align:center;padding:22px 14px 16px;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid var(--stroke);margin-top:8px;overflow:hidden}
+.pdpHalo{position:absolute;top:-70px;left:50%;transform:translateX(-50%);width:230px;height:170px;background:radial-gradient(closest-side,rgba(124,58,237,.55),transparent);filter:blur(4px);pointer-events:none}
+.pdpLogo{position:relative;display:flex;align-items:center;justify-content:center;height:86px;margin-bottom:6px}
+.pdpLogo svg,.pdpLogo img{width:74px;height:74px;object-fit:contain;filter:drop-shadow(0 8px 22px rgba(124,58,237,.45))}
+.pdpTitle{position:relative;font-size:21px;font-weight:900}
+.pdpSub{position:relative;font-size:12px;color:var(--dim);margin-top:5px}
+.pdpChips{position:relative;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:13px}
+.pdpChip{font-size:10.5px;font-weight:700;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--stroke);color:var(--dim2)}
+.pdpPick{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:13px 15px;border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(124,58,237,.42);cursor:pointer;user-select:none}
+.pdpPick b{font-size:14px}
+.pdpPickCap{display:block;font-size:10.5px;color:var(--dim);margin-bottom:3px}
+.pdpCaret{font-size:15px;color:var(--pur2);transition:transform .25s}
+.pdpPick.on .pdpCaret{transform:rotate(180deg)}
+.pdpOpts{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.pdpOpts.on{max-height:560px;padding-top:8px}
+.pdpOpt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:14px;background:var(--glass);border:1px solid var(--stroke);margin-bottom:7px;cursor:pointer}
+.pdpOpt.sel{border-color:rgba(124,58,237,.8);background:linear-gradient(160deg,rgba(124,58,237,.28),rgba(226,54,54,.14))}
+.pdpOpt.off{opacity:.55}
+.pdpOptNm{font-size:13px;font-weight:800}
+.pdpOptPr{font-size:12px;color:var(--gold);font-weight:800}
+.pdpPriceBox{position:relative;margin-top:12px;padding:16px 14px;border-radius:18px;background:linear-gradient(160deg,rgba(226,54,54,.16),rgba(124,58,237,.15));border:1px solid rgba(255,255,255,.12);text-align:center}
+.pdpPrice{display:flex;align-items:baseline;justify-content:center;gap:6px;flex-wrap:wrap}
+.pdpPrice>span{font-size:27px;font-weight:900}
+.pdpPrice small{font-size:12px;color:var(--dim2)}
+.pdpOld{font-size:12px;color:rgba(255,255,255,.45);text-decoration:line-through;margin-top:4px}
+.pdpBadge{font-size:10.5px;color:var(--dim);margin-top:8px}
+.pdpStatus{font-size:15px;font-weight:900;color:var(--gold)}
+.pdpBuy{width:100%;margin-top:12px;padding:15px;border:none;border-radius:16px;background:var(--grad);color:#fff;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 10px 26px rgba(226,54,54,.3);transition:transform .15s}
+.pdpBuy:active{transform:scale(.98)}
+.pdpPayBox{margin-top:10px;padding:14px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke)}
+.pdpFld{margin-bottom:12px}
+.pdpFld label{display:block;font-size:12px;font-weight:800;margin-bottom:6px}
+.pdpFld input{width:100%;box-sizing:border-box;padding:11px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;direction:ltr;text-align:left;font-family:monospace;font-size:13px}
+.pdpSecT{font-size:14px;font-weight:900;margin:18px 0 8px}
+.pdpDescBox{padding:16px 15px}
+.pdpDescH{font-size:14px;font-weight:900;margin:13px 0 6px;color:var(--pur2)}
+.pdpDescBox>.pdpDescH:first-child{margin-top:0}
+.pdpP{font-size:12.5px;line-height:2;color:var(--dim2);margin:0 0 6px}
+.pdpUl{margin:0;padding-inline-start:18px}
+.pdpUl li{font-size:12.5px;line-height:2;color:var(--dim2)}
+body.light .pdpChip{background:rgba(0,0,0,.05)}
+body.light .pdpPriceBox{background:linear-gradient(160deg,rgba(198,40,40,.09),rgba(94,53,177,.1))}
+body.light .pdpHero{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,255,255,.6))}
 </style>
 </head>
 <body>
@@ -405,7 +460,7 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
                 <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">کانال رسمی</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('vpn')"><div class="ic">🛡️</div><div class="tx"><div class="ti">VPN</div><div class="sb">کانفیگ و اشتراک اکسپرس</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('games')"><div class="ic">🎮</div><div class="tx"><div class="ti">بازی‌ها</div><div class="sb">فروش ظرفیت بازی‌ها</div></div><div class="aw">‹</div></div>
-<div class="mi" onclick="showSection('music')"><div class="ic">🎵</div><div class="tx"><div class="ti">موزیک</div><div class="sb">Apple Music، Spotify و Deezer</div></div><div class="aw">‹</div></div>
+<div class="mi" onclick="showSection('music')"><div class="ic">🎵</div><div class="tx"><div class="ti">مدیا و سرگرمی</div><div class="sb">Spotify، Deezer و YouTube</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('ai')"><div class="ic">🤖</div><div class="tx"><div class="ti">هوش مصنوعی</div><div class="sb">ChatGPT، Grok و Gemini</div></div><div class="aw">‹</div></div>
                                 <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">رفرال و کش‌بک</div><div class="sb">دعوت دوستان • ۵٪ از خریدشون</div></div><div class="aw">‹</div></div>
@@ -414,20 +469,25 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
             </div>
                 <div class="sec" id="sec-vpn">
                     <div class="st">🛡️ VPN</div>
-                    <div id="sec-config"><div class="st" style="font-size:15px;margin-top:4px">📦 خرید کانفیگ</div><div class="plns" id="cfgPlans"></div></div>
-                    <div id="sec-express"><div class="st" style="font-size:15px;margin-top:8px">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div></div>
+                    <div class="pdpGrid" id="vpnGrid">
+                        <div class="pcard" onclick="openPDP('express')"><div class="pcLogo"><img class="brlg" src="express.png" alt="ExpressVPN"></div><div class="pcName">ExpressVPN</div><div class="pcSub">اشتراک رسمی • ۴ مدت</div></div>
+                        <div class="pcard" onclick="openPDP('v2ray')"><div class="pcLogo"><svg width="30" height="30" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#2563eb"/><path fill="#fff" d="M12 4.6 6.6 6.9v4.6c0 3.7 2.2 6.7 5.4 8 3.2-1.3 5.4-4.3 5.4-8V6.9Z"/><path fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="m9.6 11.9 1.9 1.9 3.4-3.6"/></svg></div><div class="pcName">v2rayNG</div><div class="pcSub">کانفیگ پرسرعت • ۴ حجم</div></div>
+                    </div>
+
+                    <div id="sec-config" style="display:none"><div class="st" style="font-size:15px;margin-top:4px">📦 خرید کانفیگ</div><div class="plns" id="cfgPlans"></div></div>
+                    <div id="sec-express" style="display:none"><div class="st" style="font-size:15px;margin-top:8px">⚡ ExpressVPN</div><div class="plns" id="exPlans"></div></div>
                     
                 </div>
 
             <div class="sec" id="sec-music">
-                <div class="st">🎵 موزیک</div>
-                <div id="musicBrands"><div class="mi" onclick="openMusic('apple')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#FA243C"/><path fill="#fff" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></div><div class="tx"><div class="ti">Apple Music</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openMusic('spotify')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><circle cx="12" cy="12" r="12" fill="#1DB954"/><path d="M6.4 9.2c3.9-1.2 8.4-.8 11.3 1.3M7.3 12.5c3.2-1 6.8-.6 9.4 1.1M8.1 15.6c2.6-.8 5.4-.5 7.6.9" stroke="#0a0a12" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div><div class="tx"><div class="ti">Spotify</div><div class="sb">اختصاصی • نامحدود — فعال</div></div><div class="aw">‹</div></div><div class="mi" onclick="openMusic('deezer')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#A238FF"/><g fill="#fff"><rect x="3.4" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="6.8" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="6.8" width="3.7" height="3.2" rx="0.8"/></g></svg></div><div class="tx"><div class="ti">Deezer</div><div class="sb">اشتراک یک‌ماهه — فمیلی و شخصی</div></div><div class="aw">‹</div></div></div>
+                <div class="st">🎵 مدیا و سرگرمی</div>
+                <div id="musicBrands"><div class="mi" onclick="openMusic('apple')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#FA243C"/><path fill="#fff" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></div><div class="tx"><div class="ti">Apple Music</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openPDP('spotify')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><circle cx="12" cy="12" r="12" fill="#1DB954"/><path d="M6.4 9.2c3.9-1.2 8.4-.8 11.3 1.3M7.3 12.5c3.2-1 6.8-.6 9.4 1.1M8.1 15.6c2.6-.8 5.4-.5 7.6.9" stroke="#0a0a12" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div><div class="tx"><div class="ti">Spotify</div><div class="sb">اختصاصی • نامحدود — فعال</div></div><div class="aw">‹</div></div><div class="mi" onclick="openPDP('deezer')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#A238FF"/><g fill="#fff"><rect x="3.4" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="15" width="3.7" height="3.2" rx="0.8"/><rect x="8.3" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="10.9" width="3.7" height="3.2" rx="0.8"/><rect x="13.2" y="6.8" width="3.7" height="3.2" rx="0.8"/><rect x="18.1" y="6.8" width="3.7" height="3.2" rx="0.8"/></g></svg></div><div class="tx"><div class="ti">Deezer</div><div class="sb">اشتراک یک‌ماهه — فمیلی و شخصی</div></div><div class="aw">‹</div></div><div class="mi" onclick="openPDP('youtube')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#FF0000"/><path fill="#fff" d="M9.6 7.8 16.4 12l-6.8 4.2z"/></svg></div><div class="tx"><div class="ti">YouTube Premium</div><div class="sb">پرمیوم یک‌ماهه — اکانت آماده و اختصاصی</div></div><div class="aw">‹</div></div></div>
                 
             </div>
 
             <div class="sec" id="sec-ai">
                 <div class="st">🤖 هوش مصنوعی</div>
-                <div id="aiBrands"><div class="mi" onclick="openAI('chatgpt')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4.25" y="4.1" width="15.5" height="15.75" viewBox="0 0 256 260"><path fill="#0a0a0a" d="M239.184 106.203a64.72 64.72 0 0 0-5.576-53.103C219.452 28.459 191 15.784 163.213 21.74A65.586 65.586 0 0 0 52.096 45.22a64.72 64.72 0 0 0-43.23 31.36c-14.31 24.602-11.061 55.634 8.033 76.74a64.67 64.67 0 0 0 5.525 53.102c14.174 24.65 42.644 37.324 70.446 31.36a64.72 64.72 0 0 0 48.754 21.744c28.481.025 53.714-18.361 62.414-45.481a64.77 64.77 0 0 0 43.229-31.36c14.137-24.558 10.875-55.423-8.083-76.483m-97.56 136.338a48.4 48.4 0 0 1-31.105-11.255l1.535-.87l51.67-29.825a8.6 8.6 0 0 0 4.247-7.367v-72.85l21.845 12.636c.218.111.37.32.409.563v60.367c-.056 26.818-21.783 48.545-48.601 48.601M37.158 197.93a48.35 48.35 0 0 1-5.781-32.589l1.534.921l51.722 29.826a8.34 8.34 0 0 0 8.441 0l63.181-36.425v25.221a.87.87 0 0 1-.358.665l-52.335 30.184c-23.257 13.398-52.97 5.431-66.404-17.803M23.549 85.38a48.5 48.5 0 0 1 25.58-21.333v61.39a8.29 8.29 0 0 0 4.195 7.316l62.874 36.272l-21.845 12.636a.82.82 0 0 1-.767 0L41.353 151.53c-23.211-13.454-31.171-43.144-17.804-66.405zm179.466 41.695l-63.08-36.63L161.73 77.86a.82.82 0 0 1 .768 0l52.233 30.184a48.6 48.6 0 0 1-7.316 87.635v-61.391a8.54 8.54 0 0 0-4.4-7.213m21.742-32.69l-1.535-.922l-51.619-30.081a8.39 8.39 0 0 0-8.492 0L99.98 99.808V74.587a.72.72 0 0 1 .307-.665l52.233-30.133a48.652 48.652 0 0 1 72.236 50.391zM88.061 139.097l-21.845-12.585a.87.87 0 0 1-.41-.614V65.685a48.652 48.652 0 0 1 79.757-37.346l-1.535.87l-51.67 29.825a8.6 8.6 0 0 0-4.246 7.367zm11.868-25.58L128.067 97.3l28.188 16.218v32.434l-28.086 16.218l-28.188-16.218z"/></svg></svg></div><div class="tx"><div class="ti">ChatGPT</div><div class="sb">Go و Plus — فعال</div></div><div class="aw">‹</div></div><div class="mi" onclick="openAI('claude')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#D97757"/><svg x="4.5" y="4.5" width="15" height="15" viewBox="0 0 24 24"><path fill="#fff" d="M17.304 3.541h-3.672l6.696 16.918H24Zm-10.608 0L0 20.459h3.744l1.37-3.553h7.005l1.369 3.553h3.744L10.536 3.541Zm-.371 10.223L8.616 7.82l2.291 5.945Z"/></svg></svg></div><div class="tx"><div class="ti">Claude</div><div class="sb">Pro — فعال</div></div><div class="aw">‹</div></div><div class="mi" onclick="openAI('grok')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#0a0a0a" stroke="rgba(255,255,255,.3)" stroke-width="0.7"/><svg x="4" y="4.65" width="16" height="14.67" viewBox="0 0 205 188"><path fill="#ffffff" d="M446.35 142.018V46.44h15.11v63.078l31.955-36.707h18.317l-28.746 31.458L512 142.019h-18.05l-23.5-32.437l-8.99-.064v32.5zm-45.818 1.607c-22.462 0-34.629-15.93-34.629-36.277c0-20.481 12.167-36.277 34.63-36.277c22.595 0 34.628 15.796 34.628 36.277c0 20.347-12.033 36.277-34.629 36.277m-18.852-36.277c0 15.796 8.557 23.693 18.852 23.693c10.43 0 18.853-7.897 18.853-23.693S410.96 83.52 400.532 83.52c-10.295 0-18.852 8.032-18.852 23.828m-57.827 34.67v-58.23l12.702-10.977h27.008v12.85h-24.6v56.357zm-57.77 1.768c-28.797 0-45.967-20.91-45.967-49.423c0-28.78 17.783-50.199 46.529-50.199c22.462 0 38.908 11.512 42.786 32.93h-17.248c-2.54-12.181-12.702-19.008-25.538-19.008c-20.724 0-29.816 17.938-29.816 36.277s9.092 36.143 29.816 36.143c19.788 0 28.48-14.323 29.147-26.237h-29.815v-13.86h45.058l-.074 7.246c0 26.929-10.974 46.131-44.878 46.131M48.759 43.42c20.982-20.99 51.664-26.632 77.695-16.705l1.767.7c5.84 2.173 10.93 5.263 14.901 8.137L121.08 45.743c-20.525-8.62-44.036-2.757-58.387 11.611c-19.407 19.413-23.328 53.077-.584 74.83L0 187.734c3.282-4.525 7.224-8.841 11.267-13.122l4.442-4.683l1.992-2.12c11.864-12.721 22.008-25.795 15.657-43.318l-.585-1.513c-11.147-27.115-4.656-58.891 15.986-79.557m119.894-16.489L195.553 0l-7.737 10.747c-16.113 22.7-23.265 36.99-16.126 67.724l-.05-.05c5.524 23.473-.383 49.502-19.457 68.598c-24.045 24.091-62.525 29.454-94.213 7.769l22.093-10.242c20.224 7.953 42.351 4.46 58.253-11.46c15.903-15.922 19.474-39.11 11.481-58.407c-1.518-3.659-6.074-4.578-9.261-2.222l-65.012 48.048l93.129-93.657z"/></svg></svg></div><div class="tx"><div class="ti">Grok</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openAI('gemini')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0%" stop-color="#4285F4"/><stop offset="55%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4" y="4" width="16" height="16" viewBox="312 0 73 73"><path fill="url(#gg)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></svg></div><div class="tx"><div class="ti">Gemini</div><div class="sb">اشتراک یک‌ماهه — فعال</div></div><div class="aw">‹</div></div></div>
+                <div id="aiBrands"><div class="mi" onclick="openPDP('chatgpt')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4.25" y="4.1" width="15.5" height="15.75" viewBox="0 0 256 260"><path fill="#0a0a0a" d="M239.184 106.203a64.72 64.72 0 0 0-5.576-53.103C219.452 28.459 191 15.784 163.213 21.74A65.586 65.586 0 0 0 52.096 45.22a64.72 64.72 0 0 0-43.23 31.36c-14.31 24.602-11.061 55.634 8.033 76.74a64.67 64.67 0 0 0 5.525 53.102c14.174 24.65 42.644 37.324 70.446 31.36a64.72 64.72 0 0 0 48.754 21.744c28.481.025 53.714-18.361 62.414-45.481a64.77 64.77 0 0 0 43.229-31.36c14.137-24.558 10.875-55.423-8.083-76.483m-97.56 136.338a48.4 48.4 0 0 1-31.105-11.255l1.535-.87l51.67-29.825a8.6 8.6 0 0 0 4.247-7.367v-72.85l21.845 12.636c.218.111.37.32.409.563v60.367c-.056 26.818-21.783 48.545-48.601 48.601M37.158 197.93a48.35 48.35 0 0 1-5.781-32.589l1.534.921l51.722 29.826a8.34 8.34 0 0 0 8.441 0l63.181-36.425v25.221a.87.87 0 0 1-.358.665l-52.335 30.184c-23.257 13.398-52.97 5.431-66.404-17.803M23.549 85.38a48.5 48.5 0 0 1 25.58-21.333v61.39a8.29 8.29 0 0 0 4.195 7.316l62.874 36.272l-21.845 12.636a.82.82 0 0 1-.767 0L41.353 151.53c-23.211-13.454-31.171-43.144-17.804-66.405zm179.466 41.695l-63.08-36.63L161.73 77.86a.82.82 0 0 1 .768 0l52.233 30.184a48.6 48.6 0 0 1-7.316 87.635v-61.391a8.54 8.54 0 0 0-4.4-7.213m21.742-32.69l-1.535-.922l-51.619-30.081a8.39 8.39 0 0 0-8.492 0L99.98 99.808V74.587a.72.72 0 0 1 .307-.665l52.233-30.133a48.652 48.652 0 0 1 72.236 50.391zM88.061 139.097l-21.845-12.585a.87.87 0 0 1-.41-.614V65.685a48.652 48.652 0 0 1 79.757-37.346l-1.535.87l-51.67 29.825a8.6 8.6 0 0 0-4.246 7.367zm11.868-25.58L128.067 97.3l28.188 16.218v32.434l-28.086 16.218l-28.188-16.218z"/></svg></svg></div><div class="tx"><div class="ti">ChatGPT</div><div class="sb">Go و Plus — فعال</div></div><div class="aw">‹</div></div><div class="mi" onclick="openPDP('claude')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#D97757"/><svg x="4.5" y="4.5" width="15" height="15" viewBox="0 0 24 24"><path fill="#fff" d="M17.304 3.541h-3.672l6.696 16.918H24Zm-10.608 0L0 20.459h3.744l1.37-3.553h7.005l1.369 3.553h3.744L10.536 3.541Zm-.371 10.223L8.616 7.82l2.291 5.945Z"/></svg></svg></div><div class="tx"><div class="ti">Claude</div><div class="sb">Pro — فعال</div></div><div class="aw">‹</div></div><div class="mi" onclick="openAI('grok')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#0a0a0a" stroke="rgba(255,255,255,.3)" stroke-width="0.7"/><svg x="4" y="4.65" width="16" height="14.67" viewBox="0 0 205 188"><path fill="#ffffff" d="M446.35 142.018V46.44h15.11v63.078l31.955-36.707h18.317l-28.746 31.458L512 142.019h-18.05l-23.5-32.437l-8.99-.064v32.5zm-45.818 1.607c-22.462 0-34.629-15.93-34.629-36.277c0-20.481 12.167-36.277 34.63-36.277c22.595 0 34.628 15.796 34.628 36.277c0 20.347-12.033 36.277-34.629 36.277m-18.852-36.277c0 15.796 8.557 23.693 18.852 23.693c10.43 0 18.853-7.897 18.853-23.693S410.96 83.52 400.532 83.52c-10.295 0-18.852 8.032-18.852 23.828m-57.827 34.67v-58.23l12.702-10.977h27.008v12.85h-24.6v56.357zm-57.77 1.768c-28.797 0-45.967-20.91-45.967-49.423c0-28.78 17.783-50.199 46.529-50.199c22.462 0 38.908 11.512 42.786 32.93h-17.248c-2.54-12.181-12.702-19.008-25.538-19.008c-20.724 0-29.816 17.938-29.816 36.277s9.092 36.143 29.816 36.143c19.788 0 28.48-14.323 29.147-26.237h-29.815v-13.86h45.058l-.074 7.246c0 26.929-10.974 46.131-44.878 46.131M48.759 43.42c20.982-20.99 51.664-26.632 77.695-16.705l1.767.7c5.84 2.173 10.93 5.263 14.901 8.137L121.08 45.743c-20.525-8.62-44.036-2.757-58.387 11.611c-19.407 19.413-23.328 53.077-.584 74.83L0 187.734c3.282-4.525 7.224-8.841 11.267-13.122l4.442-4.683l1.992-2.12c11.864-12.721 22.008-25.795 15.657-43.318l-.585-1.513c-11.147-27.115-4.656-58.891 15.986-79.557m119.894-16.489L195.553 0l-7.737 10.747c-16.113 22.7-23.265 36.99-16.126 67.724l-.05-.05c5.524 23.473-.383 49.502-19.457 68.598c-24.045 24.091-62.525 29.454-94.213 7.769l22.093-10.242c20.224 7.953 42.351 4.46 58.253-11.46c15.903-15.922 19.474-39.11 11.481-58.407c-1.518-3.659-6.074-4.578-9.261-2.222l-65.012 48.048l93.129-93.657z"/></svg></svg></div><div class="tx"><div class="ti">Grok</div><div class="sb">به زودی فعال می‌شود</div></div><div class="aw">‹</div></div><div class="mi" onclick="openPDP('gemini')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0%" stop-color="#4285F4"/><stop offset="55%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4" y="4" width="16" height="16" viewBox="312 0 73 73"><path fill="url(#gg)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></svg></div><div class="tx"><div class="ti">Gemini</div><div class="sb">اشتراک یک‌ماهه — فعال</div></div><div class="aw">‹</div></div></div>
                 
             </div>
 
@@ -571,11 +631,12 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
 
                 
             </div>
+            <div class="sec" id="sec-pdp"><div id="pdpBody"></div></div>
         </div>
         <div class="bnav">
             <button class="nv act" onclick="navTo('home')" data-n="home"><span class="ni"><svg viewBox="0 0 24 24"><path d="M3.2 10.7 12 3.4l8.8 7.3"/><path d="M5.6 9.6V19a1.6 1.6 0 0 0 1.6 1.6h2.9V16h3.8v4.6h2.9A1.6 1.6 0 0 0 18.4 19V9.6"/></svg></span><span>خانه</span></button>
             <button class="nv" onclick="navTo('vpn')" data-n="vpn"><span class="ni"><svg viewBox="0 0 24 24"><path d="M12 3.2 5.6 5.8v5.4c0 4.5 2.7 8.1 6.4 9.6 3.7-1.5 6.4-5.1 6.4-9.6V5.8Z"/><path d="m9.1 11.9 2.2 2.2 4-4.3"/></svg></span><span>VPN</span></button>
-            <button class="nv" onclick="navTo('music')" data-n="music"><span class="ni"><svg viewBox="0 0 24 24"><path d="M9.2 17.6V5.6l10.2-2v12"/><ellipse cx="6.6" cy="17.8" rx="2.7" ry="2.4"/><ellipse cx="16.8" cy="15.8" rx="2.7" ry="2.4"/></svg></span><span>موزیک</span></button>
+            <button class="nv" onclick="navTo('music')" data-n="music"><span class="ni"><svg viewBox="0 0 24 24"><path d="M9.2 17.6V5.6l10.2-2v12"/><ellipse cx="6.6" cy="17.8" rx="2.7" ry="2.4"/><ellipse cx="16.8" cy="15.8" rx="2.7" ry="2.4"/></svg></span><span>مدیا</span></button>
             <button class="nv" onclick="navTo('ai')" data-n="ai"><span class="ni"><svg viewBox="0 0 24 24"><rect x="4.2" y="8.4" width="15.6" height="11.8" rx="4.2"/><path d="M12 8.4V5.6"/><circle cx="12" cy="4.1" r="1.5"/><path d="M9.2 13.4h.02M14.8 13.4h.02"/><path d="M9.6 16.6h4.8"/></svg></span><span>AI</span></button>
             <button class="nv" onclick="navTo('panel')" data-n="panel"><span class="ni"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.3" r="3.7"/><path d="M4.8 20.4c1.4-3.7 4.1-5.6 7.2-5.6s5.8 1.9 7.2 5.6"/></svg></span><span>پنل</span></button>
         </div>
@@ -809,7 +870,7 @@ function _applySection(name) {
     if(name === 'games'){ try{ gtaSheetInit(); }catch(e){} }
     var target = document.getElementById('sec-' + name);
     if (target) target.className = 'sec act';
-    var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home'})[name] || name;
+    var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home'})[name] || (name === 'pdp' ? ((PDP_ITEMS[PDP_KEY] || {}).nav || 'home') : name);
     var navs = document.querySelectorAll('.nv');
     for (var j = 0; j < navs.length; j++) navs[j].className = 'nv';
     var nav = document.querySelector('.nv[data-n="' + navKey + '"]');
@@ -1285,6 +1346,7 @@ var BRAND_LOGO = {
     grok: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#0a0a0a" stroke="rgba(255,255,255,.3)" stroke-width="0.7"/><svg x="4" y="4.65" width="16" height="14.67" viewBox="0 0 205 188"><path fill="#ffffff" d="M446.35 142.018V46.44h15.11v63.078l31.955-36.707h18.317l-28.746 31.458L512 142.019h-18.05l-23.5-32.437l-8.99-.064v32.5zm-45.818 1.607c-22.462 0-34.629-15.93-34.629-36.277c0-20.481 12.167-36.277 34.63-36.277c22.595 0 34.628 15.796 34.628 36.277c0 20.347-12.033 36.277-34.629 36.277m-18.852-36.277c0 15.796 8.557 23.693 18.852 23.693c10.43 0 18.853-7.897 18.853-23.693S410.96 83.52 400.532 83.52c-10.295 0-18.852 8.032-18.852 23.828m-57.827 34.67v-58.23l12.702-10.977h27.008v12.85h-24.6v56.357zm-57.77 1.768c-28.797 0-45.967-20.91-45.967-49.423c0-28.78 17.783-50.199 46.529-50.199c22.462 0 38.908 11.512 42.786 32.93h-17.248c-2.54-12.181-12.702-19.008-25.538-19.008c-20.724 0-29.816 17.938-29.816 36.277s9.092 36.143 29.816 36.143c19.788 0 28.48-14.323 29.147-26.237h-29.815v-13.86h45.058l-.074 7.246c0 26.929-10.974 46.131-44.878 46.131M48.759 43.42c20.982-20.99 51.664-26.632 77.695-16.705l1.767.7c5.84 2.173 10.93 5.263 14.901 8.137L121.08 45.743c-20.525-8.62-44.036-2.757-58.387 11.611c-19.407 19.413-23.328 53.077-.584 74.83L0 187.734c3.282-4.525 7.224-8.841 11.267-13.122l4.442-4.683l1.992-2.12c11.864-12.721 22.008-25.795 15.657-43.318l-.585-1.513c-11.147-27.115-4.656-58.891 15.986-79.557m119.894-16.489L195.553 0l-7.737 10.747c-16.113 22.7-23.265 36.99-16.126 67.724l-.05-.05c5.524 23.473-.383 49.502-19.457 68.598c-24.045 24.091-62.525 29.454-94.213 7.769l22.093-10.242c20.224 7.953 42.351 4.46 58.253-11.46c15.903-15.922 19.474-39.11 11.481-58.407c-1.518-3.659-6.074-4.578-9.261-2.222l-65.012 48.048l93.129-93.657z"/></svg></svg>',
     gemini: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0%" stop-color="#4285F4"/><stop offset="55%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="#ffffff"/><svg x="4" y="4" width="16" height="16" viewBox="312 0 73 73"><path fill="url(#gg)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></svg>',
     vpn: '<svg width="30" height="30" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#2563eb"/><path fill="#fff" d="M12 4.6 6.6 6.9v4.6c0 3.7 2.2 6.7 5.4 8 3.2-1.3 5.4-4.3 5.4-8V6.9Z"/><path fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="m9.6 11.9 1.9 1.9 3.4-3.6"/></svg>',
+    youtube: '<svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#FF0000"/><path fill="#fff" d="M9.6 7.8 16.4 12l-6.8 4.2z"/></svg>',
     express: '<img class="brlg" src="express.png" alt="ExpressVPN">'
 };
 var KIND_LOGO = {config:'vpn', express:'express', spotify:'spotify', deezer:'deezer', ai:'gemini'};
@@ -1340,6 +1402,180 @@ function loadPlanOverrides(){
     }).catch(function(){});
 }
 loadPlanOverrides();
+
+// === PDP — صفحهٔ محصول (لوگو، انتخاب پلن، قیمت زنده، کد تخفیف، توضیحات) ===
+var PDP_KEY='', PDP_OPEN=false, PDP_OPTS=false, PDP_SEL={};
+var PDP_ITEMS = {
+express:{nav:'vpn',kind:'express',title:'ExpressVPN',sub:'اشتراک رسمی • گارانتی ویژهٔ دیاز شاپ',logo:'express',
+  pay:'payExpressWallet',def:'1m',
+  chips:['🌍 اسپانسر رسمی جام جهانی ۲۰۲۶','🛡️ Killswitch','🌐 ۳۰۰ سرور از ۱۰۰ کشور','🔒 آیپی ثابت','🎮 مناسب گیمینگ'],
+  variants:[{id:'1m',label:'۱ ماهه',price:'۱۹۰,۰۰۰',int:190000},{id:'3m',label:'۳ ماهه',price:'۳۰۰,۰۰۰',int:300000},
+            {id:'6m',label:'۶ ماهه',price:'۴۶۰,۰۰۰',int:460000},{id:'1y',label:'۱ ساله',price:'۹۰۰,۰۰۰',int:900000}],
+  desc:[{h:'ExpressVPN',b:['اسپانسر رسمی جام جهانی ۲۰۲۶','دارای قابلیت Killswitch','دارای پروتکل‌های قدرتمند','قابلیت اتصال در تمامی دستگاه‌ها','قابلیت مسدودسازی تبلیغات','قابلیت Auto connect','دارای ۳۰۰ سرور از ۱۰۰ کشور','دارای آیپی‌های ثابت','مناسب گیمینگ','مناسب اینستاگرام','مناسب دانلود و آپلود','سرعت بی‌نظیر','سرورهای قدرتمند و نامحدود']}]},
+v2ray:{nav:'vpn',kind:'config',title:'v2rayNG',sub:'کانفیگ اختصاصی • ارسال لینک ساب آنی',logo:'vpn',
+  pay:'payConfigWallet',def:'10gb',
+  chips:['⚡ لینک ساب اختصاصی','📶 اتصال پایدار','📦 ۴ حجم متفاوت','📲 ویندوز و موبایل'],
+  variants:[{id:'10gb',label:'۱۰ گیگ',price:'۱۰,۰۰۰',int:10000},{id:'20gb',label:'۲۰ گیگ',price:'۲۶,۰۰۰',int:26000},
+            {id:'50gb',label:'۵۰ گیگ',price:'۶۲,۰۰۰',int:62000},{id:'80gb',label:'۸۰ گیگ',price:'۹۸,۰۰۰',int:98000}],
+  desc:[{h:'v2rayNG — کانفیگ اختصاصی پرسرعت',b:['لینک ساب اختصاصی که مستقیم توی v2rayNG ایمپورت میشه','اتصال پایدار، بدون قطعی و بدون افت سرعت','سازگار با v2rayNG / v2rayN / NekoBox و هسته‌های xray','خرید بر اساس حجم مصرفی — از ۱۰ تا ۸۰ گیگ','بدون نیاز به تنظیمات پیچیده؛ فقط لینک ساب رو کپی کن','گارانتی و پشتیبانی تا پایان حجم']}]},
+gemini:{nav:'ai',kind:'ai',brand:'gemini',title:'Google Gemini',sub:'Gemini Advanced + Google One AI Premium',logo:'gemini',
+  pay:'payAIWallet',email:true,def:'gemfam1m',
+  chips:['⚡ دسترسی نامحدود','🧠 قوی‌ترین مدل‌های گوگل','📦 ۲ ترابایت فضای ابری','🧩 داخل Gmail و Docs','🎓 NotebookLM'],
+  variants:[{id:'gemfam1m',label:'پرو فمیلی • ۱ ماهه',price:'۸۰۰,۰۰۰',int:800000},
+            {id:'gemfam3m',label:'پرو فمیلی • ۳ ماهه',price:'۱,۱۵۰,۰۰۰',int:1150000},
+            {id:'gemfam6m',label:'پرو فمیلی • ۶ ماهه',price:'۱,۸۰۰,۰۰۰',int:1800000},
+            {id:'gemfam1y',label:'پرو فمیلی • ۱ ساله',price:'۲,۵۰۰,۰۰۰',int:2500000},
+            {id:'gemini18m',label:'پرو • ۱۸ ماهه نامحدود',price:'۳,۲۵۰,۰۰۰',int:3250000}],
+  desc:[
+   {p:'پلن Gemini Advanced (Google One AI Premium) با قابلیت Family Sharing ترکیب میشه؛ یکی از کامل‌ترین و باکیفیت‌ترین سرویس‌های هوش مصنوعی و ابری دنیا.'},
+   {h:'۱. دسترسی نامحدود به مدل‌های برتر گوگل',b:['قدرتمندترین مدل‌های Gemini برای کدنویسی، تحلیل و پژوهش','پردازش همزمان حجم عظیمی از داده — کتاب چندصد صفحه‌ای، پروژه چند هزار خطی، PDF سنگین','آپلود اکسل/CSV/دیتاست بزرگ + رسم نمودار و تحلیل آماری داخل چت','بدون افت سرعت در ساعات اوج + دسترسی زودهنگام به مدل‌های جدید']},
+   {h:'۲. فضای ابری ۲ ترابایتی',b:['۲TB برای بکاپ عکس و ویدیو باکیفیت در Google Photos','فضای Google Drive و رفع محدودیت حجم Gmail']},
+   {h:'۳. هوش مصنوعی داخل ابزارهای گوگل',b:['Gmail: خلاصه ایمیل بلند، نوشتن پاسخ آماده با یک کلیک','Docs: مقاله، رزومه، گزارش، قرارداد + ویرایش و تصحیح نگارش','Slides: ساخت اسلاید با تصاویر AI','Sheets: فرمول‌نویسی پیشرفته و دسته‌بندی خودکار اطلاعات']},
+   {h:'۴. ابزار پژوهش و یادگیری (NotebookLM)',b:['صدها مقاله و جزوه رو بریز توی یک نوت‌بوک؛ AI جواب میده با ارجاع دقیق به متن','تبدیل یادداشت به پادکست صوتی بین دو مجری AI','یادگیری مرحله‌به‌مرحله، فلش‌کارت و کوئیز خودکار، آمادگی آزمون']}]},
+chatgpt:{nav:'ai',kind:'ai',brand:'chatgpt',title:'ChatGPT',sub:'اشتراک یک‌ماهه • تحویل فوری',logo:'chatgpt',
+  pay:'payAIWallet',def:'gpt_go',
+  chips:['💬 Go و Plus','⚡ تحویل فوری','🌍 استفاده روی همه دستگاه‌ها'],
+  variants:[{id:'gpt_go',label:'Go یک‌ماهه',price:'۲,۳۰۰,۰۰۰',int:2300000},
+            {id:'gpt_plus',label:'پلاس آماده یک‌ماهه',price:'۴,۲۵۰,۰۰۰',int:4250000}],
+  desc:[{h:'ChatGPT',b:['دسترسی به قوی‌ترین مدل‌های OpenAI برای نوشتن، کدنویسی و تحلیل','پلن Go برای استفادهٔ روزانه، پلن Plus برای استفادهٔ حرفه‌ای','اکانت آماده و اختصاصی — تحویل توسط پشتیبانی','کار روی موبایل، دسکتاپ و وب']}]},
+claude:{nav:'ai',kind:'ai',brand:'claude',title:'Claude Pro',sub:'اشتراک یک‌ماهه • تحویل فوری',logo:'claude',
+  pay:'payAIWallet',def:'claudepro',
+  chips:['🧠 Claude Pro','📄 تحلیل PDF و متن طولانی','✍️ بهترین مدل برای نگارش'],
+  variants:[{id:'claudepro',label:'Pro یک‌ماهه',price:'۵,۸۵۰,۰۰۰',int:5850000}],
+  desc:[{h:'Claude Pro',b:['مدل‌های Anthropic برای نگارش، تحلیل و کدنویسی','پردازش اسناد و PDFهای بلند بدون افت کیفیت','اکانت اختصاصی — تحویل توسط پشتیبانی','بدون افت سرعت در ساعات اوج']}]},
+spotify:{nav:'music',kind:'spotify',title:'Spotify Premium',sub:'اکانت اختصاصی • نامحدود — یک‌ماهه',logo:'spotify',
+  pay:'paySpotifyWallet',def:'spotify1m',
+  chips:['🎧 بدون تبلیغ','📳 دانلود آفلاین','👥 پلن فمیلی','🎼 ۱۰۰ میلیون آهنگ'],
+  variants:[{id:'spotify1m',label:'اختصاصی • یک‌ماهه',price:'۱,۳۵۰,۰۰۰',int:1350000}],
+  desc:[{h:'Spotify Premium',b:['پخش بدون تبلیغ و پرش دلخواه بین آهنگ‌ها','دانلود آفلاین برای مترو و سفر','کیفیت بالای صدا و پخش روی همه دستگاه‌ها','اکانت اختصاصی با گارانتی ویژهٔ دیاز شاپ']}]},
+deezer:{nav:'music',kind:'deezer',title:'Deezer Premium',sub:'پلن فمیلی و شخصی — یک‌ماهه',logo:'deezer',
+  pay:'payDeezerWallet',def:'family',
+  chips:['🎵 ۹۰ میلیون آهنگ','📳 پخش آفلاین','👥 پلن فمیلی','🔊 کیفیت بالا'],
+  variants:[{id:'family',label:'فمیلی یک‌ماهه',price:'۱۳۵,۰۰۰',int:135000},
+            {id:'personal',label:'شخصی یک‌ماهه',price:'۲۰۰,۰۰۰',int:200000}],
+  desc:[{h:'Deezer Premium',b:['بیش از ۹۰ میلیون آهنگ و پادکست بدون تبلیغ','دانلود آهنگ و پخش آفلاین روی موبایل','پلن فمیلی: چند نفر همزمان، هر کدوم پروفایل جدا','پلن شخصی: فقط برای خودت، تحویل فوری','سازگار با موبایل، دسکتاپ و تلویزیون']}]},
+youtube:{nav:'music',kind:'spotify',title:'YouTube Premium',sub:'پرمیوم یک‌ماهه • اکانت آماده و اختصاصی',logo:'youtube',
+  pay:'paySpotifyWallet',def:'ytpremium1m',noCustom:true,
+  chips:['▶️ بدون تبلیغ','后台 پخش در پس‌زمینه','⬇️ دانلود آفلاین','🎵 YouTube Music'],
+  variants:[{id:'ytpremium1m',label:'یک‌ماهه',price:'۳۵۰,۰۰۰',int:350000}],
+  desc:[{h:'YouTube Premium',b:['تماشای تمام ویدیوها بدون هیچ تبلیغی','پخش در پس‌زمینه هنگام قفل صفحه یا استفاده از اپ دیگر','دانلود ویدیو برای تماشای آفلاین','دسترسی کامل به YouTube Music بدون تبلیغ','اکانت آماده و اختصاصی — تحویل فوری توسط پشتیبانی','گارانتی ویژهٔ دیاز شاپ']}]},
+};
+function pdpList(it){
+  var out=(it.variants||[]).slice();
+  if(!it.noCustom){
+    var cs=CATS(it.kind)||[];
+    for(var i=0;i<cs.length;i++){
+      var c=cs[i];
+      if(it.brand && (c.brand||'gemini')!==it.brand) continue;
+      var seen=false;
+      for(var j=0;j<out.length;j++){ if(out[j].id===c.id){ seen=true; break; } }
+      if(!seen) out.push({id:c.id,label:c.name,price:String(c.price!=null?c.price:''),int:0,icon:c.icon||''});
+    }
+  }
+  return out;
+}
+function pdpSel(it){
+  var vs=pdpList(it), i, id=PDP_SEL[PDP_KEY];
+  for(i=0;i<vs.length;i++) if(vs[i].id===id){ return vs[i]; }
+  for(i=0;i<vs.length;i++) if(vs[i].id===it.def){ PDP_SEL[PDP_KEY]=it.def; return vs[i]; }
+  if(vs.length){ PDP_SEL[PDP_KEY]=vs[0].id; return vs[0]; }
+  return {id:it.def,label:it.def,price:'',int:0};
+}
+function pdpPrice(it,v){ return {str:P(it.kind,v.id,v.price||''), int:PO(it.kind,v.id,v.int||0)}; }
+function pdpDescHTML(it){
+  var d=it.desc||[]; if(!d.length) return '';
+  var h='<div class="pdpSecT">📖 دربارهٔ این محصول</div><div class="gl pdpDescBox">',i,j;
+  for(i=0;i<d.length;i++){
+    var sp=d[i];
+    if(sp.h) h+='<div class="pdpDescH">'+escH(sp.h)+'</div>';
+    if(sp.p) h+='<p class="pdpP">'+escH(sp.p)+'</p>';
+    if(sp.b&&sp.b.length){ h+='<ul class="pdpUl">'; for(j=0;j<sp.b.length;j++) h+='<li>'+escH(sp.b[j])+'</li>'; h+='</ul>'; }
+  }
+  h+='</div>';
+  return h;
+}
+function openPDP(key){
+  var it=PDP_ITEMS[key]; if(!it) return;
+  if(PDP_KEY!==key){ PDP_OPEN=false; PDP_OPTS=false; }
+  PDP_KEY=key;
+  pdpSel(it);
+  pdpRefresh();
+  showSection('pdp');
+}
+function pdpToggleOpts(){ PDP_OPTS=!PDP_OPTS; pdpRefresh(); }
+function pdpPick(id){ PDP_SEL[PDP_KEY]=id; PDP_OPTS=false; pdpRefresh(); }
+function pdpTogglePay(){ PDP_OPEN=!PDP_OPEN; pdpRefresh(); }
+function pdpPayNow(){
+  var it=PDP_ITEMS[PDP_KEY]; if(!it) return;
+  var v=pdpSel(it);
+  if(!PA(it.kind,v.id)){ showToast(PMSG(it.kind,v.id)); return; }
+  var fn=it.pay;
+  if(!fn || typeof window[fn]!=='function'){ showToast('\u274c خطا در شروع پرداخت'); return; }
+  window[fn](v.id);
+}
+function pdpRefresh(){
+  var it=PDP_ITEMS[PDP_KEY]; if(!it) return;
+  var el=document.getElementById('pdpBody'); if(!el) return;
+  var v=pdpSel(it), vs=pdpList(it), i;
+  var pr=pdpPrice(it,v), act=PA(it.kind,v.id);
+  window._SC=function(){ pdpRefresh(); };
+  var bal=(userData&&userData.balance)||0;
+  var fin=discPrice(it.kind, v.id, pr.int, pr.str);
+  var h='';
+  h+='<div class="pdpHero"><div class="pdpHalo"></div><div class="pdpLogo">'+(it.bigLogo||bl(it.logo)||'\u2728')+'</div>';
+  h+='<div class="pdpTitle">'+escH(it.title)+'</div>';
+  if(it.sub) h+='<div class="pdpSub">'+escH(it.sub)+'</div>';
+  if(it.chips&&it.chips.length){
+    h+='<div class="pdpChips">';
+    for(i=0;i<it.chips.length;i++) h+='<span class="pdpChip">'+escH(it.chips[i])+'</span>';
+    h+='</div>';
+  }
+  h+='</div>';
+  // سلکتور پلن
+  h+='<div class="pdpPick'+(PDP_OPTS?' on':'')+'" onclick="pdpToggleOpts()">'
+   + '<div><span class="pdpPickCap">پلن انتخابی</span><b>'+escH(v.label)+'</b></div>'
+   + '<span class="pdpCaret">'+(PDP_OPTS?'\u25b4':'\u25be')+'</span></div>';
+  h+='<div class="pdpOpts'+(PDP_OPTS?' on':'')+'">';
+  for(i=0;i<vs.length;i++){
+    var o=vs[i], oact=PA(it.kind,o.id);
+    h+='<div class="pdpOpt'+(o.id===v.id?' sel':'')+(oact?'':' off')+'" onclick="pdpPick(\''+o.id+'\')">'
+     + '<span class="pdpOptNm">'+escH(o.label)+'</span>'
+     + '<span class="pdpOptPr">'+(oact?escH(P(it.kind,o.id,o.price||''))+' \u062a\u0648\u0645\u0627\u0646':escH(PMSG(it.kind,o.id)))+'</span></div>';
+  }
+  h+='</div>';
+  // قیمت
+  h+='<div class="pdpPriceBox">';
+  if(act){
+    h+='<div class="pdpPrice"><span>'+finHTML(it.kind,v.id,fin)+'</span><small>\u062a\u0648\u0645\u0627\u0646</small></div>';
+    if(ONSALE(it.kind,v.id)) h+='<div class="pdpOld">'+faNum(OLDINT(it.kind,v.id))+' \u062a\u0648\u0645\u0627\u0646</div>';
+  } else {
+    h+='<div class="pdpStatus">'+escH(PMSG(it.kind,v.id))+'</div>';
+  }
+  h+='<div class="pdpBadge">🛡\ufe0f \u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0648\u06cc\u069e\u0647\u2c6c \u062f\u06cc\u0627\u0632 \u0634\u0627\u067e \u2022 \u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0647\u0631 \u0631\u0648\u0632 \u06f1\u06f4 \u062a\u0627 \u06f2\u06f2</div>';
+  h+='</div>';
+  h+=discRow(it.kind, v.id, pr.int, pr.str);
+  if(act){
+    h+='<button class="pdpBuy" onclick="pdpTogglePay()">'+(PDP_OPEN?'\u2716 \u0628\u0633\u062a\u0646 \u0633\u0641\u0627\u0631\u0634':'🛒 \u0633\u0641\u0627\u0631\u0634')+'</button>';
+  }
+  if(PDP_OPEN && act){
+    h+='<div class="pdpPayBox">';
+    if(it.email){
+      h+='<div class="pdpFld"><label>📧 \u0627\u06cc\u0645\u06cc\u0644 \u0641\u0639\u0627\u0644\u2c6c\u0633\u0627\u0632\u06cc</label>'
+       + '<input id="gemEmail" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="name@gmail.com" value="'+escH(GEM_EMAIL)+'" '
+       + 'oninput="GEM_EMAIL=this.value" '
+       + 'onkeydown="if(event.key===\'Enter\' && !event.isComposing){event.preventDefault();pdpPayNow();}"></div>';
+    }
+    if(bal>=fin.int){
+      h+='<div class="mi" onclick="pdpPayNow()"><div class="ic">💰</div><div class="tx"><div class="ti">\u067e\u0631\u062f\u0627\u062e\u062a \u0627\u0632 \u06a9\u06cc\u0641 \u067e\u0648\u0644</div><div class="sb">\u0645\u0648\u062c\u0648\u062f\u06cc: '+bal.toLocaleString('fa-IR')+' \u062a\u0648\u0645\u0627\u0646</div></div><div class="aw">\u2039</div></div>';
+    } else {
+      h+='<div class="gl" style="padding:16px;text-align:center;margin-bottom:8px"><p style="color:var(--dim);font-size:13px">💰 \u0645\u0648\u062c\u0648\u062f\u06cc \u06a9\u0627\u0641\u06cc \u0646\u06cc\u0633\u062a!</p></div>';
+      h+='<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">\u0634\u0627\u0631\u061f \u06a9\u06cc\u0641 \u067e\u0648\u0644</div><div class="sb">\u0627\u0632 \u0637\u0631\u06cc\u0642 \u0631\u0628\u0627\u062a \u0645\u0648\u062c\u0648\u062f\u06cc \u0627\u0636\u0627\u0641\u0647 \u06a9\u0646\u06cc\u062f</div></div><div class="aw">\u2039</div></div>';
+    }
+    h+='</div>';
+  }
+  h+=pdpDescHTML(it);
+  el.innerHTML=h;
+}
 
 // === ظاهر سایت (بنر، تیترها، رنگ‌ها) — از پنل ادمین ===
 var UI = null;
