@@ -1416,7 +1416,7 @@ function extraRows(kind, fn, brand){
 function loadPlanOverrides(){
     try{
         var c = sessionStorage.getItem('planOv');
-        if(c){ PLAN_OV = JSON.parse(c); applyStaticPrices(); if(typeof renderPlans === 'function') renderPlans(); }
+        if(c){ PLAN_OV = JSON.parse(c); applyStaticPrices(); if(typeof renderPlans === 'function') renderPlans(); if(typeof pdpRefresh==='function' && typeof PDP_KEY==='string' && PDP_KEY && document.getElementById('sec-pdp') && document.getElementById('sec-pdp').className.indexOf('act')>=0) pdpRefresh(); }
     }catch(e){}
     fetch(API + '/api/plans').then(function(r){ return r.json(); }).then(function(d){
         if(d && !d.error){
@@ -1424,6 +1424,7 @@ function loadPlanOverrides(){
             try{ sessionStorage.setItem('planOv', JSON.stringify(d)); }catch(e){}
             applyStaticPrices();
             if(typeof renderPlans === 'function') renderPlans();
+            if(typeof pdpRefresh==='function' && typeof PDP_KEY==='string' && PDP_KEY && document.getElementById('sec-pdp') && document.getElementById('sec-pdp').className.indexOf('act')>=0) pdpRefresh(); 
         }
     }).catch(function(){});
 }
