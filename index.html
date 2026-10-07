@@ -288,18 +288,18 @@ body.light .gl input::placeholder,body.light .gl textarea::placeholder,body.ligh
 .mgrid .mi .aw{position:absolute;top:12px;left:12px;font-size:15px}
 .mgrid .mi .ti{font-size:14px;font-weight:700}
 .mgrid .mi .sb{line-height:1.5}
-.banslider{position:relative;height:86px;border-radius:18px;overflow:hidden;margin-bottom:12px;border:1px solid var(--stroke)}
+.banslider{position:relative;height:116px;border-radius:18px;overflow:hidden;margin-bottom:12px;border:1px solid var(--stroke)}
 .banslide{position:absolute;inset:0;opacity:0;transition:opacity .7s;display:flex;align-items:center;justify-content:space-between;gap:13px;padding:0 18px;cursor:pointer;background:var(--banBg,linear-gradient(135deg,rgba(124,58,237,.4),rgba(226,54,54,.28)));pointer-events:none;z-index:1}
 .banslide.act{opacity:1;pointer-events:auto;z-index:2}
 .bs-ai{background:linear-gradient(135deg,rgba(66,133,244,.5),rgba(155,114,243,.42))}
 .bs-gta{background:linear-gradient(180deg,rgba(11,6,22,.42),rgba(11,6,22,.88)),url('gta-bg.jpg') center 32%/cover no-repeat}
 .bs-ref{background:linear-gradient(135deg,rgba(226,54,54,.48),rgba(251,191,36,.32))}
 .bsart{display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.bsart.gtaart{font-size:34px;font-weight:900;color:#e040fb;text-shadow:0 0 18px rgba(224,64,251,.75),0 2px 8px rgba(0,0,0,.6);letter-spacing:1px;transform:skewX(-6deg)}
-.bsart.refart{font-size:40px;transform:rotate(-9deg);filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
+.bsart.gtaart{font-size:42px;font-weight:900;color:#e040fb;text-shadow:0 0 18px rgba(224,64,251,.75),0 2px 8px rgba(0,0,0,.6);letter-spacing:1px;transform:skewX(-6deg)}
+.bsart.refart{font-size:54px;transform:rotate(-9deg);filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
 .bstx b{font-size:15px}
-.bsi{font-size:30px}
-.bstx b{display:block;font-size:15px;font-weight:900}
+.bsi{font-size:38px}
+.bstx b{display:block;font-size:17px;font-weight:900}
 .bstx i{display:block;font-style:normal;font-size:11.5px;color:rgba(255,255,255,.9);margin-top:3px}
 .bandots{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:3}
 .bd{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
@@ -415,6 +415,15 @@ body.light .pcard{background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(2
 body.light .pdpChip{background:rgba(0,0,0,.05)}
 body.light .pdpPriceBox{background:linear-gradient(160deg,rgba(198,40,40,.09),rgba(94,53,177,.1))}
 body.light .pdpHero{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,255,255,.6))}
+
+/* === هدر: پروفایل کاربر، دکمهٔ زبان === */
+.hdrProf{position:absolute;top:50%;right:14px;transform:translateY(-50%);display:none;align-items:center;gap:7px;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:linear-gradient(150deg,rgba(255,255,255,.16),rgba(255,255,255,.05));color:#fff;cursor:pointer;z-index:6;font-family:'Vazirmatn'}
+.hdrProf.on{display:flex}
+.hdrAva{width:26px;height:26px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:900;color:#fff;flex-shrink:0}
+.hdrNm{font-size:11.5px;font-weight:800;max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdrCaret{color:var(--dim2);font-size:15px;line-height:1}
+body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
+#langBtn{left:98px;font-size:12px;font-weight:900}
 </style>
 </head>
 <body>
@@ -442,7 +451,7 @@ body.light .pdpHero{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(
         </div>
     </div>
     <div class="app" id="app" style="display:none">
-        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><button class="mcb" id="bgmBtn" onclick="toggleBgm()" title="قطع/پخش موزیک">🎵</button><h1 id="heroTitle">🕷️ Diaz Shop</h1><p id="heroSub">فروشگاه دیجیتال دیاز</p></div>
+        <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><button class="mcb" id="bgmBtn" onclick="toggleBgm()" title="قطع/پخش موزیک">🎵</button><button class="mcb" id="langBtn" onclick="toggleLang()" title="زبان / Language">EN</button><h1 id="heroTitle">🕷️ Diaz Shop</h1><p id="heroSub">فروشگاه دیجیتال دیاز</p><button class="hdrProf" id="hdrProf" onclick="showSection('panel')"><span class="hdrAva" id="hdrAva">👤</span><span class="hdrNm" id="hdrNm">—</span><span class="hdrCaret">›</span></button></div>
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
                 <div class="gl hero"><img id="heroImg" src="spider-bg.jpg" alt=""><div class="hero-ov"><h2 id="heroTitle2">🕷️ Diaz Shop</h2><p id="heroSub2">فروشگاه دیجیتال دیاز</p></div></div>
@@ -451,7 +460,7 @@ body.light .pdpHero{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(
                     <div class="sk" style="width:35%;height:12px"></div>
                 </div>
                 <div class="banslider" id="banslider">
-                    <div class="banslide bs-ai act" id="banSlide" onclick="showSection('ai')"><div class="bstx"><b id="banTitle">✨ پلن فمیلی جدید</b><i id="banSub">جمنای پرو فمیلی • نامحدود — ۱ ماهه، فقط ۸۰۰,۰۰۰ تومان</i></div><span class="bsart" id="banArt"><svg width="46" height="46" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
+                    <div class="banslide bs-ai act" id="banSlide" onclick="showSection('ai')"><div class="bstx"><b id="banTitle">✨ پلن فمیلی جدید</b><i id="banSub">جمنای پرو فمیلی • نامحدود — ۱ ماهه، فقط ۸۰۰,۰۰۰ تومان</i></div><span class="bsart" id="banArt"><svg width="58" height="58" viewBox="312 0 73 73"><defs><linearGradient id="bsGemGrad" gradientUnits="userSpaceOnUse" x1="312" y1="0" x2="385" y2="73"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#bsGemGrad)" d="M348.374 72.76c-2.846-18.788-17.592-33.533-36.38-36.38c18.788-2.847 33.534-17.593 36.38-36.38c2.847 18.787 17.593 33.533 36.38 36.38c-18.787 2.847-33.533 17.592-36.38 36.38"/></svg></span></div>
                     <div class="banslide bs-gta" id="banSlide2" onclick="showSection('gtavi')"><div class="bstx"><b id="banTitle2">GTA VI پیش‌فروش</b><i id="banSub2">Ultimate Edition — ظرفیت هوم</i></div><span class="bsart gtaart" id="banArt2">VI</span></div>
                     <div class="banslide bs-ref" id="banSlide3" onclick="showSection('referral')"><div class="bstx"><b id="banTitle3">رفرال و کش‌بک</b><i id="banSub3">با هر خرید دوستت ۵٪ کش‌بک بگیر</i></div><span class="bsart refart" id="banArt3">🎁</span></div>
                     <div class="bandots"><span class="bd act"></span><span class="bd"></span><span class="bd"></span></div>
@@ -618,15 +627,29 @@ body.light .pdpHero{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(
                         <div id="uAvatar" style="width:54px;height:54px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 4px 18px rgba(124,58,237,.45)">—</div>
                         <div style="flex:1;min-width:0"><div id="uName" style="font-size:17px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div><div id="uId" style="font-size:12px;color:var(--dim);margin-top:2px">—</div></div>
                     </div>
-                    <div class="ir"><span class="lb">📆 عضویت</span><span class="vl" id="uJoined">—</span></div>
-                    <div class="ir"><span class="lb">🛒 کل خریدها</span><span class="vl" id="uPurchases">—</span></div>
-                    <div class="ir"><span class="lb">💰 موجودی</span><span class="vl" style="color:var(--gold);font-size:16px" id="uBal">—</span></div>
-                    <div class="ir"><span class="lb">🆔 شناسه کاربر</span><span class="vl" id="uDebug" style="font-size:11px;color:var(--dim);font-family:monospace;direction:ltr">بررسی...</span></div>
+                    <div style="margin-top:2px;padding:15px 14px;border-radius:16px;background:linear-gradient(150deg,rgba(124,58,237,.3),rgba(226,54,54,.16));border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:space-between;gap:12px">
+                        <div>
+                            <div class="lb" style="font-size:11.5px;color:rgba(255,255,255,.8);font-weight:700">💰 موجودی کیف پول</div>
+                            <div style="font-size:24px;font-weight:900;margin-top:4px;color:#fff"><span id="uBal" style="color:var(--gold)">—</span> <small style="font-size:12px;color:rgba(255,255,255,.75)">تومان</small></div>
+                        </div>
+                        <button class="mbtn" style="width:auto;margin:0;padding:12px 15px;font-size:12.5px;white-space:nowrap" onclick="goChargeWallet()">افزایش موجودی</button>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:12px">
+                        <div style="flex:1;padding:11px 8px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);text-align:center">
+                            <div id="uPurchases" style="font-size:15px;font-weight:900">۰</div>
+                            <div class="lb" style="font-size:10.5px;color:var(--dim);margin-top:3px">کل خریدها</div>
+                        </div>
+                        <div style="flex:1;padding:11px 8px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);text-align:center">
+                            <div id="uJoined" style="font-size:13.5px;font-weight:900">—</div>
+                            <div class="lb" style="font-size:10.5px;color:var(--dim);margin-top:3px">عضویت</div>
+                        </div>
+                    </div>
+                    <div class="ir" style="margin-top:12px"><span class="lb">🆔 شناسه کاربر</span><span class="vl" id="uDebug" style="font-size:11px;color:var(--dim);font-family:monospace;direction:ltr">بررسی...</span></div>
                 </div>
                 <div id="subStatus"><div class="gl stcSk"><div class="sk" style="width:45%"></div><div class="sk" style="width:100%;height:60px;border-radius:18px"></div><div class="sk" style="width:70%"></div></div></div>
                 <div id="uOrders"><div class="gl" style="padding:16px;margin-bottom:14px"><div class="sk" style="width:55%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:40%"></div></div></div>
                 <div id="userConfigs"></div>
-                <div class="mi" id="supEntry" onclick="openTicket()"><div class="ic">🎫</div><div class="tx"><div class="ti">پشتیبانی</div><div class="sb" id="supSub">گفتگو با پشتیبانی</div></div><div class="aw">‹</div></div>
+                <div class="mi" style="margin-top:10px" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">رفرال و کش‌بک</div><div class="sb" id="pnlRefSub">۵٪ کش‌بک • لینک دعوتتو بفرست و درآمد کسب کن</div></div><div class="aw" onclick="event.stopPropagation();copyLink()">⧉</div></div><div class="mi" id="supEntry" onclick="openTicket()"><div class="ic">🎫</div><div class="tx"><div class="ti">پشتیبانی</div><div class="sb" id="supSub">گفتگو با پشتیبانی</div></div><div class="aw">‹</div></div>
                 <div class="mi" id="admEntry" style="display:none;margin-top:4px" onclick="openAdmin()"><div class="ic">🛠️</div><div class="tx"><div class="ti">پنل مدیریت</div><div class="sb">فقط برای مدیر فروشگاه</div></div><div class="aw">‹</div></div>
 
                 
@@ -875,6 +898,9 @@ function _applySection(name) {
     for (var j = 0; j < navs.length; j++) navs[j].className = 'nv';
     var nav = document.querySelector('.nv[data-n="' + navKey + '"]');
     if (nav) nav.className = 'nv act';
+    var hp = document.getElementById('hdrProf');
+    if (hp) hp.className = (name === 'home') ? 'hdrProf on' : 'hdrProf';
+    try { applyLang(); } catch (e) {}
     var hb = document.getElementById('hback');
     if (hb) hb.style.display = (name === 'home') ? 'none' : 'flex';
     if (name === 'panel' && typeof loadSubStatus === 'function') loadSubStatus();
@@ -1484,7 +1510,7 @@ function pdpSel(it){
 function pdpPrice(it,v){ return {str:P(it.kind,v.id,v.price||''), int:PO(it.kind,v.id,v.int||0)}; }
 function pdpDescHTML(it){
   var d=it.desc||[]; if(!d.length) return '';
-  var h='<div class="pdpSecT">📖 دربارهٔ این محصول</div><div class="gl pdpDescBox">',i,j;
+  var h='<div class="pdpSecT">'+t('📖 دربارهٔ این محصول')+'</div><div class="gl pdpDescBox">',i,j;
   for(i=0;i<d.length;i++){
     var sp=d[i];
     if(sp.h) h+='<div class="pdpDescH">'+escH(sp.h)+'</div>';
@@ -1533,13 +1559,13 @@ function pdpRefresh(){
   h+='</div>';
   // سلکتور پلن
   h+='<div class="pdpPick'+(PDP_OPTS?' on':'')+'" onclick="pdpToggleOpts()">'
-   + '<div><span class="pdpPickCap">پلن انتخابی</span><b>'+escH(v.label)+'</b></div>'
+   + '<div><span class="pdpPickCap">'+t('پلن انتخابی')+'</span><b>'+escH(pdpVL(v.id, v.label))+'</b></div>'
    + '<span class="pdpCaret">'+(PDP_OPTS?'\u25b4':'\u25be')+'</span></div>';
   h+='<div class="pdpOpts'+(PDP_OPTS?' on':'')+'">';
   for(i=0;i<vs.length;i++){
     var o=vs[i], oact=PA(it.kind,o.id);
     h+='<div class="pdpOpt'+(o.id===v.id?' sel':'')+(oact?'':' off')+'" onclick="pdpPick(\''+o.id+'\')">'
-     + '<span class="pdpOptNm">'+escH(o.label)+'</span>'
+     + '<span class="pdpOptNm">'+escH(pdpVL(o.id, o.label))+'</span>'
      + '<span class="pdpOptPr">'+(oact?escH(P(it.kind,o.id,o.price||''))+' \u062a\u0648\u0645\u0627\u0646':escH(PMSG(it.kind,o.id)))+'</span></div>';
   }
   h+='</div>';
@@ -1551,31 +1577,102 @@ function pdpRefresh(){
   } else {
     h+='<div class="pdpStatus">'+escH(PMSG(it.kind,v.id))+'</div>';
   }
-  h+='<div class="pdpBadge">🛡\ufe0f \u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0648\u06cc\u069e\u0647\u2c6c \u062f\u06cc\u0627\u0632 \u0634\u0627\u067e \u2022 \u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0647\u0631 \u0631\u0648\u0632 \u06f1\u06f4 \u062a\u0627 \u06f2\u06f2</div>';
+  h+='<div class="pdpBadge">'+t(PDP_BADGE)+'</div>';
   h+='</div>';
   h+=discRow(it.kind, v.id, pr.int, pr.str);
   if(act){
-    h+='<button class="pdpBuy" onclick="pdpTogglePay()">'+(PDP_OPEN?'\u2716 \u0628\u0633\u062a\u0646 \u0633\u0641\u0627\u0631\u0634':'🛒 \u0633\u0641\u0627\u0631\u0634')+'</button>';
+    h+='<button class="pdpBuy" onclick="pdpTogglePay()">'+(PDP_OPEN?t('✖ بستن سفارش'):t('🛒 سفارش'))+'</button>';
   }
   if(PDP_OPEN && act){
     h+='<div class="pdpPayBox">';
     if(it.email){
-      h+='<div class="pdpFld"><label>📧 \u0627\u06cc\u0645\u06cc\u0644 \u0641\u0639\u0627\u0644\u2c6c\u0633\u0627\u0632\u06cc</label>'
+      h+='<div class="pdpFld"><label>'+t('📧 ایمیل فعال‌سازی')+'</label>'
        + '<input id="gemEmail" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="name@gmail.com" value="'+escH(GEM_EMAIL)+'" '
        + 'oninput="GEM_EMAIL=this.value" '
        + 'onkeydown="if(event.key===\'Enter\' && !event.isComposing){event.preventDefault();pdpPayNow();}"></div>';
     }
     if(bal>=fin.int){
-      h+='<div class="mi" onclick="pdpPayNow()"><div class="ic">💰</div><div class="tx"><div class="ti">\u067e\u0631\u062f\u0627\u062e\u062a \u0627\u0632 \u06a9\u06cc\u0641 \u067e\u0648\u0644</div><div class="sb">\u0645\u0648\u062c\u0648\u062f\u06cc: '+bal.toLocaleString('fa-IR')+' \u062a\u0648\u0645\u0627\u0646</div></div><div class="aw">\u2039</div></div>';
+      h+='<div class="mi" onclick="pdpPayNow()"><div class="ic">💰</div><div class="tx"><div class="ti">'+t('پرداخت از کیف پول')+'</div><div class="sb">\u0645\u0648\u062c\u0648\u062f\u06cc: '+bal.toLocaleString('fa-IR')+' \u062a\u0648\u0645\u0627\u0646</div></div><div class="aw">\u2039</div></div>';
     } else {
-      h+='<div class="gl" style="padding:16px;text-align:center;margin-bottom:8px"><p style="color:var(--dim);font-size:13px">💰 \u0645\u0648\u062c\u0648\u062f\u06cc \u06a9\u0627\u0641\u06cc \u0646\u06cc\u0633\u062a!</p></div>';
-      h+='<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">\u0634\u0627\u0631\u061f \u06a9\u06cc\u0641 \u067e\u0648\u0644</div><div class="sb">\u0627\u0632 \u0637\u0631\u06cc\u0642 \u0631\u0628\u0627\u062a \u0645\u0648\u062c\u0648\u062f\u06cc \u0627\u0636\u0627\u0641\u0647 \u06a9\u0646\u06cc\u062f</div></div><div class="aw">\u2039</div></div>';
+      h+='<div class="gl" style="padding:16px;text-align:center;margin-bottom:8px"><p style="color:var(--dim);font-size:13px">'+t('💰 موجودی کافی نیست!')+'</p></div>';
+      h+='<div class="mi" onclick="goChargeWallet()"><div class="ic">💳</div><div class="tx"><div class="ti">'+t('شارژ؟ کیف پول')+'</div><div class="sb">\u0627\u0632 \u0637\u0631\u06cc\u0642 \u0631\u0628\u0627\u062a \u0645\u0648\u062c\u0648\u062f\u06cc \u0627\u0636\u0627\u0641\u0647 \u06a9\u0646\u06cc\u062f</div></div><div class="aw">\u2039</div></div>';
     }
     h+='</div>';
   }
   h+=pdpDescHTML(it);
   el.innerHTML=h;
 }
+
+
+// === زبان (فارسی / انگلیسی) ===
+var LANGV = (function () { try { return localStorage.getItem('dz_lang') || 'fa'; } catch (e) { return 'fa'; } })();
+var TX = {
+  'خانه': 'Home', 'مدیا': 'Media', 'پنل': 'Panel',
+  'کانال رسمی': 'Official channel', 'عضویت در کانال رسمی': 'Join our channel',
+  'کانفیگ و اشتراک اکسپرس': 'Configs & ExpressVPN',
+  'بازی‌ها': 'Games', 'فروش ظرفیت بازی‌ها': 'Game capacity sales',
+  'مدیا و سرگرمی': 'Media & Entertainment', 'Spotify، Deezer و YouTube': 'Spotify, Deezer & YouTube',
+  'هوش مصنوعی': 'Artificial Intelligence', 'ChatGPT، Grok و Gemini': 'ChatGPT, Grok & Gemini',
+  'کیف پول': 'Wallet', 'موجودی و تراکنش‌ها': 'Balance & transactions',
+  'رفرال و کش‌بک': 'Referral & Cashback', 'دعوت دوستان • ۵٪ از خریدشون': 'Invite friends • 5% of their orders',
+  'پنل کاربری': 'My account', 'اطلاعات و اشتراک‌ها': 'Details & subscriptions',
+  '🛡️ VPN': '🛡️ VPN', '🎵 مدیا و سرگرمی': '🎵 Media & Entertainment',
+  '🤖 هوش مصنوعی': '🤖 Artificial Intelligence', '🎮 بازی‌ها': '🎮 Games',
+  '💰 کیف پول': '💰 Wallet', '🎁 رفرال و کش‌بک': '🎁 Referral & Cashback',
+  '👤 پنل کاربری': '👤 My account', '🛠️ پنل مدیریت': '🛠️ Admin panel',
+  '🎫 پشتیبانی': '🎫 Support', 'پشتیبانی': 'Support',
+  '💰 موجودی کیف پول': '💰 Wallet balance', 'افزایش موجودی': 'Top up',
+  'کل خریدها': 'Total orders', 'عضویت': 'Member since', '🆔 شناسه کاربر': '🆔 User ID',
+  'پلن انتخابی': 'Selected plan', '🛒 سفارش': '🛒 Order', '✖ بستن سفارش': '✖ Close',
+  '📖 دربارهٔ این محصول': '📖 About this product',
+  '📧 ایمیل فعال‌سازی': '📧 Activation email',
+  'پرداخت از کیف پول': 'Pay from wallet',
+  '💰 موجودی کافی نیست!': '💰 Insufficient balance!',
+  'شارژ؟ کیف پول': 'Top up wallet', 'شارژ کیف پول': 'Top up wallet',
+  'از طریق ربات موجودی اضافه کنید': 'Top up your balance via the bot'
+};
+function t(k) { var v = TX[k]; return (LANGV === 'en' && v) ? v : k; }
+var PDP_BADGE = '🛡️ گارانتی ویژهٔ دیاز شاپ • پشتیبانی هر روز ۱۴ تا۲۲';
+TX[PDP_BADGE] = '🛡️ Diaz Shop warranty • Support 14:00–22:00';
+function pdpVL(id, label) {
+  if (LANGV !== 'en') return label;
+  var M = {
+    '1m': '1 month', '3m': '3 months', '6m': '6 months', '1y': '1 year',
+    '10gb': '10 GB', '20gb': '20 GB', '50gb': '50 GB', '80gb': '80 GB',
+    'gemfam1m': 'Family • 1 month', 'gemfam3m': 'Family • 3 months',
+    'gemfam6m': 'Family • 6 months', 'gemfam1y': 'Family • 1 year',
+    'gemini18m': 'Pro • 18 months',
+    'gpt_go': 'ChatGPT Go', 'gpt_plus': 'ChatGPT Plus', 'claudepro': 'Claude Pro',
+    'spotify1m': 'Premium • 1 month', 'ytpremium1m': 'Premium • 1 month',
+    'family': 'Family • 1 month', 'personal': 'Personal • 1 month'
+  };
+  return M[id] || label;
+}
+function toggleLang() {
+  LANGV = (LANGV === 'en') ? 'fa' : 'en';
+  try { localStorage.setItem('dz_lang', LANGV); } catch (e) {}
+  applyLang();
+  if (LANGV === 'en') showToast('🌐 Language: English');
+}
+function applyLang() {
+  var en = (LANGV === 'en');
+  var els = document.querySelectorAll('.nv > span:last-child, .mi .ti, .mi .sb, .st, .lb, button.mbtn');
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    if (el.id || (el.children && el.children.length)) continue;
+    var cur = el.textContent, fa = el.getAttribute('data-fa');
+    if (en) {
+      if (TX[cur]) { if (!fa) el.setAttribute('data-fa', cur); el.textContent = TX[cur]; }
+    } else if (fa && TX[fa] === cur) { el.textContent = fa; }
+  }
+  document.documentElement.setAttribute('lang', LANGV);
+  var lb = document.getElementById('langBtn'); if (lb) lb.textContent = en ? 'فا' : 'EN';
+  var hp = document.getElementById('hdrProf');
+  if (hp) hp.className = (document.getElementById('sec-home') && document.getElementById('sec-home').className.indexOf('act') >= 0) ? 'hdrProf on' : 'hdrProf';
+  var pdp = document.getElementById('sec-pdp');
+  if (pdp && pdp.className.indexOf('act') >= 0 && typeof pdpRefresh === 'function') pdpRefresh();
+}
+applyLang();
 
 // === ظاهر سایت (بنر، تیترها، رنگ‌ها) — از پنل ادمین ===
 var UI = null;
@@ -2787,6 +2884,19 @@ function renderUser() {
         un.textContent = nm;
         var av = document.getElementById('uAvatar');
         if (av) av.textContent = (nm && nm.length && nm !== '—') ? nm.charAt(0).toUpperCase() : '👤';
+    }
+    var hn = document.getElementById('hdrNm');
+    if (hn) hn.textContent = nm;
+    var ha = document.getElementById('hdrAva');
+    if (ha) ha.textContent = (nm && nm.length) ? nm.charAt(0).toUpperCase() : '👤';
+    var ps = document.getElementById('pnlRefSub');
+    if (ps) {
+        var pct = userData.referral_percent || '۵';
+        var cnt = userData.referral_count || 0;
+        var ern = String(userData.referral_earned || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        ps.textContent = ((typeof LANGV !== 'undefined' ? LANGV : 'fa') === 'en')
+            ? (pct + '% cashback • ' + cnt + ' friends • ' + ern + ' Toman earned')
+            : (pct + '٪ کش‌بک • ' + cnt + ' دوست دعوت شده • ' + ern + ' تومان دریافتی');
     }
     var uidEl = document.getElementById('uId');
     if (uidEl) uidEl.textContent = (userData && userData.username) ? ('@' + userData.username) : (user && user.username) ? ('@' + user.username) : UID;
