@@ -1261,21 +1261,23 @@ function discRow(kind, id, defInt, defStr){
           + '<div class="sb">' + fin.price + ' تومان' + (save > 0 ? ' <span style="color:#4ade80">(' + save.toLocaleString('fa-IR') + ' کمتر)</span>' : '') + '</div></div>'
           + '<div class="aw" style="cursor:pointer" onclick="event.stopPropagation();discClear()">✕</div></div>';
     }
-    return '<div class="mi" onclick="discToggle()"><div class="ic">➕</div><div class="tx"><div class="ti">کد تخفیف داری؟</div><div class="sb">اینجا بزن و کد رو وارد کن</div></div><div class="aw">+</div></div>'
-      + '<div id="discBox" style="display:none;margin:-4px 0 12px"><div style="display:flex;gap:6px">'
-      + '<input id="discInput" placeholder="کد تخفیف" autocapitalize="off" style="flex:1;min-width:0;box-sizing:border-box;padding:10px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;direction:ltr;text-align:left" onkeydown="if(event.key===\'Enter\' && !event.isComposing){event.preventDefault();discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ');}">'
-      + '<button class="bk" style="padding:8px 14px;cursor:pointer" onclick="discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ')">تایید</button>'
+    var sid = 'discBox' + Math.random().toString(36).slice(2, 8);
+    return '<div class="mi" onclick="discToggle(\'' + sid + '\')"><div class="ic">➕</div><div class="tx"><div class="ti">کد تخفیف داری؟</div><div class="sb">اینجا بزن و کد رو وارد کن</div></div><div class="aw">+</div></div>'
+      + '<div id="' + sid + '" style="display:none;margin:-4px 0 12px"><div style="display:flex;gap:6px">'
+      + '<input id="' + sid + 'In" placeholder="کد تخفیف" autocapitalize="off" style="flex:1;min-width:0;box-sizing:border-box;padding:10px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;direction:ltr;text-align:left" onkeydown="if(event.key===\'Enter\' && !event.isComposing){event.preventDefault();discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ',\'' + sid + '\');}">'
+      + '<button class="bk" style="padding:8px 14px;cursor:pointer" onclick="discApply(\'' + kind + '\',\'' + id + '\',' + defInt + ',\'' + sid + '\')">تایید</button>'
       + '</div></div>';
 }
-function discToggle(){
-    var b = document.getElementById('discBox'); if(!b) return;
+function discToggle(sid){
+    var b = (sid ? document.getElementById(sid) : null) || document.getElementById('discBox');
+    if(!b) return;
     var show = b.style.display === 'none';
     b.style.display = show ? 'block' : 'none';
-    if(show){ var i = document.getElementById('discInput'); if(i) i.focus(); }
+    if(show){ var i = (b.querySelector && b.querySelector('input')) || document.getElementById('discInput'); if(i) i.focus(); }
 }
 function discClear(){ discReset(); if(typeof window._SC === 'function') window._SC(); }
-function discApply(kind, id, defInt){
-    var el = document.getElementById('discInput');
+function discApply(kind, id, defInt, sid){
+    var el = (sid ? document.getElementById(sid + 'In') : null) || document.getElementById('discInput');
     var code = ((el && el.value) || '').trim();
     if(!code){ showToast('کد تخفیف رو وارد کنید'); return; }
     showToast('⏳ بررسی کد...');
