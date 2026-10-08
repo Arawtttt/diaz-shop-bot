@@ -424,6 +424,39 @@ body.light .pdpHero{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(
 .hdrCaret{color:var(--dim2);font-size:15px;line-height:1}
 body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
 #langBtn{left:98px;font-size:12px;font-weight:900}
+
+/* ── fx: بنر کین‌برنز + نوار پیشرفت ── */
+.banslide{transition:opacity .7s,transform .7s}
+.banslide.act{animation:kbz 7.4s ease-out both}
+@keyframes kbz{from{transform:scale(1.004)}to{transform:scale(1.065)}}
+.banslide.act .bstx{animation:kbzIn 7.4s ease-out both}
+@keyframes kbzIn{from{transform:scale(.996)}to{transform:scale(.939)}}
+#banProg{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.13);z-index:4;pointer-events:none;overflow:hidden;border-radius:0 0 16px 16px}
+#banProg i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a78bfa,#f472b6,#fbbf24);box-shadow:0 0 10px rgba(167,139,250,.85)}
+#banProg.run i{animation:banFill 3800ms linear forwards}
+@keyframes banFill{from{width:0}to{width:100%}}
+/* ── fx: اسکلتون لودینگ ── */
+.skl{position:relative;overflow:hidden;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.06);border-radius:16px}
+.skl::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 18%,rgba(255,255,255,.16) 48%,transparent 82%);transform:translateX(-100%);animation:skSh 1.15s linear infinite}
+@keyframes skSh{to{transform:translateX(100%)}}
+.sklRow{height:58px;margin-bottom:10px}
+.sklBig{height:104px;margin-bottom:12px}
+.heroSkl{position:absolute;inset:0;z-index:1;border-radius:inherit}
+.gl.hero{position:relative;overflow:hidden}
+#pnlSkl{margin-bottom:14px}
+/* ── fx: ریپل لمس + فشردگی ── */
+.bk,.mbtn,.nv,.pdpBuy,.pdpOpt,.pcard{overflow:hidden;-webkit-tap-highlight-color:transparent}
+.bk:active,.mbtn:active,.nv:active,.pdpOpt:active{transform:scale(.972)}
+.rip{position:absolute;width:130px;height:130px;margin:-65px 0 0 -65px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.45),rgba(255,255,255,0) 68%);transform:scale(0);opacity:.9;animation:ripGo .55s ease-out forwards;z-index:6}
+@keyframes ripGo{to{transform:scale(2.5);opacity:0}}
+/* ── fx: کارت سه‌بعدی + هالهٔ نور ── */
+#vpnGrid,.pdpHeroWrap{perspective:900px}
+.pcard,.pdpHero{transform-style:preserve-3d;transition:transform .22s ease-out;will-change:transform}
+.tiltGlare{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(220px circle at var(--gx,50%) var(--gy,40%),rgba(255,255,255,.2),transparent 62%);z-index:5;border-radius:inherit}
+.pcard.tilting .tiltGlare,.pdpHero.tilting .tiltGlare{opacity:1}
+/* ── fx: تایپ‌افکت تیتر ── */
+.st.tw::after{content:'';display:inline-block;width:7px;height:15px;margin-right:3px;background:var(--grad);border-radius:2px;animation:twBlink .7s steps(1) infinite;vertical-align:middle}
+@keyframes twBlink{50%{opacity:0}}
 </style>
 </head>
 <body>
@@ -454,7 +487,7 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
         <div class="hdr"><button class="hback" id="hback" onclick="goBack()">→</button><button class="thm" id="thmBtn" onclick="toggleTheme()" title="حالت روز/شب">🌙</button><button class="mcb" id="bgmBtn" onclick="toggleBgm()" title="قطع/پخش موزیک">🎵</button><button class="mcb" id="langBtn" onclick="toggleLang()" title="زبان / Language">EN</button><h1 id="heroTitle">🕷️ Diaz Shop</h1><p id="heroSub">فروشگاه دیجیتال دیاز</p><button class="hdrProf" id="hdrProf" onclick="showSection('panel')"><span class="hdrAva" id="hdrAva">👤</span><span class="hdrNm" id="hdrNm">—</span><span class="hdrCaret">›</span></button></div>
         <div class="ct" id="ct">
             <div class="sec act" id="sec-home">
-                <div class="gl hero"><img id="heroImg" src="spider-bg.jpg" alt=""><div class="hero-ov"><h2 id="heroTitle2">🕷️ Diaz Shop</h2><p id="heroSub2">فروشگاه دیجیتال دیاز</p></div></div>
+                <div class="gl hero"><span id="heroSkl" class="skl heroSkl"></span><img id="heroImg" src="spider-bg.jpg" alt=""><div class="hero-ov"><h2 id="heroTitle2">🕷️ Diaz Shop</h2><p id="heroSub2">فروشگاه دیجیتال دیاز</p></div></div>
                 <div class="gl" id="homeSummary" style="padding:14px 16px;margin-bottom:12px">
                     <div class="sk" style="width:55%;height:16px"></div>
                     <div class="sk" style="width:35%;height:12px"></div>
@@ -464,6 +497,7 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
                     <div class="banslide bs-gta" id="banSlide2" onclick="showSection('gtavi')"><div class="bstx"><b id="banTitle2">GTA VI پیش‌فروش</b><i id="banSub2">Ultimate Edition — ظرفیت هوم</i></div><span class="bsart gtaart" id="banArt2">VI</span></div>
                     <div class="banslide bs-ref" id="banSlide3" onclick="showSection('referral')"><div class="bstx"><b id="banTitle3">رفرال و کش‌بک</b><i id="banSub3">با هر خرید دوستت ۵٪ کش‌بک بگیر</i></div><span class="bsart refart" id="banArt3">🎁</span></div>
                     <div class="bandots"><span class="bd act"></span><span class="bd"></span><span class="bd"></span></div>
+                    <div id="banProg"><i></i></div>
                 </div>
                 <div class="mgrid">
                 <div class="mi ch" onclick="openChannel()"><div class="ic">📡</div><div class="tx"><div class="ti">کانال رسمی</div><div class="sb">عضویت در کانال رسمی</div></div><div class="aw">‹</div></div>
@@ -622,6 +656,7 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
             </div>
             <div class="sec" id="sec-panel">
                 <div class="st">👤 پنل کاربری</div>
+                <div id="pnlSkl" style="display:none"><div class="skl sklBig"></div><div class="skl sklRow"></div><div class="skl sklRow"></div></div>
                 <div class="gl" style="padding:20px;margin-bottom:14px">
                     <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)">
                         <div id="uAvatar" style="width:54px;height:54px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 4px 18px rgba(124,58,237,.45)">—</div>
@@ -893,6 +928,11 @@ function _applySection(name) {
     if(name === 'games'){ try{ gtaSheetInit(); }catch(e){} }
     var target = document.getElementById('sec-' + name);
     if (target) target.className = 'sec act';
+    try{
+        var _sk = document.getElementById('pnlSkl');
+        if (_sk) _sk.style.display = (name === 'panel' && !window.userData) ? 'block' : 'none';
+    }catch(e){}
+    try{ twRun(target); }catch(e){}
     var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home'})[name] || (name === 'pdp' ? ((PDP_ITEMS[PDP_KEY] || {}).nav || 'home') : name);
     var navs = document.querySelectorAll('.nv');
     for (var j = 0; j < navs.length; j++) navs[j].className = 'nv';
@@ -910,16 +950,54 @@ function _applySection(name) {
 }
 function navTo(name) { showSection(name); }
 function startBanner(){
-    var sl=document.querySelectorAll('.banslide'), dots=document.querySelectorAll('.bandots .bd');
+    var box = document.getElementById('banslider');
+    var sl = box ? [].slice.call(box.querySelectorAll('.banslide')) : [];
     if(!sl.length) return;
-    var idx=0;
-    setInterval(function(){
-        sl[idx].classList.remove('act'); if(dots[idx])dots[idx].classList.remove('act');
-        var n = sl.length, tries = 0;
-        do { idx=(idx+1)%sl.length; tries++; } while(tries <= n && sl[idx] && sl[idx].style.display === 'none');
-        if(!sl[idx] || sl[idx].style.display === 'none') return;
-        sl[idx].classList.add('act'); if(dots[idx])dots[idx].classList.add('act');
-    },3800);
+    var dots = [].slice.call(document.querySelectorAll('.bandots .bd'));
+    var DUR = 3800;
+    function curIdx(){ for(var i=0;i<sl.length;i++) if(sl[i].classList.contains('act')) return i; return 0; }
+    function prog(){
+        var p = document.getElementById('banProg'); if(!p) return;
+        p.classList.remove('run');
+        try{ void p.offsetWidth; }catch(e){}
+        p.classList.add('run');
+    }
+    function show(i){
+        for(var a=0;a<sl.length;a++){ if(a===i) sl[a].classList.add('act'); else sl[a].classList.remove('act'); }
+        for(var b=0;b<dots.length;b++){ if(b===i) dots[b].classList.add('act'); else dots[b].classList.remove('act'); }
+        prog();
+    }
+    function step(dir){
+        var n = sl.length, t = 0, i = curIdx();
+        do { i = (i + dir + n) % n; t++; } while(t <= n && sl[i] && sl[i].style.display === 'none');
+        if(!sl[i] || sl[i].style.display === 'none') return;
+        show(i);
+    }
+    var timer = null;
+    function reset(){ if(timer) clearInterval(timer); timer = setInterval(function(){ step(1); }, DUR); }
+    // سوایپ با انگشت/ماوس
+    var x0 = null, y0 = null, on = false;
+    function ts(e){ var t = e.touches ? e.touches[0] : e; if(!t) return; x0 = t.clientX; y0 = t.clientY; on = true; }
+    function tm(e){
+        if(!on || x0 == null) return;
+        var t = e.touches ? e.touches[0] : e; if(!t) return;
+        var dx = t.clientX - x0, dy = t.clientY - y0;
+        if(Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)){
+            on = false; x0 = null;
+            try{ if(typeof haptic === 'function') haptic('light'); }catch(err){}
+            step(dx < 0 ? 1 : -1); reset();
+        }
+    }
+    function te(){ on = false; x0 = null; }
+    box.addEventListener('touchstart', ts, {passive:true});
+    box.addEventListener('touchmove', tm, {passive:true});
+    box.addEventListener('touchend', te, {passive:true});
+    box.addEventListener('mousedown', ts);
+    window.addEventListener('mousemove', tm);
+    window.addEventListener('mouseup', te);
+    window.bannerGo = function(d){ step(d || 1); reset(); };
+    show(curIdx());
+    reset();
 }
 function animNum(el,to,suffix){
     var from=parseInt(el.getAttribute('data-v')||'0',10)||0;
@@ -1662,6 +1740,7 @@ function toggleLang() {
   if (LANGV === 'en') showToast('🌐 Language: English');
 }
 function applyLang() {
+  try { var _ts = document.querySelectorAll('.st'); for (var _i = 0; _i < _ts.length; _i++) _ts[_i].removeAttribute('data-twf'); } catch (e) {}
   var en = (LANGV === 'en');
   var els = document.querySelectorAll('.nv > span:last-child, .mi .ti, .mi .sb, .st, .lb, button.mbtn');
   for (var i = 0; i < els.length; i++) {
@@ -2869,6 +2948,7 @@ function renderUser() {
     renderOrders();
     loadSubStatus();
     if (!userData) return;
+    try{ var _ps = document.getElementById('pnlSkl'); if (_ps) _ps.style.display = 'none'; }catch(e){}
     var bal = userData.balance || 0;
     var we = document.getElementById('walletBal');
     if (we) animNum(we, bal, '');
@@ -3513,6 +3593,91 @@ function checkBuild(){
 setTimeout(checkBuild, 5000);
 document.addEventListener('visibilitychange', function(){ if(!document.hidden) setTimeout(checkBuild, 1500); });
 window.addEventListener('pageshow', function(){ setTimeout(checkBuild, 1500); });
+
+/* ═══ fx: تایپ‌افکت، کارت سه‌بعدی، ریپل لمس، اسکلتون هیرو ═══ */
+function twRun(sec){
+    try{
+        if(!sec || !sec.querySelector) return;
+        if(typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent || '')) return;
+        if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var el = sec.querySelector('.st'); if(!el) return;
+        var full = (el.textContent || '').replace(/\s+/g, ' ').trim();
+        if(!full || el.getAttribute('data-twf') === full) return;
+        el.setAttribute('data-twf', full);
+        try{ el.classList.add('tw'); }catch(e){}
+        var i = 0; el.textContent = '';
+        var iv = setInterval(function(){
+            if(el.getAttribute('data-twf') !== full){ clearInterval(iv); el.classList.remove('tw'); return; }
+            i++; el.textContent = full.slice(0, i);
+            if(i >= full.length){ clearInterval(iv); el.classList.remove('tw'); }
+        }, 40);
+    }catch(e){}
+}
+(function(){
+    var SEL = '.bk,.mbtn,.mi,.pcard,.nv,.pdpBuy,.pdpOpt';
+    var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    function bindTilt(el){
+        if(el.getAttribute('data-tilt')) return;
+        el.setAttribute('data-tilt', '1');
+        if(!el.querySelector('.tiltGlare')){ var g = document.createElement('span'); g.className = 'tiltGlare'; el.appendChild(g); }
+        if(reduce) return;
+        function move(e){
+            var r = el.getBoundingClientRect();
+            if(!r.width || !r.height || e.clientX == null) return;
+            var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+            if(!isFinite(x) || !isFinite(y)) return;
+            x = Math.max(0, Math.min(1, x)); y = Math.max(0, Math.min(1, y));
+            el.style.transform = 'perspective(760px) rotateX(' + ((0.5 - y) * 9).toFixed(2) + 'deg) rotateY(' + ((x - 0.5) * 11).toFixed(2) + 'deg)';
+            el.classList.add('tilting');
+            var gg = el.querySelector('.tiltGlare');
+            if(gg){ gg.style.setProperty('--gx', (x * 100).toFixed(1) + '%'); gg.style.setProperty('--gy', (y * 100).toFixed(1) + '%'); }
+        }
+        function up(){ el.style.transform = ''; el.classList.remove('tilting'); }
+        el.addEventListener('pointermove', move);
+        el.addEventListener('pointerleave', up);
+        el.addEventListener('pointercancel', up);
+        el.addEventListener('touchmove', function(ev){ if(ev.touches && ev.touches[0]) move(ev.touches[0]); }, {passive:true});
+        el.addEventListener('touchend', up);
+        el.addEventListener('touchcancel', up);
+    }
+    function tiltScan(){
+        try{
+            var els = document.querySelectorAll('.pcard,.pdpHero');
+            for(var i = 0; i < els.length; i++) bindTilt(els[i]);
+        }catch(e){}
+    }
+    window.tiltScan = tiltScan;
+    document.addEventListener('DOMContentLoaded', tiltScan);
+    try{ new MutationObserver(function(){ tiltScan(); }).observe(document.documentElement, {childList:true, subtree:true}); }catch(e){}
+
+    // ریپل لمس + haptic سبک
+    document.addEventListener('pointerdown', function(e){
+        var el = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
+        if(!el) return;
+        try{ if(typeof haptic === 'function') haptic('light'); }catch(err){}
+        try{
+            var r = el.getBoundingClientRect(); if(!r.width || !r.height) return;
+            var cx = (e.clientX != null ? e.clientX : r.left + r.width / 2) - r.left;
+            var cy = (e.clientY != null ? e.clientY : r.top + r.height / 2) - r.top;
+            if(getComputedStyle(el).position === 'static') el.style.position = 'relative';
+            var sp = document.createElement('span');
+            sp.className = 'rip'; sp.style.left = cx + 'px'; sp.style.top = cy + 'px';
+            el.appendChild(sp);
+            setTimeout(function(){ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 620);
+        }catch(err){}
+    }, {passive:true});
+
+    // اسکلتون هیرو تا لود شدن عکس
+    try{
+        var hi = document.getElementById('heroImg'), hs = document.getElementById('heroSkl');
+        if(hi && hs){
+            var hide = function(){ hs.style.display = 'none'; };
+            hi.addEventListener('load', hide);
+            hi.addEventListener('error', hide);
+            if(hi.complete) hide();
+        }
+    }catch(e){}
+})();
 </script>
 </body>
 </html>
