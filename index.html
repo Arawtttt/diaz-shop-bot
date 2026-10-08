@@ -3607,10 +3607,24 @@ function twRun(sec){
         try{ el.classList.add('tw'); }catch(e){}
         var i = 0; el.textContent = '';
         var iv = setInterval(function(){
-            if(el.getAttribute('data-twf') !== full){ clearInterval(iv); el.classList.remove('tw'); return; }
+            var cur = el.textContent || '';
+            if(cur && cur !== full.slice(0, i)){
+                // کسی دیگه متن رو عوض کرده (مثلاً تغییر زبان) — متنِ او حفظ میشه
+                clearInterval(iv); el.classList.remove('tw');
+                return;
+            }
             i++; el.textContent = full.slice(0, i);
             if(i >= full.length){ clearInterval(iv); el.classList.remove('tw'); }
         }, 40);
+        // بیمه: هرچقدر هم دیتاست پاک بشه، عنوان نباید خالی بمونه
+        setTimeout(function(){
+            try{
+                var now = el.textContent || '';
+                if(now.length < full.length && full.indexOf(now) === 0){
+                    clearInterval(iv); el.textContent = full; el.classList.remove('tw');
+                }
+            }catch(e){}
+        }, 40 * full.length + 900);
     }catch(e){}
 }
 (function(){
