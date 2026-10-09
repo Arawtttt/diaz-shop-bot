@@ -106,7 +106,10 @@ SPOTIFY_PLANS = {
     "spotify1m": {"name": "Spotify اختصاصی یک‌ماهه (نامحدود)", "price": "۱,۳۵۰,۰۰۰", "price_int": 1350000, "days": 30},
     "ytpremium1m": {"name": "YouTube Premium یک‌ماهه — اکانت آماده و اختصاصی", "price": "۳۵۰,۰۰۰", "price_int": 350000, "days": 30},
     "canva3m": {"name": "Canva Pro سه‌ماهه — اکانت اشتراکی", "price": "۱,۰۰۰,۰۰۰", "price_int": 1000000, "days": 90},
-    "capcut1m": {"name": "CapCut Pro یک‌ماهه — اکانت اشتراکی", "price": "۱,۰۰۰,۰۰۰", "price_int": 1000000, "days": 30},
+    "capcut1m": {"name": "CapCut Pro یک‌ماهه — اکانت اشتراکی", "price": "۵۵۰,۰۰۰", "price_int": 550000, "days": 30},
+    "capcut3m": {"name": "CapCut Pro سه‌ماهه — اکانت اشتراکی", "price": "۷۵۰,۰۰۰", "price_int": 750000, "days": 90},
+    "capcut6m": {"name": "CapCut Pro شش‌ماهه — اکانت اشتراکی", "price": "۱,۲۵۰,۰۰۰", "price_int": 1250000, "days": 180},
+    "capcut1y": {"name": "CapCut Pro یک‌ساله — اکانت اشتراکی", "price": "۱,۵۸۰,۰۰۰", "price_int": 1580000, "days": 365},
 }
 
 SPECIAL_PLANS = {

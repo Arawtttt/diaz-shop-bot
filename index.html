@@ -506,7 +506,7 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
                 
 
                 <div class="st" style="font-size:15px;margin-top:14px">📂 سایر اشتراک‌ها</div>
-                <div id="otherSubs"><div class="mi" onclick="openPDP('canva')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><defs><linearGradient id="canvaG" gradientUnits="userSpaceOnUse" x1="3" y1="21" x2="21" y2="3"><stop offset="0%" stop-color="#00C4CC"/><stop offset="100%" stop-color="#7D2AE8"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="url(#canvaG)"/><path d="M16.6 8.4a4.7 4.7 0 0 0-6.8.2c-1.05 2.3-.2 4.75 2 5.9 1.6.85 3.7.65 5.1-.55" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/></svg></div><div class="tx"><div class="ti">Canva Pro</div><div class="sb">ابزار طراحی • ۳ ماهه</div></div><div class="aw">‹</div></div><div class="mi" onclick="openPDP('capcut')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#0a0a12"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="#7cf5e4" stroke-width="2.1"/><rect x="3.4" y="11" width="17.2" height="2" fill="#0a0a12" transform="rotate(-45 12 12)"/><path d="M5.2 5.2 9 9" stroke="#7cf5e4" stroke-width="1.7" stroke-linecap="round"/></svg></div><div class="tx"><div class="ti">CapCut Pro</div><div class="sb">ویرایش ویدیو • یک‌ماهه</div></div><div class="aw">‹</div></div></div>
+                <div id="otherSubs"><div class="mi" onclick="openPDP('canva')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><defs><linearGradient id="canvaG" gradientUnits="userSpaceOnUse" x1="3" y1="21" x2="21" y2="3"><stop offset="0%" stop-color="#00C4CC"/><stop offset="100%" stop-color="#7D2AE8"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="url(#canvaG)"/><path d="M16.6 8.4a4.7 4.7 0 0 0-6.8.2c-1.05 2.3-.2 4.75 2 5.9 1.6.85 3.7.65 5.1-.55" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/></svg></div><div class="tx"><div class="ti">Canva Pro</div><div class="sb">ابزار طراحی • ۳ ماهه</div></div><div class="aw">‹</div></div><div class="mi" onclick="openPDP('capcut')"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" style="vertical-align:middle"><rect width="24" height="24" rx="6" fill="#0a0a12"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="#7cf5e4" stroke-width="2.1"/><rect x="3.4" y="11" width="17.2" height="2" fill="#0a0a12" transform="rotate(-45 12 12)"/><path d="M5.2 5.2 9 9" stroke="#7cf5e4" stroke-width="1.7" stroke-linecap="round"/></svg></div><div class="tx"><div class="ti">CapCut Pro</div><div class="sb">ویرایش ویدیو • ۱ ماه تا ۱ سال</div></div><div class="aw">‹</div></div></div>
             </div>
 
             <div class="sec" id="sec-ai">
@@ -1366,9 +1366,10 @@ function PO(kind, id, def){
 }
 // === SALE / حراج (قیمت قبل خط‌خورده + برچسب داغ) ===
 function faNum(n){ return String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,',').replace(/[0-9]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[d];}); }
-function OLDINT(kind,id){ var o=_ov(kind,id); return (o && o.old_price_int>0) ? Number(o.old_price_int) : 0; }
-function CURINT(kind,id){ var o=_ov(kind,id); var v=o?Number(o.price_int||0):0; return v>0?v:0; }
-function ONSALE(kind,id){ var o=_ov(kind,id); if(!o) return false; if(o.active===false||o.out===true) return false; var c=CURINT(kind,id), ol=OLDINT(kind,id); return ol>0&&c>0&&ol>c; }
+function _vd(kind,id){ for(var k in PDP_ITEMS){ var it=PDP_ITEMS[k]; if(!it||it.kind!==kind) continue; var vs=it.variants||[]; for(var i=0;i<vs.length;i++) if(vs[i].id===id) return vs[i]; } return null; }
+function OLDINT(kind,id){ var o=_ov(kind,id); if(o && o.old_price_int>0) return Number(o.old_price_int); var d=_vd(kind,id); return (d && d.oldInt>0) ? Number(d.oldInt) : 0; }
+function CURINT(kind,id){ var o=_ov(kind,id); var v=o?Number(o.price_int||0):0; if(v>0) return v; var d=_vd(kind,id); return (d && d.int>0) ? Number(d.int) : 0; }
+function ONSALE(kind,id){ var o=_ov(kind,id); if(o && (o.active===false||o.out===true)) return false; var c=CURINT(kind,id), ol=OLDINT(kind,id); return ol>0&&c>0&&ol>c; }
 function salePct(kind,id){ var c=CURINT(kind,id), ol=OLDINT(kind,id); if(!c||!ol||ol<=c) return 0; return Math.round((1-c/ol)*100); }
 function saleTag(kind,id){
     if(!ONSALE(kind,id)) return '';
@@ -1555,10 +1556,13 @@ canva:{nav:'music',kind:'spotify',title:'Canva Pro',sub:'اکانت سه‌ما�
         'ابزارهای هوش مصنوعی Magic: متن به عکس، حذف پس‌زمینه، ویرایش خودکار',
         '۱۰۰ گیگ فضای ابری و برنامه‌ریزی محتوا در یک جا',
         'اکانت اشتراکی — تحویل توسط پشتیبانی با گارانتی دیاز شاپ']}]},
-capcut:{nav:'music',kind:'spotify',title:'CapCut Pro',sub:'اشتراک یک‌ماهه • اکانت اشتراکی',logo:'capcut',
+capcut:{nav:'music',kind:'spotify',title:'CapCut Pro',sub:'اشتراک مدت‌دار • اکانت اشتراکی',logo:'capcut',
   pay:'paySpotifyWallet',def:'capcut1m',noCustom:true,
   chips:['✂️ بدون واترمارک','🎬 افکت و فیلتر پریمیوم','🤖 ابزار هوش مصنوعی ویدیو','⬆️ اکسپورت ۴K'],
-  variants:[{id:'capcut1m',label:'یک‌ماهه',price:'۱,۰۰۰,۰۰۰',int:1000000}],
+  variants:[{id:'capcut1m',label:'یک‌ماهه',price:'۵۵۰,۰۰۰',int:550000,old:'۶۰۰,۰۰۰',oldInt:600000},
+            {id:'capcut3m',label:'سه‌ماهه',price:'۷۵۰,۰۰۰',int:750000,old:'۸۰۰,۰۰۰',oldInt:800000},
+            {id:'capcut6m',label:'شش‌ماهه',price:'۱,۲۵۰,۰۰۰',int:1250000,old:'۱,۳۰۰,۰۰۰',oldInt:1300000},
+            {id:'capcut1y',label:'یک‌ساله',price:'۱,۵۸۰,۰۰۰',int:1580000,old:'۱,۶۰۰,۰۰۰',oldInt:1600000}],
   desc:[{h:'CapCut Pro',b:['ویرایش ویدیو بدون واترمارک با خروجی ۴K',
         'کتابخانهٔ کامل افکت، فیلتر، ترنزیشن و موزیک پریمیوم',
         'ابزارهای هوش مصنوعی: حذف پس‌زمینه، زیرنویس خودکار، تبدیل متن به ویدیو',
@@ -1727,7 +1731,7 @@ function pdpVL(id, label) {
     'gpt_go': 'ChatGPT Go', 'gpt_plus': 'ChatGPT Plus', 'claudepro': 'Claude Pro',
     'spotify1m': 'Premium • 1 month', 'ytpremium1m': 'Premium • 1 month',
     'canva3m': 'Pro • 3 months',
-    'capcut1m': 'Pro • 1 month',
+    'capcut1m': 'Pro • 1 month', 'capcut3m': 'Pro • 3 months', 'capcut6m': 'Pro • 6 months', 'capcut1y': 'Pro • 1 year',
     'family': 'Family • 1 month', 'personal': 'Personal • 1 month'
   };
   return M[id] || label;
