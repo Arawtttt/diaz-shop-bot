@@ -105,6 +105,8 @@ AI_PLANS = {
 SPOTIFY_PLANS = {
     "spotify1m": {"name": "Spotify اختصاصی یک‌ماهه (نامحدود)", "price": "۱,۳۵۰,۰۰۰", "price_int": 1350000, "days": 30},
     "ytpremium1m": {"name": "YouTube Premium یک‌ماهه — اکانت آماده و اختصاصی", "price": "۳۵۰,۰۰۰", "price_int": 350000, "days": 30},
+    "canva3m": {"name": "Canva Pro سه‌ماهه — اکانت اشتراکی", "price": "۱,۰۰۰,۰۰۰", "price_int": 1000000, "days": 90},
+    "capcut1m": {"name": "CapCut Pro یک‌ماهه — اکانت اشتراکی", "price": "۱,۰۰۰,۰۰۰", "price_int": 1000000, "days": 30},
 }
 
 SPECIAL_PLANS = {
