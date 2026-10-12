@@ -435,6 +435,21 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
 #banProg i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a78bfa,#f472b6,#fbbf24);box-shadow:0 0 10px rgba(167,139,250,.85)}
 #banProg.run i{animation:banFill 3800ms linear forwards}
 @keyframes banFill{from{width:0}to{width:100%}}
+/* ── بخش خدمات و مهارت‌ها ── */
+#sec-services .sgrp{font-size:14.5px;font-weight:800;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+#sec-services .sgrp:first-child{margin-top:2px}
+#sec-services .sgrp i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--dim);margin-inline-start:auto}
+#sec-services .mi{cursor:pointer}
+#sec-services .sp{font-size:10.5px;font-weight:900;color:#fbbf24;white-space:nowrap;padding:5px 9px;border-radius:9px;
+  background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.32)}
+#sec-services .sway{color:var(--dim);font-size:20px;transform:rotate(180deg)}
+#sec-services .supp{background:linear-gradient(150deg,rgba(255,255,255,.08),rgba(124,58,237,.09));
+  border:1px solid var(--stroke);border-radius:18px;padding:16px 14px;margin-top:18px;text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.3)}
+#sec-services .supp .sbx{font-size:11.5px;color:var(--dim);line-height:2.1;margin-bottom:12px}
+#sec-services .supp button{width:100%;padding:13px;border:none;border-radius:14px;cursor:pointer;
+  font-family:inherit;font-size:13.5px;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#3d7bff,#6aa1ff);box-shadow:0 8px 20px rgba(61,123,255,.35)}
 </style>
 </head>
 <body>
@@ -484,7 +499,7 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
 <div class="mi" onclick="showSection('music')"><div class="ic">🎵</div><div class="tx"><div class="ti">مدیا و سرگرمی</div><div class="sb">Spotify، Deezer و YouTube</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('ai')"><div class="ic">🤖</div><div class="tx"><div class="ti">هوش مصنوعی</div><div class="sb">ChatGPT، Grok و Gemini</div></div><div class="aw">‹</div></div>
                                 <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
-                <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">رفرال و کش‌بک</div><div class="sb">دعوت دوستان • ۵٪ از خریدشون</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">رفرال و کش‌بک</div><div class="sb">دعوت دوستان • ۵٪ از خریدشون</div></div><div class="aw">‹</div></div><div class="mi" onclick="showSection('services')"><div class="ic">🛠️</div><div class="tx"><div class="ti">خدمات و مهارت‌ها</div><div class="sb">چه کارهایی بلدم • قیمت و پشتیبانی</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
                 </div>
             </div>
@@ -635,7 +650,35 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
                     <button id="tktSend" onclick="ticketSend()" style="width:100%;padding:12px;border:none;border-radius:13px;background:linear-gradient(135deg,#3d7bff,#6aa1ff);color:#fff;font-weight:800;font-size:13.5px;cursor:pointer">📨 ارسال</button>
                 </div>
             </div>
-            <div class="sec" id="sec-panel">
+                        <div class="sec" id="sec-services">
+                <div class="st">🛠️ خدمات و مهارت‌ها</div>
+                <div class="gl" style="padding:13px 14px;margin-bottom:4px">
+                    <div style="font-size:12px;line-height:2.15;color:var(--dim2)">
+                        دیازشاپ کلی کار دیگه هم با مناسب‌ترین قیمت و کیفیت انجام میده؛
+                        اینا مهم‌تریناشونه. قیمت‌ها از مبلغِ نوشته‌شده شروع میشه و بسته به پروژه
+                        دقیق‌تر میشه؛ برای قیمت دقیق و هماهنگی، روی هر خدمت بزن تا تیکتت ثبت بشه.
+                    </div>
+                </div>
+                <div id="svcList">
+                <div class="sgrp">🤖 ربات و اتوماسیون <i>3 خدمت</i></div>
+                <div class="mi" onclick="openTicket('ربات تلگرام سفارشی')"><div class="ic">🤖</div><div class="tx"><div class="ti">ربات تلگرام سفارشی</div><div class="sb">پرداخت آنلاین، پنل ادمین، لاگ سفارشات و تیکت</div></div><div class="sp">از ۱,۵۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
+                <div class="mi" onclick="openTicket('مینی‌اپ تلگرام')"><div class="ic">🤖</div><div class="tx"><div class="ti">مینی‌اپ تلگرام</div><div class="sb">فروشگاه و پنل کاربری داخل تلگرام — مثل همین اپ</div></div><div class="sp">از ۲,۵۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
+                <div class="mi" onclick="openTicket('اتوماسیون و اسکریپت')"><div class="ic">🤖</div><div class="tx"><div class="ti">اتوماسیون و اسکریپت</div><div class="sb">هر کار تکراری رو خودکار میکنم؛ بکاپ و API</div></div><div class="sp">از ۶۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
+                <div class="sgrp">🌐 وب و زیرساخت <i>2 خدمت</i></div>
+                <div class="mi" onclick="openTicket('وب‌سایت و لندینگ')"><div class="ic">🌐</div><div class="tx"><div class="ti">وب‌سایت و لندینگ</div><div class="sb">فروشگاهی، شرکتی یا لندینگ — واکنش‌گرا و سریع</div></div><div class="sp">از ۱,۰۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
+                <div class="mi" onclick="openTicket('پنل VPN و سرور')"><div class="ic">🌐</div><div class="tx"><div class="ti">پنل VPN و سرور</div><div class="sb">راه‌اندازی BPB و x-ui، اتصال دامنه، اکانت‌سازی</div></div><div class="sp">از ۸۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
+                <div class="sgrp">🎨 طراحی و محتوا <i>3 خدمت</i></div>
+                <div class="mi" onclick="openTicket('طراحی UI و گرافیک')"><div class="ic">🎨</div><div class="tx"><div class="ti">طراحی UI و گرافیک</div><div class="sb">لوگو، بنر و رابط کاربری اپ و سایت</div></div><div class="sp">از ۵۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
+                <div class="mi" onclick="openTicket('تولید محتوای AI')"><div class="ic">🎨</div><div class="tx"><div class="ti">تولید محتوای AI</div><div class="sb">عکس و ویدیو با هوش مصنوعی، تدوین کلیپ</div></div><div class="sp">از ۳۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
+                <div class="mi" onclick="openTicket('ادمین و مدیریت کانال')"><div class="ic">🎨</div><div class="tx"><div class="ti">ادمین و مدیریت کانال</div><div class="sb">محتوا، رشد و پشتیبانی روزانهٔ کسب‌وکارت</div></div><div class="sp">از ۷۰۰,۰۰۰</div><div class="aw sway">‹</div></div></div>
+
+                <div class="supp">
+                    <div style="font-size:14.5px;font-weight:800;margin-bottom:7px">🎫 سوال داری؟</div>
+                    <div class="sbx">تیکت بزن تا کمتر از ۱۰ دقیقه جواب بدم؛<br>پشتیبانی: هر روز ۱۴ تا ۲۲</div>
+                    <button onclick="openTicket()">📨 ثبت تیکت پشتیبانی</button>
+                </div>
+            </div>
+<div class="sec" id="sec-panel">
                 <div class="st">👤 پنل کاربری</div>
                 <div class="gl" style="padding:20px;margin-bottom:14px">
                     <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)">
@@ -908,7 +951,7 @@ function _applySection(name) {
     if(name === 'games'){ try{ gtaSheetInit(); }catch(e){} }
     var target = document.getElementById('sec-' + name);
     if (target) target.className = 'sec act';
-    var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home'})[name] || (name === 'pdp' ? ((PDP_ITEMS[PDP_KEY] || {}).nav || 'home') : name);
+    var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home', services:'home'})[name] || (name === 'pdp' ? ((PDP_ITEMS[PDP_KEY] || {}).nav || 'home') : name);
     var navs = document.querySelectorAll('.nv');
     for (var j = 0; j < navs.length; j++) navs[j].className = 'nv';
     var nav = document.querySelector('.nv[data-n="' + navKey + '"]');
@@ -1897,7 +1940,7 @@ try {
     }
 } catch(e){}
 var ADM_TAB = 'stats';
-var ADM_TABS = [['stats','📊 آمار'],['requests','📥 درخواست‌ها'],['users','👥 کاربران'],['orders','📦 سفارش‌ها'],['plans','📦 پلن‌ها'],['discounts','🎟️ تخفیف'],['broadcast','📢 پیام'],['tickets','🎫 تیکت‌ها'],['faq','❓ سوالات'],['announce','🔔 نوت و تایمر'],['ui','🎨 ظاهر']];
+var ADM_TABS = [['stats','📊 آمار'],['requests','📥 درخواست‌ها'],['users','👥 کاربران'],['orders','📦 سفارش‌ها'],['plans','📦 پلن‌ها'],['services','🛠️ خدمات'],['discounts','🎟️ تخفیف'],['broadcast','📢 پیام'],['tickets','🎫 تیکت‌ها'],['faq','❓ سوالات'],['announce','🔔 نوت و تایمر'],['ui','🎨 ظاهر']];
 function admBox(){ return document.getElementById('admBody'); }
 function admH(){ return {'Content-Type':'application/json','X-Admin-Token':ADM_TOK}; }
 function admFetch(path, opts){
@@ -2277,6 +2320,76 @@ function _admUiPost(body){
         showToast('✅ ظاهر ذخیره شد — روی صفحهٔ مشتری هم اعمال شد');
     }).catch(function(){ showToast('❌ خطا در ذخیره‌سازی'); });
 }
+// ─── کاتالوگ خدمات (پنل ادمین) ───
+var _SVC_GROUPS_DEF = [{key:'bot',name:'ربات و اتوماسیون',icon:'🤖'},{key:'web',name:'وب و زیرساخت',icon:'🌐'},{key:'design',name:'طراحی و محتوا',icon:'🎨'}];
+function svcGroups(){ return (typeof SVC_GROUPS_META !== 'undefined' && SVC_GROUPS_META && SVC_GROUPS_META.length) ? SVC_GROUPS_META : _SVC_GROUPS_DEF; }
+function svcGrpOptions(sel){
+    var gs = svcGroups(), o = '';
+    for(var i = 0; i < gs.length; i++) o += '<option value="' + gs[i].key + '"' + (gs[i].key === sel ? ' selected' : '') + '>' + gs[i].icon + ' ' + escH(gs[i].name) + '</option>';
+    return o;
+}
+function _svcRefresh(){ try{ if(typeof SVC_ITEMS !== 'undefined') SVC_ITEMS = null; }catch(e){} if(typeof loadServices === 'function') loadServices(true); }
+function admServices(){
+    admFetch('/api/admin/services').then(function(d){
+        var list = d.services || [];
+        var inp = 'box-sizing:border-box;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px';
+        var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">🛠️ مدیریت خدمات</div>';
+        h += '<div style="font-size:11px;color:var(--dim);line-height:2;margin-bottom:10px">عنوان، توضیح، ایموجی، گروه و قیمت (تومان) هر خدمت رو همین‌جا عوض کن — بلافاصله توی صفحهٔ «خدمات» مینی‌اپ و توی ربات اعمال میشه. قیمت ۰ = «استعلام قیمت». ⛔ یعنی مخفی کردن از چشم مشتری.</div>';
+        if(!list.length) h += '<div style="font-size:12px;color:var(--dim)">هنوز خدمتی ثبت نشده — از فرم پایین اضافه کن.</div>';
+        for(var i = 0; i < list.length; i++){
+            var s = list[i], k = s.key;
+            h += '<div style="display:flex;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap">'
+              + '<input id="st_' + k + '" value="' + escH(s.title || '') + '" placeholder="عنوان" style="flex:1;min-width:120px;' + inp + '">'
+              + '<input id="sp_' + k + '" type="number" inputmode="numeric" value="' + (parseInt(s.price_int, 10) || 0) + '" placeholder="قیمت" style="width:100px;' + inp + '">'
+              + '<input id="si_' + k + '" value="' + escH(s.icon || '') + '" placeholder="ایموجی" maxlength="4" style="width:66px;' + inp + '">'
+              + '<select id="sg_' + k + '" style="width:140px;' + inp + '">' + svcGrpOptions(s.group) + '</select>'
+              + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="ذخیره" onclick="admSvcSave(\'' + k + '\', false)">💾</button>'
+              + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="' + (s.active === false ? 'نمایش دادن' : 'مخفی کردن') + '" onclick="admSvcSave(\'' + k + '\', ' + (s.active === false ? 'true' : 'false') + ')">' + (s.active === false ? '⛔' : '✅') + '</button>'
+              + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="حذف" onclick="admSvcDel(\'' + k + '\')">🗑</button>'
+              + '<input id="sd_' + k + '" value="' + escH(s.desc || '') + '" placeholder="توضیح کوتاه" style="flex:1 1 100%;min-width:0;' + inp + '">'
+              + '</div>';
+        }
+        h += '<div style="display:flex;gap:6px;align-items:center;padding:11px 0 2px;flex-wrap:wrap;border-top:1px dashed rgba(255,255,255,.14);margin-top:10px">'
+          + '<input id="svT" placeholder="عنوان خدمت جدید" style="flex:1;min-width:130px;' + inp + '">'
+          + '<input id="svP" type="number" inputmode="numeric" placeholder="قیمت" style="width:100px;' + inp + '">'
+          + '<input id="svI" placeholder="ایموجی" maxlength="4" value="🛠️" style="width:66px;' + inp + '">'
+          + '<select id="svG" style="width:140px;' + inp + '">' + svcGrpOptions('bot') + '</select>'
+          + '<input id="svD" placeholder="توضیح کوتاه" style="flex:1 1 100%;min-width:0;' + inp + '">'
+          + '<button class="bk" style="padding:8px 12px;font-size:11px;cursor:pointer" onclick="admSvcAdd()">➕ افزودن خدمت</button>'
+          + '</div></div>';
+        var b = admBox(); if(b) b.innerHTML = h;
+    }).catch(function(){ showToast('❌ خطا در دریافت خدمات'); });
+}
+function _svcVal(id){ var e = document.getElementById(id); return e ? String(e.value || '').trim() : ''; }
+function admSvcSave(key, active){
+    var body = {key: key, title: _svcVal('st_' + key), desc: _svcVal('sd_' + key), icon: _svcVal('si_' + key),
+                group: _svcVal('sg_' + key), price_int: parseInt(_svcVal('sp_' + key), 10) || 0};
+    if(active !== false) body.active = (active === true);
+    if(!body.title){ showToast('عنوان خدمت رو وارد کن'); return; }
+    admFetch('/api/admin/service', {method:'POST', body:JSON.stringify(body)})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ ذخیره شد'); admServices(); _svcRefresh();
+    }).catch(function(){ showToast('❌ خطا در اتصال'); });
+}
+function admSvcAdd(){
+    var body = {title: _svcVal('svT'), desc: _svcVal('svD'), icon: _svcVal('svI'),
+                group: _svcVal('svG'), price_int: parseInt(_svcVal('svP'), 10) || 0, active: true};
+    if(!body.title){ showToast('عنوان خدمت رو وارد کن'); return; }
+    admFetch('/api/admin/service', {method:'POST', body:JSON.stringify(body)})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ خدمت اضافه شد'); admServices(); _svcRefresh();
+    }).catch(function(){ showToast('❌ خطا در اتصال'); });
+}
+function admSvcDel(key){
+    if(!confirm('این خدمت حذف شود؟')) return;
+    admFetch('/api/admin/service_del', {method:'POST', body:JSON.stringify({key: key})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('🗑 خدمت حذف شد'); admServices(); _svcRefresh();
+    }).catch(function(){ showToast('❌ خطا در اتصال'); });
+}
 function admShow(tab){ ADM_TAB = tab; admRender(); }
 function admLoad(){
     var b = admBox(); if(!b) return;
@@ -2286,6 +2399,7 @@ function admLoad(){
     else if(ADM_TAB==='users') admUsers();
     else if(ADM_TAB==='orders') admOrders();
     else if(ADM_TAB==='plans') admPlans();
+    else if(ADM_TAB==='services') admServices();
     else if(ADM_TAB==='discounts') admDiscounts();
     else if(ADM_TAB==='faq') admFaq();
     else if(ADM_TAB==='broadcast') admBroadcastUI();
@@ -3420,7 +3534,13 @@ function annClose(){
 }
 // ==== گفتگوی پشتیبانی (صفحهٔ چت داخل پنل کاربری) ====
 var _tktTimer = null;
-function openTicket(){ showSection('ticket'); }
+function openTicket(sub){ showSection('ticket');
+    if(sub){ var t=document.getElementById('tktText');
+        if(t && !String(t.value||'').trim()) t.value='سلام، برای «'+sub+'» میخوام سفارش بدم. '
+             + 'لطفاً قیمت دقیق و زمان تحویل رو بگید.';
+        try{ if(typeof tktFocus==='function') tktFocus(); }catch(e){}
+    }
+}
 function tktBubble(m){
     var admin = (m && m.from === 'admin');
     var tss = (m && m.ts) ? new Date(m.ts * 1000).toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit'}) : '';
@@ -3594,6 +3714,46 @@ function checkBuild(){
 setTimeout(checkBuild, 5000);
 document.addEventListener('visibilitychange', function(){ if(!document.hidden) setTimeout(checkBuild, 1500); });
 window.addEventListener('pageshow', function(){ setTimeout(checkBuild, 1500); });
+</script>
+<script>
+/* ── کاتالوگ خدمات: از /api/services میاد؛ اگه نرسید همون لیست پیش‌فرض HTML می‌مونه ── */
+var SVC_GROUPS_META = [{key:'bot',name:'ربات و اتوماسیون',icon:'🤖'},{key:'web',name:'وب و زیرساخت',icon:'🌐'},{key:'design',name:'طراحی و محتوا',icon:'🎨'}];
+var SVC_ITEMS = null;
+function svcPriceHTML(p){ var n = parseInt(p, 10) || 0; return n > 0 ? ('از ' + Number(n).toLocaleString('fa-IR')) : 'استعلام قیمت'; }
+function svcRowHTML(s){
+    var t = String(s.title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return '<div class="mi" onclick="openTicket(\'' + t + '\')">'
+         + '<div class="ic">' + escH(s.icon || '🛠️') + '</div>'
+         + '<div class="tx"><div class="ti">' + escH(s.title) + '</div>'
+         + (s.desc ? '<div class="sb">' + escH(s.desc) + '</div>' : '') + '</div>'
+         + '<div class="sp">' + svcPriceHTML(s.price_int) + '</div>'
+         + '<div class="aw sway">‹</div></div>';
+}
+function renderServices(){
+    var box = document.getElementById('svcList');
+    if(!box || !SVC_ITEMS) return;
+    var h = '';
+    for(var gi = 0; gi < SVC_GROUPS_META.length; gi++){
+        var g = SVC_GROUPS_META[gi], its = [];
+        for(var i = 0; i < SVC_ITEMS.length; i++){ if(SVC_ITEMS[i].group === g.key) its.push(SVC_ITEMS[i]); }
+        if(!its.length) continue;
+        h += '<div class="sgrp">' + g.icon + ' ' + escH(g.name) + ' <i>' + Number(its.length).toLocaleString('fa-IR') + ' خدمت</i></div>';
+        for(var j = 0; j < its.length; j++) h += svcRowHTML(its[j]);
+    }
+    box.innerHTML = h;
+}
+function loadServices(force){
+    if(SVC_ITEMS && !force) return Promise.resolve();
+    return fetch(API + '/api/services', {cache:'no-store'})
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if(!d || !d.ok) return;
+            if(d.groups && d.groups.length) SVC_GROUPS_META = d.groups;
+            SVC_ITEMS = d.items || [];
+            renderServices();
+        }).catch(function(){});
+}
+loadServices();
 </script>
 </body>
 </html>

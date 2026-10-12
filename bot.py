@@ -482,7 +482,7 @@ def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
             ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
             PLAN_OVERRIDES_FILE, CUSTOM_PLANS_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE,
-            ANNOUNCE_FILE, TICKETS_FILE, FAQ_FILE, UI_FILE]
+            ANNOUNCE_FILE, TICKETS_FILE, FAQ_FILE, UI_FILE, SERVICES_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -897,9 +897,50 @@ def main_menu_kb(uid=0):
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🕷️ فروشگاه", web_app=WebAppInfo(url=shop_url))],
         [InlineKeyboardButton("💰 کیف پول", callback_data="wallet_menu")],
+        [InlineKeyboardButton("🛠️ خدمات و مهارت‌ها", callback_data="services_menu")],
         [InlineKeyboardButton("🎁 رفرال و کش‌بک", callback_data="ref_menu")],
         [InlineKeyboardButton("🎫 پشتیبانی", web_app=WebAppInfo(url=support_url(uid)))],
     ])
+
+
+def services_text():
+    """لیست خدمات برای ربات — همان کاتالوگ مینی‌اپ، متن HTML"""
+    try:
+        items = load_services()
+    except Exception as e:
+        logger.warning(f"services_text: {e}")
+        items = []
+    lines = ["<b>🛠️ خدمات و مهارت‌ها</b>", ""]
+    for gk, gn, gi in SVC_GROUPS:
+        its = [x for x in items if x.get("group") == gk and x.get("active", True)]
+        if not its: continue
+        lines.append(f"<b>{gi} {gn}</b>")
+        for x in its:
+            price = int(x.get("price_int") or 0)
+            tag = f"از <b>{_fa(price)}</b> تومان" if price > 0 else "استعلام قیمت"
+            lines.append(f"• <b>{_svc_esc(x.get('title'))}</b> — {tag}")
+            dsc = _svc_esc(x.get("desc"))
+            if dsc: lines.append(f"  <i>{dsc}</i>")
+        lines.append("")
+    lines.append("برای سفارش هر کدوم، از دکمهٔ پایین وارد مینی‌اپ شو و تیکت ثبت کن.")
+    return "\n".join(lines)
+
+async def services_menu(update, context):
+    """لیست خدمات + دکمه ورود به بخش خدمات مینی‌اپ"""
+    try:
+        uid = update.effective_user.id
+        q = update.callback_query
+        if q: await q.answer()
+        kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🛠️ سفارش در مینی‌اپ",
+                                  web_app=WebAppInfo(url=f"{SHOP_ORIGIN}/?uid={uid}&sec=services&t={int(time.time())}"))],
+            [InlineKeyboardButton("🎫 پشتیبانی", web_app=WebAppInfo(url=support_url(uid)))],
+            [InlineKeyboardButton("🏠 منوی اصلی", callback_data="back_main")],
+        ])
+        await update.effective_message.reply_text(services_text(), reply_markup=kb, parse_mode="HTML")
+    except Exception as e:
+        logger.warning(f"services_menu: {e}")
+
 
 async def _process_referral(context, inviter_id, invited_id):
     added = add_referral(inviter_id, invited_id)
@@ -1879,7 +1920,7 @@ async def api_debug_channel(request):
 
 _status_cache = {"ts": 0, "ok": False, "ms": 0}
 
-BUILD_TAG = "2026-10-07-pdp"   # تگ نسخهٔ دیپلوی — از /api/status خوانده میشه
+BUILD_TAG = "2026-10-12-services"   # تگ نسخهٔ دیپلوی — از /api/status خوانده میشه
 
 async def api_status(request):
     if time.time() - _status_cache["ts"] > 60:
@@ -2344,6 +2385,10 @@ def create_web_app():
     app.router.add_post("/api/admin/discount_toggle", admin_discount_toggle)
     app.router.add_post("/api/admin/discount_delete", admin_discount_delete)
     app.router.add_get("/api/plans", api_plans)
+    app.router.add_get("/api/services", api_services)
+    app.router.add_get("/api/admin/services", admin_services)
+    app.router.add_post("/api/admin/service", admin_service_save)
+    app.router.add_post("/api/admin/service_del", admin_service_del)
     app.router.add_get("/api/admin/plans", admin_plans)
     app.router.add_post("/api/admin/plan", admin_plan_save)
     app.router.add_post("/api/admin/plan_add", admin_plan_add)
@@ -2385,6 +2430,111 @@ CUSTOM_PLANS_FILE = "custom_plans.json"
 
 def load_custom_plans(): return _load(CUSTOM_PLANS_FILE)
 def save_custom_plans(d): _save(CUSTOM_PLANS_FILE, d)
+
+# ─── کاتالوگ خدمات و مهارت‌ها ────────────────────────────────────────
+SERVICES_FILE = "services.json"
+SVC_GROUPS = [("bot", "ربات و اتوماسیون", "🤖"),
+              ("web", "وب و زیرساخت", "🌐"),
+              ("design", "طراحی و محتوا", "🎨")]
+
+SERVICES_DEFAULT = [
+    {"key": "s001", "group": "bot", "icon": "🤖", "title": "ربات تلگرام سفارشی",
+     "desc": "پرداخت آنلاین، پنل ادمین، لاگ سفارشات و تیکت", "price_int": 1500000, "active": True},
+    {"key": "s002", "group": "bot", "icon": "🤖", "title": "مینی‌اپ تلگرام",
+     "desc": "فروشگاه و پنل کاربری داخل تلگرام — مثل همین اپ", "price_int": 2500000, "active": True},
+    {"key": "s003", "group": "bot", "icon": "🤖", "title": "اتوماسیون و اسکریپت",
+     "desc": "هر کار تکراری رو خودکار میکنم؛ بکاپ و API", "price_int": 600000, "active": True},
+    {"key": "s004", "group": "web", "icon": "🌐", "title": "وب‌سایت و لندینگ",
+     "desc": "فروشگاهی، شرکتی یا لندینگ — واکنش‌گرا و سریع", "price_int": 1000000, "active": True},
+    {"key": "s005", "group": "web", "icon": "🌐", "title": "پنل VPN و سرور",
+     "desc": "راه‌اندازی BPB و x-ui، اتصال دامنه، اکانت‌سازی", "price_int": 800000, "active": True},
+    {"key": "s006", "group": "design", "icon": "🎨", "title": "طراحی UI و گرافیک",
+     "desc": "لوگو، بنر و رابط کاربری اپ و سایت", "price_int": 500000, "active": True},
+    {"key": "s007", "group": "design", "icon": "🎨", "title": "تولید محتوای AI",
+     "desc": "عکس و ویدیو با هوش مصنوعی، تدوین کلیپ", "price_int": 300000, "active": True},
+    {"key": "s008", "group": "design", "icon": "🎨", "title": "ادمین و مدیریت کانال",
+     "desc": "محتوا، رشد و پشتیبانی روزانهٔ کسب‌وکارت", "price_int": 700000, "active": True},
+]
+
+def load_services():
+    """کاتالوگ خدمات — از KV برمی‌گرده؛ خالی بود = لیست پیش‌فرض."""
+    d = _load(SERVICES_FILE)
+    items = d.get("items") if isinstance(d, dict) else d
+    if isinstance(items, list):
+        items = [x for x in items if isinstance(x, dict) and str(x.get("title", "")).strip()]
+        if items:
+            return items
+    return json.loads(json.dumps(SERVICES_DEFAULT, ensure_ascii=False))
+
+def save_services(items): _save(SERVICES_FILE, {"items": items})
+
+def _svc_esc(s):
+    return str(s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+async def api_services(request):
+    """عمومی — مینی‌اپ و ربات کاتالوگ خدمات رو از همین‌جا می‌گیرن"""
+    try:
+        items = [x for x in load_services() if x.get("active", True)]
+    except Exception as e:
+        logger.error(f"api_services: {e}")
+        items = []
+    return web.json_response({
+        "ok": True,
+        "groups": [{"key": k, "name": n, "icon": i} for k, n, i in SVC_GROUPS],
+        "items": [{"key": x.get("key"), "group": x.get("group", "bot"), "icon": x.get("icon", ""),
+                   "title": x.get("title", ""), "desc": x.get("desc", ""),
+                   "price_int": int(x.get("price_int") or 0)} for x in items]})
+
+async def admin_services(request):
+    err = _denied(request)
+    if err: return err
+    return web.json_response({"services": load_services()})
+
+async def admin_service_save(request):
+    """افزودن (بدون key) یا ویرایش (با key) — فقط فرستاده‌شده‌ها عوض میشن"""
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    items = load_services()
+    key = str(data.get("key", "") or "").strip()
+    hit = None
+    for x in items:
+        if str(x.get("key", "")) == key:
+            hit = x; break
+    if hit is None:
+        title = str(data.get("title", "") or "").strip()[:80]
+        if not title:
+            return web.json_response({"error": "عنوان خدمت خالیه"}, status=400)
+        hit = {"key": "s" + _secrets.token_hex(3), "ts": int(time.time()),
+               "group": "bot", "icon": "🛠️", "title": title, "desc": "", "price_int": 0, "active": True}
+        items.append(hit)
+    if data.get("title") is not None:
+        t = str(data.get("title") or "").strip()[:80]
+        if t: hit["title"] = t
+    if data.get("desc") is not None: hit["desc"] = str(data.get("desc") or "")[:200]
+    if data.get("icon") is not None: hit["icon"] = str(data.get("icon") or "").strip()[:30] or "🛠️"
+    if data.get("group") is not None:
+        g = str(data.get("group") or "").strip()
+        if g in [x[0] for x in SVC_GROUPS]: hit["group"] = g
+    if "price_int" in data:
+        try: hit["price_int"] = max(0, int(data.get("price_int") or 0))
+        except Exception: pass
+    if "active" in data: hit["active"] = bool(data.get("active"))
+    save_services(items)
+    return web.json_response({"ok": True, "key": hit.get("key"), "services": items})
+
+async def admin_service_del(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    key = str(data.get("key", "") or "").strip()
+    items = load_services()
+    out = [x for x in items if str(x.get("key", "")) != key]
+    if len(out) == len(items):
+        return web.json_response({"error": "خدمت پیدا نشد"}, status=404)
+    save_services(out)
+    return web.json_response({"ok": True, "services": out})
+
 
 _CUSTOM_ADDED = set()   # (kind, key) که از استور سفارشی تزریق شده
 
@@ -3300,6 +3450,8 @@ def main():
 
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("services", services_menu))
+    app.add_handler(CallbackQueryHandler(services_menu, pattern="^services_menu$"))
     app.add_handler(CallbackQueryHandler(check_member, pattern="^check_member$"))
     app.add_handler(CallbackQueryHandler(buy_config, pattern="^buy_config$"))
     app.add_handler(CallbackQueryHandler(select_config, pattern="^config_"))

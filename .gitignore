@@ -14,3 +14,9 @@ plan_overrides.json
 
 __pycache__/
 *.pyc
+announcement.json
+faq.json
+daily_report_state.json
+services.json
+tickets.json
+bot_ui.json
