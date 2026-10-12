@@ -450,6 +450,30 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
 #sec-services .supp button{width:100%;padding:13px;border:none;border-radius:14px;cursor:pointer;
   font-family:inherit;font-size:13.5px;font-weight:800;color:#fff;
   background:linear-gradient(135deg,#3d7bff,#6aa1ff);box-shadow:0 8px 20px rgba(61,123,255,.35)}
+/* ── بخش نمونه‌کارها ── */
+#sec-portfolio .pfgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#sec-portfolio .pf{background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(124,58,237,.09));
+  border:1px solid var(--stroke);border-radius:16px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,.28);
+  display:flex;flex-direction:column}
+#sec-portfolio .pfimg{width:100%;height:84px;object-fit:cover;border-radius:11px;margin-bottom:9px;
+  background:rgba(255,255,255,.05);display:block}
+#sec-portfolio .pfemoji{width:44px;height:44px;border-radius:13px;background:rgba(124,58,237,.18);
+  display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:9px}
+#sec-portfolio .pft{font-size:12.5px;font-weight:800;line-height:1.8}
+#sec-portfolio .pfd{font-size:10.5px;color:var(--dim);line-height:2;margin-top:5px;flex:1}
+#sec-portfolio .pftag{display:inline-block;align-self:flex-start;font-size:9.5px;font-weight:800;color:#fbbf24;
+  background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:3px 8px;margin-top:9px}
+#sec-portfolio .pflink{display:block;text-align:center;margin-top:9px;padding:9px;border-radius:11px;
+  background:rgba(61,123,255,.16);border:1px solid rgba(61,123,255,.32);color:#9dbaff;
+  font-size:11px;font-weight:800;text-decoration:none}
+#sec-portfolio .pfempty{text-align:center;color:var(--dim);font-size:12px;line-height:2.2;padding:16px 4px}
+#sec-portfolio .supp{background:linear-gradient(150deg,rgba(255,255,255,.08),rgba(124,58,237,.09));
+  border:1px solid var(--stroke);border-radius:18px;padding:16px 14px;margin-top:18px;text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.3)}
+#sec-portfolio .supp .sbx{font-size:11.5px;color:var(--dim);line-height:2.1;margin-bottom:12px}
+#sec-portfolio .supp button{width:100%;padding:13px;border:none;border-radius:14px;cursor:pointer;
+  font-family:inherit;font-size:13.5px;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#3d7bff,#6aa1ff);box-shadow:0 8px 20px rgba(61,123,255,.35)}
 </style>
 </head>
 <body>
@@ -499,7 +523,7 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
 <div class="mi" onclick="showSection('music')"><div class="ic">🎵</div><div class="tx"><div class="ti">مدیا و سرگرمی</div><div class="sb">Spotify، Deezer و YouTube</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('ai')"><div class="ic">🤖</div><div class="tx"><div class="ti">هوش مصنوعی</div><div class="sb">ChatGPT، Grok و Gemini</div></div><div class="aw">‹</div></div>
                                 <div class="mi" onclick="showSection('wallet')"><div class="ic">💰</div><div class="tx"><div class="ti">کیف پول</div><div class="sb">موجودی و تراکنش‌ها</div></div><div class="aw">‹</div></div>
-                <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">رفرال و کش‌بک</div><div class="sb">دعوت دوستان • ۵٪ از خریدشون</div></div><div class="aw">‹</div></div><div class="mi" onclick="showSection('services')"><div class="ic">🛠️</div><div class="tx"><div class="ti">خدمات و مهارت‌ها</div><div class="sb">چه کارهایی بلدم • قیمت و پشتیبانی</div></div><div class="aw">‹</div></div>
+                <div class="mi" onclick="showSection('referral')"><div class="ic">🎁</div><div class="tx"><div class="ti">رفرال و کش‌بک</div><div class="sb">دعوت دوستان • ۵٪ از خریدشون</div></div><div class="aw">‹</div></div><div class="mi" onclick="showSection('services')"><div class="ic">🛠️</div><div class="tx"><div class="ti">خدمات و مهارت‌ها</div><div class="sb">چه کارهایی بلدم • قیمت و پشتیبانی</div></div><div class="aw">‹</div></div><div class="mi" onclick="showSection('portfolio')"><div class="ic">🖼️</div><div class="tx"><div class="ti">نمونه‌کارها</div><div class="sb">کارهای انجام‌شده و تحویل‌شده</div></div><div class="aw">‹</div></div>
                 <div class="mi" onclick="showSection('panel')"><div class="ic">👤</div><div class="tx"><div class="ti">پنل کاربری</div><div class="sb">اطلاعات و اشتراک‌ها</div></div><div class="aw">‹</div></div>
                 </div>
             </div>
@@ -664,9 +688,8 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
                 <div class="mi" onclick="openTicket('ربات تلگرام سفارشی')"><div class="ic">🤖</div><div class="tx"><div class="ti">ربات تلگرام سفارشی</div><div class="sb">پرداخت آنلاین، پنل ادمین، لاگ سفارشات و تیکت</div></div><div class="sp">از ۱,۵۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
                 <div class="mi" onclick="openTicket('مینی‌اپ تلگرام')"><div class="ic">🤖</div><div class="tx"><div class="ti">مینی‌اپ تلگرام</div><div class="sb">فروشگاه و پنل کاربری داخل تلگرام — مثل همین اپ</div></div><div class="sp">از ۲,۵۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
                 <div class="mi" onclick="openTicket('اتوماسیون و اسکریپت')"><div class="ic">🤖</div><div class="tx"><div class="ti">اتوماسیون و اسکریپت</div><div class="sb">هر کار تکراری رو خودکار میکنم؛ بکاپ و API</div></div><div class="sp">از ۶۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
-                <div class="sgrp">🌐 وب و زیرساخت <i>2 خدمت</i></div>
+                <div class="sgrp">🌐 وب و زیرساخت <i>1 خدمت</i></div>
                 <div class="mi" onclick="openTicket('وب‌سایت و لندینگ')"><div class="ic">🌐</div><div class="tx"><div class="ti">وب‌سایت و لندینگ</div><div class="sb">فروشگاهی، شرکتی یا لندینگ — واکنش‌گرا و سریع</div></div><div class="sp">از ۱,۰۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
-                <div class="mi" onclick="openTicket('پنل VPN و سرور')"><div class="ic">🌐</div><div class="tx"><div class="ti">پنل VPN و سرور</div><div class="sb">راه‌اندازی BPB و x-ui، اتصال دامنه، اکانت‌سازی</div></div><div class="sp">از ۸۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
                 <div class="sgrp">🎨 طراحی و محتوا <i>3 خدمت</i></div>
                 <div class="mi" onclick="openTicket('طراحی UI و گرافیک')"><div class="ic">🎨</div><div class="tx"><div class="ti">طراحی UI و گرافیک</div><div class="sb">لوگو، بنر و رابط کاربری اپ و سایت</div></div><div class="sp">از ۵۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
                 <div class="mi" onclick="openTicket('تولید محتوای AI')"><div class="ic">🎨</div><div class="tx"><div class="ti">تولید محتوای AI</div><div class="sb">عکس و ویدیو با هوش مصنوعی، تدوین کلیپ</div></div><div class="sp">از ۳۰۰,۰۰۰</div><div class="aw sway">‹</div></div>
@@ -677,6 +700,24 @@ body.light .hdrProf{color:#1a102a;border-color:rgba(124,58,237,.25)}
                     <div class="sbx">تیکت بزن تا کمتر از ۱۰ دقیقه جواب بدم؛<br>پشتیبانی: هر روز ۱۴ تا ۲۲</div>
                     <button onclick="openTicket()">📨 ثبت تیکت پشتیبانی</button>
                 </div>
+            </div>
+<div class="sec" id="sec-portfolio">
+                <div class="st">🖼️ نمونه‌کارها</div>
+                <div class="gl" style="padding:13px 14px;margin-bottom:10px">
+                    <div style="font-size:12px;line-height:2.15;color:var(--dim2)">
+                        نمونه‌کارهایی که تا حالا تحویل دادم. هر کدوم رو بخوای بیشتر بدونی
+                        یا سفارش مشابهش رو بدی، توی تیکت بگو تا هماهنگ کنیم.
+                    </div>
+                </div>
+                <div id="pfList" class="pfgrid">
+                    <div class="pfempty" style="grid-column:1/-1">⏳ در حال بارگذاری نمونه‌کارها…</div>
+                </div>
+                <div class="supp" style="margin-top:16px">
+                    <div style="font-size:14.5px;font-weight:800;margin-bottom:7px">📨 سفارش مشابه داری؟</div>
+                    <div class="sbx">بگو کدوم کار رو میخوای؛ قیمت و زمان تحویل رو میگم.</div>
+                    <button onclick="openTicket('سفارش نمونه‌کار')">ثبت تیکت سفارش</button>
+                </div>
+                <button class="bk" onclick="showSection('services')">← بازگشت به خدمات</button>
             </div>
 <div class="sec" id="sec-panel">
                 <div class="st">👤 پنل کاربری</div>
@@ -951,7 +992,7 @@ function _applySection(name) {
     if(name === 'games'){ try{ gtaSheetInit(); }catch(e){} }
     var target = document.getElementById('sec-' + name);
     if (target) target.className = 'sec act';
-    var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home', services:'home'})[name] || (name === 'pdp' ? ((PDP_ITEMS[PDP_KEY] || {}).nav || 'home') : name);
+    var navKey = ({gtavi:'home', games:'home', wallet:'home', referral:'home', services:'home', portfolio:'home'})[name] || (name === 'pdp' ? ((PDP_ITEMS[PDP_KEY] || {}).nav || 'home') : name);
     var navs = document.querySelectorAll('.nv');
     for (var j = 0; j < navs.length; j++) navs[j].className = 'nv';
     var nav = document.querySelector('.nv[data-n="' + navKey + '"]');
@@ -1940,7 +1981,7 @@ try {
     }
 } catch(e){}
 var ADM_TAB = 'stats';
-var ADM_TABS = [['stats','📊 آمار'],['requests','📥 درخواست‌ها'],['users','👥 کاربران'],['orders','📦 سفارش‌ها'],['plans','📦 پلن‌ها'],['services','🛠️ خدمات'],['discounts','🎟️ تخفیف'],['broadcast','📢 پیام'],['tickets','🎫 تیکت‌ها'],['faq','❓ سوالات'],['announce','🔔 نوت و تایمر'],['ui','🎨 ظاهر']];
+var ADM_TABS = [['stats','📊 آمار'],['requests','📥 درخواست‌ها'],['users','👥 کاربران'],['orders','📦 سفارش‌ها'],['plans','📦 پلن‌ها'],['services','🛠️ خدمات'],['portfolio','🖼️ نمونه‌کارها'],['discounts','🎟️ تخفیف'],['broadcast','📢 پیام'],['tickets','🎫 تیکت‌ها'],['faq','❓ سوالات'],['announce','🔔 نوت و تایمر'],['ui','🎨 ظاهر']];
 function admBox(){ return document.getElementById('admBody'); }
 function admH(){ return {'Content-Type':'application/json','X-Admin-Token':ADM_TOK}; }
 function admFetch(path, opts){
@@ -2390,6 +2431,69 @@ function admSvcDel(key){
         showToast('🗑 خدمت حذف شد'); admServices(); _svcRefresh();
     }).catch(function(){ showToast('❌ خطا در اتصال'); });
 }
+// ─── نمونه‌کارها (پنل ادمین) ───
+function _pfRefresh(){ try{ if(typeof PF_ITEMS !== 'undefined') PF_ITEMS = null; }catch(e){} if(typeof loadPortfolio === 'function') loadPortfolio(true); }
+function admPortfolio(){
+    admFetch('/api/admin/portfolios').then(function(d){
+        var list = d.items || [];
+        var inp = 'box-sizing:border-box;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:12px';
+        var h = '<div class="gl" style="padding:16px;margin-bottom:12px"><div class="st">🖼️ مدیریت نمونه‌کارها</div>';
+        h += '<div style="font-size:11px;color:var(--dim);line-height:2;margin-bottom:10px">«ایموجی یا لینک عکس»: اگه لینک عکس (png/jpg/svg) بدی، عکس روش کارت نشون داده میشه؛ ایموجی بدی آیکون میشه. «لینک اختیاری» فقط با http/https باز میشه. ⛔ یعنی مخفی از چشم مشتری.</div>';
+        if(!list.length) h += '<div style="font-size:12px;color:var(--dim)">هنوز نمونه‌کاری ثبت نشده — از فرم پایین اضافه کن.</div>';
+        for(var i = 0; i < list.length; i++){
+            var s = list[i], k = s.key;
+            h += '<div style="display:flex;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap">'
+              + '<input id="pt_' + k + '" value="' + escH(s.title || '') + '" placeholder="عنوان" style="flex:1;min-width:130px;' + inp + '">'
+              + '<input id="pg_' + k + '" value="' + escH(s.tag || '') + '" placeholder="دسته" style="width:96px;' + inp + '">'
+              + '<input id="pi_' + k + '" value="' + escH(s.icon || '') + '" placeholder="ایموجی یا لینک عکس" style="flex:1;min-width:120px;' + inp + '">'
+              + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="ذخیره" onclick="admPfSave(\'' + k + '\', false)">💾</button>'
+              + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="' + (s.active === false ? 'نمایش دادن' : 'مخفی کردن') + '" onclick="admPfSave(\'' + k + '\', ' + (s.active === false ? 'true' : 'false') + ')">' + (s.active === false ? '⛔' : '✅') + '</button>'
+              + '<button class="bk" style="padding:7px 9px;font-size:11px;cursor:pointer" title="حذف" onclick="admPfDel(\'' + k + '\')">🗑</button>'
+              + '<input id="pd_' + k + '" value="' + escH(s.desc || '') + '" placeholder="توضیح" style="flex:1 1 60%;min-width:0;' + inp + '">'
+              + '<input id="pl_' + k + '" value="' + escH(s.link || '') + '" placeholder="لینک اختیاری (http…)" style="flex:1 1 35%;min-width:0;' + inp + '">'
+              + '</div>';
+        }
+        h += '<div style="display:flex;gap:6px;align-items:center;padding:11px 0 2px;flex-wrap:wrap;border-top:1px dashed rgba(255,255,255,.14);margin-top:10px">'
+          + '<input id="pvT" placeholder="عنوان نمونه‌کار جدید" style="flex:1;min-width:140px;' + inp + '">'
+          + '<input id="pvG" placeholder="دسته" style="width:96px;' + inp + '">'
+          + '<input id="pvI" placeholder="ایموجی یا لینک عکس" value="🖼️" style="flex:1;min-width:120px;' + inp + '">'
+          + '<input id="pvD" placeholder="توضیح" style="flex:1 1 60%;min-width:0;' + inp + '">'
+          + '<input id="pvL" placeholder="لینک اختیاری (http…)" style="flex:1 1 35%;min-width:0;' + inp + '">'
+          + '<button class="bk" style="padding:8px 12px;font-size:11px;cursor:pointer" onclick="admPfAdd()">➕ افزودن نمونه‌کار</button>'
+          + '</div></div>';
+        var b = admBox(); if(b) b.innerHTML = h;
+    }).catch(function(){ showToast('❌ خطا در دریافت نمونه‌کارها'); });
+}
+function _pfVal(id){ var e = document.getElementById(id); return e ? String(e.value || '').trim() : ''; }
+function admPfSave(key, active){
+    var body = {key: key, title: _pfVal('pt_' + key), desc: _pfVal('pd_' + key), icon: _pfVal('pi_' + key),
+                tag: _pfVal('pg_' + key), link: _pfVal('pl_' + key)};
+    if(active !== false) body.active = (active === true);
+    if(!body.title){ showToast('عنوان نمونه‌کار رو وارد کن'); return; }
+    admFetch('/api/admin/portfolio', {method:'POST', body:JSON.stringify(body)})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ ذخیره شد'); admPortfolio(); _pfRefresh();
+    }).catch(function(){ showToast('❌ خطا در اتصال'); });
+}
+function admPfAdd(){
+    var body = {title: _pfVal('pvT'), desc: _pfVal('pvD'), icon: _pfVal('pvI'),
+                tag: _pfVal('pvG'), link: _pfVal('pvL'), active: true};
+    if(!body.title){ showToast('عنوان نمونه‌کار رو وارد کن'); return; }
+    admFetch('/api/admin/portfolio', {method:'POST', body:JSON.stringify(body)})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('✅ نمونه‌کار اضافه شد'); admPortfolio(); _pfRefresh();
+    }).catch(function(){ showToast('❌ خطا در اتصال'); });
+}
+function admPfDel(key){
+    if(!confirm('این نمونه‌کار حذف شود؟')) return;
+    admFetch('/api/admin/portfolio_del', {method:'POST', body:JSON.stringify({key: key})})
+    .then(function(d){
+        if(d.error){ showToast('❌ ' + d.error); return; }
+        showToast('🗑 حذف شد'); admPortfolio(); _pfRefresh();
+    }).catch(function(){ showToast('❌ خطا در اتصال'); });
+}
 function admShow(tab){ ADM_TAB = tab; admRender(); }
 function admLoad(){
     var b = admBox(); if(!b) return;
@@ -2400,6 +2504,7 @@ function admLoad(){
     else if(ADM_TAB==='orders') admOrders();
     else if(ADM_TAB==='plans') admPlans();
     else if(ADM_TAB==='services') admServices();
+    else if(ADM_TAB==='portfolio') admPortfolio();
     else if(ADM_TAB==='discounts') admDiscounts();
     else if(ADM_TAB==='faq') admFaq();
     else if(ADM_TAB==='broadcast') admBroadcastUI();
@@ -3754,6 +3859,39 @@ function loadServices(force){
         }).catch(function(){});
 }
 loadServices();
+</script>
+<script>
+/* ── نمونه‌کارها: از /api/portfolio میاد ── */
+var PF_ITEMS = null;
+function pfIsImg(v){ return /^(https?:)?\/\//i.test(v) || /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(v); }
+function pfCardHTML(s){
+    var img = String(s.icon || '');
+    var media = pfIsImg(img) ? ('<img class="pfimg" src="' + escH(img) + '" alt="" loading="lazy">')
+                             : ('<div class="pfemoji">' + escH(img || '🖼️') + '</div>');
+    var lk = String(s.link || '');
+    var link = /^https?:\/\//i.test(lk) ? ('<a class="pflink" href="' + escH(lk) + '" target="_blank" rel="noopener">مشاهده ↗</a>') : '';
+    return '<div class="pf">' + media
+         + '<div class="pft">' + escH(s.title) + '</div>'
+         + (s.desc ? '<div class="pfd">' + escH(s.desc) + '</div>' : '')
+         + (s.tag ? '<div class="pftag">' + escH(s.tag) + '</div>' : '')
+         + link + '</div>';
+}
+function renderPortfolio(){
+    var box = document.getElementById('pfList');
+    if(!box || !PF_ITEMS) return;
+    if(!PF_ITEMS.length){ box.innerHTML = '<div class="pfempty" style="grid-column:1/-1">هنوز نمونه‌کاری ثبت نشده.</div>'; return; }
+    var h = '';
+    for(var i = 0; i < PF_ITEMS.length; i++) h += pfCardHTML(PF_ITEMS[i]);
+    box.innerHTML = h;
+}
+function loadPortfolio(force){
+    if(PF_ITEMS && !force) return Promise.resolve();
+    return fetch(API + '/api/portfolio', {cache:'no-store'})
+        .then(function(r){ return r.json(); })
+        .then(function(d){ if(!d || !d.ok) return; PF_ITEMS = d.items || []; renderPortfolio(); })
+        .catch(function(){});
+}
+loadPortfolio();
 </script>
 </body>
 </html>

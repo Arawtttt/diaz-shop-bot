@@ -482,7 +482,7 @@ def _kv_files():
     return [PENDING_FILE, WALLET_FILE, CONFIGS_FILE, REFERRALS_FILE,
             ACCOUNTS_FILE, ORDERS_FILE, DISCOUNTS_FILE,
             PLAN_OVERRIDES_FILE, CUSTOM_PLANS_FILE, RECEIPTS_FILE, USERS_FILE, ADMINS_FILE,
-            ANNOUNCE_FILE, TICKETS_FILE, FAQ_FILE, UI_FILE, SERVICES_FILE]
+            ANNOUNCE_FILE, TICKETS_FILE, FAQ_FILE, UI_FILE, SERVICES_FILE, PORTFOLIO_FILE]
 
 def _kv_key(fn):
     return _KV_PREFIX + Path(str(fn)).name.replace(".json", "").replace("-", "_").lower()
@@ -934,6 +934,8 @@ async def services_menu(update, context):
         kb = InlineKeyboardMarkup([
             [InlineKeyboardButton("🛠️ سفارش در مینی‌اپ",
                                   web_app=WebAppInfo(url=f"{SHOP_ORIGIN}/?uid={uid}&sec=services&t={int(time.time())}"))],
+            [InlineKeyboardButton("🖼️ نمونه‌کارها",
+                                  web_app=WebAppInfo(url=f"{SHOP_ORIGIN}/?uid={uid}&sec=portfolio&t={int(time.time())}"))],
             [InlineKeyboardButton("🎫 پشتیبانی", web_app=WebAppInfo(url=support_url(uid)))],
             [InlineKeyboardButton("🏠 منوی اصلی", callback_data="back_main")],
         ])
@@ -1920,7 +1922,7 @@ async def api_debug_channel(request):
 
 _status_cache = {"ts": 0, "ok": False, "ms": 0}
 
-BUILD_TAG = "2026-10-12-services"   # تگ نسخهٔ دیپلوی — از /api/status خوانده میشه
+BUILD_TAG = "2026-10-12-portfolio"   # تگ نسخهٔ دیپلوی — از /api/status خوانده میشه
 
 async def api_status(request):
     if time.time() - _status_cache["ts"] > 60:
@@ -2389,6 +2391,10 @@ def create_web_app():
     app.router.add_get("/api/admin/services", admin_services)
     app.router.add_post("/api/admin/service", admin_service_save)
     app.router.add_post("/api/admin/service_del", admin_service_del)
+    app.router.add_get("/api/portfolio", api_portfolio)
+    app.router.add_get("/api/admin/portfolios", admin_portfolios)
+    app.router.add_post("/api/admin/portfolio", admin_portfolio_save)
+    app.router.add_post("/api/admin/portfolio_del", admin_portfolio_del)
     app.router.add_get("/api/admin/plans", admin_plans)
     app.router.add_post("/api/admin/plan", admin_plan_save)
     app.router.add_post("/api/admin/plan_add", admin_plan_add)
@@ -2446,8 +2452,6 @@ SERVICES_DEFAULT = [
      "desc": "هر کار تکراری رو خودکار میکنم؛ بکاپ و API", "price_int": 600000, "active": True},
     {"key": "s004", "group": "web", "icon": "🌐", "title": "وب‌سایت و لندینگ",
      "desc": "فروشگاهی، شرکتی یا لندینگ — واکنش‌گرا و سریع", "price_int": 1000000, "active": True},
-    {"key": "s005", "group": "web", "icon": "🌐", "title": "پنل VPN و سرور",
-     "desc": "راه‌اندازی BPB و x-ui، اتصال دامنه، اکانت‌سازی", "price_int": 800000, "active": True},
     {"key": "s006", "group": "design", "icon": "🎨", "title": "طراحی UI و گرافیک",
      "desc": "لوگو، بنر و رابط کاربری اپ و سایت", "price_int": 500000, "active": True},
     {"key": "s007", "group": "design", "icon": "🎨", "title": "تولید محتوای AI",
@@ -2470,6 +2474,102 @@ def save_services(items): _save(SERVICES_FILE, {"items": items})
 
 def _svc_esc(s):
     return str(s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+# ─── نمونه‌کارها (پورتفولیو) ──────────────────────────────────────────
+PORTFOLIO_FILE = "portfolio.json"
+
+PORTFOLIO_DEFAULT = [
+    {"key": "p1", "icon": "🛍️", "title": "دیاز شاپ — فروشگاه تلگرامی",
+     "desc": "مینی‌اپ، پرداخت آنلاین، کیف پول، رفرال و پنل ادمین؛ همین اپی که توشی.",
+     "tag": "مینی‌اپ و فروشگاه", "link": "", "active": True},
+    {"key": "p2", "icon": "🎫", "title": "ربات پشتیبانی و تیکت",
+     "desc": "گفتگوی دونفره با ادمین، تایید فاکتور، اعلان انقضای اشتراک و گزارش روزانه.",
+     "tag": "ربات تلگرام", "link": "", "active": True},
+    {"key": "p3", "icon": "🦍", "title": "ربات سفارشی برای مشتری",
+     "desc": "ربات فروش ظرفیت با پنل ادمین، تیکت و مدیریت سفارش‌ها — تحویل کامل.",
+     "tag": "ربات سفارشی", "link": "", "active": True},
+    {"key": "p4", "icon": "⚙️", "title": "اتوماسیون و بکاپ خودکار",
+     "desc": "اسکریپت بکاپ شبانه، مانیتورینگ سرویس‌ها و گزارش خودکار روزانه.",
+     "tag": "اتوماسیون", "link": "", "active": True},
+    {"key": "p5", "icon": "📊", "title": "پنل مدیریت فروش",
+     "desc": "آمار فروش و درآمد، کد تخفیف، پیام همگانی و مدیریت کاربران.",
+     "tag": "پنل ادمین", "link": "", "active": True},
+]
+
+def load_portfolio():
+    """نمونه‌کارها — از KV برمی‌گرده؛ خالی بود = لیست پیش‌فرض."""
+    d = _load(PORTFOLIO_FILE)
+    items = d.get("items") if isinstance(d, dict) else d
+    if isinstance(items, list):
+        items = [x for x in items if isinstance(x, dict) and str(x.get("title", "")).strip()]
+        if items:
+            return items
+    return json.loads(json.dumps(PORTFOLIO_DEFAULT, ensure_ascii=False))
+
+def save_portfolio(items): _save(PORTFOLIO_FILE, {"items": items})
+
+async def api_portfolio(request):
+    """عمومی — نمونه‌کارهای فعال"""
+    try:
+        items = [x for x in load_portfolio() if x.get("active", True)]
+    except Exception as e:
+        logger.error(f"api_portfolio: {e}")
+        items = []
+    return web.json_response({"ok": True, "items": [
+        {"key": x.get("key"), "icon": x.get("icon", ""), "title": x.get("title", ""),
+         "desc": x.get("desc", ""), "tag": x.get("tag", ""),
+         "link": x.get("link", "")} for x in items]})
+
+async def admin_portfolios(request):
+    err = _denied(request)
+    if err: return err
+    return web.json_response({"items": load_portfolio()})
+
+async def admin_portfolio_save(request):
+    """افزودن (بدون key) یا ویرایش (با key) نمونه‌کار"""
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    items = load_portfolio()
+    key = str(data.get("key", "") or "").strip()
+    hit = None
+    for x in items:
+        if str(x.get("key", "")) == key:
+            hit = x; break
+    if hit is None:
+        title = str(data.get("title", "") or "").strip()[:80]
+        if not title:
+            return web.json_response({"error": "عنوان نمونه‌کار خالیه"}, status=400)
+        hit = {"key": "p" + _secrets.token_hex(3), "ts": int(time.time()),
+               "icon": "🖼️", "title": title, "desc": "", "tag": "", "link": "", "active": True}
+        items.append(hit)
+    if data.get("title") is not None:
+        t = str(data.get("title") or "").strip()[:80]
+        if t: hit["title"] = t
+    if data.get("desc") is not None: hit["desc"] = str(data.get("desc") or "")[:300]
+    if data.get("icon") is not None: hit["icon"] = str(data.get("icon") or "").strip()[:300] or "🖼️"
+    if data.get("tag") is not None: hit["tag"] = str(data.get("tag") or "").strip()[:40]
+    if data.get("link") is not None:
+        lk = str(data.get("link") or "").strip()[:300]
+        if lk and not lk.startswith(("http://", "https://")):
+            lk = ""
+        hit["link"] = lk
+    if "active" in data: hit["active"] = bool(data.get("active"))
+    save_portfolio(items)
+    return web.json_response({"ok": True, "key": hit.get("key"), "items": items})
+
+async def admin_portfolio_del(request):
+    err = _denied(request)
+    if err: return err
+    data = await request.json()
+    key = str(data.get("key", "") or "").strip()
+    items = load_portfolio()
+    rest = [x for x in items if str(x.get("key", "")) != key]
+    if len(rest) == len(items):
+        return web.json_response({"error": "نمونه‌کار پیدا نشد"}, status=404)
+    save_portfolio(rest)
+    return web.json_response({"ok": True, "items": rest})
 
 async def api_services(request):
     """عمومی — مینی‌اپ و ربات کاتالوگ خدمات رو از همین‌جا می‌گیرن"""
